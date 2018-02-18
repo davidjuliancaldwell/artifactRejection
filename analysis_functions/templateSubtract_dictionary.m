@@ -61,6 +61,7 @@ goods = logical(goods);
 
 [~,goodVec] = find(goods'>0);
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%        
 
 %% preprocess eco
 presamps = round(pre/1e3 * fs); % pre time in sec
@@ -170,6 +171,8 @@ for trial = 1:size(raw_sig,3)
     
 end
 fprintf(['-------Finished getting artifacts-------- \n'])
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%        
 %% build up dictionary
 
 templateArray_cell = {};
@@ -248,7 +251,6 @@ switch type
         
         fprintf(['-------Finished clustering artifacts-------- \n'])
         
-        %%
         % now do the template subtraction
         for trial = 1:size(raw_sig,3)
             
@@ -333,6 +335,55 @@ switch type
             end
         end
         
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%        
+    case 'trial'
+        for trial = 1:size(raw_sig,3)
+            
+            for chan = goodVec
+                templateArray = [];
+                raw_sig_temp = raw_sig(:,chan,trial);
+                artifacts = template{chan}{trial};
+                
+                
+                foo = mean(artifacts,2);
+                %         last = find(abs(zscore(foo))>1,1,'last');
+                %         last2 = find(abs(diff(foo))>20e-6,1,'last')+1;
+                %         last3 = find(abs(diff(foo))>20e-6,1,'last')+1;
+                %
+                %         x = [last2:length(foo)]';
+                %         y = foo(x);
+                %         [f2,gof,output] = fit(x,y,'exp2');
+                %         func_fit = @(x) f2.a*exp(f2.b*x) + f2.c*exp(f2.d*x);
+                %
+                %         if gof.adjrsquare>0.9
+                %             foo(x) = func_fit(x);
+                %         end
+                %
+                %         if plotIt
+                %             figure
+                %             plot(foo)
+                %             vline(last2)
+                %             vline(last3,'g')
+                %
+                %             figure
+                %             plot(foo)
+                %             hold on
+                %             plot(x,y,'linewidth',2)
+                %         end
+                %
+                for sts = 1:length(start_inds{trial})
+                    win = start_inds{trial}(sts):start_inds{trial}(sts)+default_time_average-1;
+                    extracted_sig = raw_sig_temp(win);
+                    
+                    raw_sig_temp(win) = raw_sig_temp(win) - foo;
+                    
+                end
+                
+                processedSig(:,chan,trial) = raw_sig_temp;         
+            end
+        end
+             
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%        
     case 'average'
         for chan = goodVec
             templateArray = [];

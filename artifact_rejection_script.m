@@ -1,41 +1,33 @@
+% DJC - This is a script to demonstrate different stimulation artifact
+% approaches to extract neural signals of interest.
+
+% clear the workspace
 close all;clear all;clc
 
-%load('2fd831_exampData_400ms.mat')
-%load('693ffd_exampData_800ms.mat')
-load('50ad9_paramSweep4.mat')
-%load('ecb43e_RHI_async_trial14.mat')
-%load('3f2113_stim_12_52.mat')
+% load in the data file of interest
+dataChoice = 1;
 
-%%
-bads = [];
-badTotal = [stimChans; bads];
-
-% total channels
-numChans = size(dataInt,2);
-% make logical good channels matrix to index
-goods = zeros(numChans,1);
-
-channelsOfInt = 1:numChans;
-
-goods(channelsOfInt) = 1;
-% set the goods matrix to be zero where bad channels are
-goods(badTotal) = 0;
-% make it logical
-goods = logical(goods);
-
-%raw_sig = raw_sig(:,goods,:);
-
-[~,goodVec] = find(goods'>0);
-
-%t_epoch = [0:size(dataInt,1)-1]/fs_data;
-
-
+switch dataChoice
+    case 1
+        load('2fd831_exampData_400ms.mat') % response timing data set
+    case 2
+        load('693ffd_exampData_800ms.mat') % response timing data set
+    case 3
+        load('50ad9_paramSweep4.mat') % DBS data set
+    case 4
+        load('ecb43e_RHI_async_trial14.mat') % rubber hand illusion data set
+    case 5
+        load('3f2113_stim_12_52.mat') % stimulation spacing data set
+end
 
 %% 1/22/2018 - template subtraction
 pre = 0.9; % started with 0.7
 post = 1.8; % started with 0.7, then 1.1, then 1.5, then 1.8
 [processedSig,templateDict_cell,template,start_inds,end_inds] = templateSubtract(dataInt,'type','average','fs',fs_data,'plotIt',0,'pre',pre,'post',post,'stimChans',stimChans);
 %processedSig = templateSubtract(dataInt,fs_data,'plotIt',0);
+
+numChans = size(dataInt,2);
+[goods,goodVec] = goodChannel_extract('stimchans',stimChans,'numChans',numChans);
 
 %
 figure
@@ -154,26 +146,8 @@ post = 2; % started with 0.7, then 1.1, then 1.5, then 1.8
 [processedSig_trial,templateDict_cell_trial,template_trial,start_inds,end_inds] = templateSubtract_trial(dataInt,'fs',fs_data,...
     'plotIt',0,'pre',pre,'post',post,'stimChans',stimChans);
 
-%
-bads = [];
-badTotal = [stimChans; bads];
-
-% total channels
-numChans = 53;
-% make logical good channels matrix to index
-goods = zeros(numChans,1);
-
-channelsOfInt = 1:numChans;
-
-goods(channelsOfInt) = 1;
-% set the goods matrix to be zero where bad channels are
-goods(badTotal) = 0;
-% make it logical
-goods = logical(goods);
-
-%raw_sig = raw_sig(:,goods,:);
-
-[~,goodVec] = find(goods'>0);
+numChans = size(dataInt,2);
+[goods,goodVec] = goodChannel_extract('stimchans',stimChans,'numChans',numChans);
 
 %
 chanIntList = [12 21 28 19 18 36 44 43 30 33 41 34];
@@ -265,9 +239,6 @@ for ind = chanIntList
     
     clear exampChan
 end
-%%=
-
-
 
 figure
 hold on
@@ -399,8 +370,4 @@ avg_power_norm = mean(powerout_norm,4);
 stimChans = badChans;
 smallMultiples_responseTiming_spectrogram(avg_power_norm,t_morlet,f_morlet,'type1',stimChans,'type2',0,'average',1);
 
-%%
-function [rms] = rms_func(data)
-% returns RMS along the dimension of a channel
-rms = sqrt(sum(data.^2,1)/size(data,1));
-end
+

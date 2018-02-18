@@ -12,18 +12,20 @@ function [processedSig,templateArray_cell,template,start_inds,end_inds] = templa
 % fs = sampling rate (Hz)
 % plotIt = plot intermediate steps if true
 
-% default parameters
+% default parameters in case user does not supply any
 fs = 1.2207e04;
 plotIt = 1;
 pre = 0.4096;
 post = 0.4096;
 stimChans = [];
+bads = [];
 
 distanceDBscan = 0.001; % distance dbscan algorithm uses
 distanceDBscan = 0.0005;
 % define matrix of zeros
 processedSig = zeros(size(raw_sig));
 
+% use input variables 
 for i=1:2:(length(varargin)-1)
     switch lower(varargin{i})
         case 'plotit'
@@ -38,28 +40,14 @@ for i=1:2:(length(varargin)-1)
             post = varargin{i+1};
         case 'stimchans'
             stimChans = varargin{i+1};
+        case 'bads'
+            bads = varargin{i+1};
     end
 end
 
-bads = [];
-badTotal = [stimChans; bads];
-
-% total channels
+% make a vector of the good channels to process
 numChans = size(raw_sig,2);
-% make logical good channels matrix to index
-goods = zeros(numChans,1);
-
-channelsOfInt = 1:numChans;
-
-goods(channelsOfInt) = 1;
-% set the goods matrix to be zero where bad channels are
-goods(badTotal) = 0;
-% make it logical
-goods = logical(goods);
-
-%raw_sig = raw_sig(:,goods,:);
-
-[~,goodVec] = find(goods'>0);
+[goods,goodVec] = goodChannel_extract('bads',bads,'stimchans',stimChans,'numChans',numChans);
 
 
 %% preprocess eco
