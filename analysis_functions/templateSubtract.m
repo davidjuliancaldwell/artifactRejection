@@ -12,6 +12,17 @@ function [processedSig,templateArray_cell,template,start_inds,end_inds] = templa
 % fs = sampling rate (Hz)
 % plotIt = plot intermediate steps if true
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Check some basic data requirements
+if nargin == 0
+  error ('You must supply data');
+end
+
+if length (size (raw_sig)) > 3
+  error ('Input data can not have more than three dimensions.');
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % default parameters in case user does not supply any
 fs = 1.2207e04;
 plotIt = 1;
@@ -19,13 +30,15 @@ pre = 0.4096;
 post = 0.4096;
 stimChans = [];
 bads = [];
+distance_metric = 'eucl';
 
 distanceDBscan = 0.001; % distance dbscan algorithm uses
 distanceDBscan = 0.0005;
 % define matrix of zeros
 processedSig = zeros(size(raw_sig));
 
-% use input variables 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% use input variables
 for i=1:2:(length(varargin)-1)
     switch lower(varargin{i})
         case 'plotit'
@@ -42,6 +55,8 @@ for i=1:2:(length(varargin)-1)
             stimChans = varargin{i+1};
         case 'bads'
             bads = varargin{i+1};
+        case 'distance_metric'
+            distance_metric = varargin{i+1};
     end
 end
 
@@ -49,7 +64,7 @@ end
 numChans = size(raw_sig,2);
 [goods,goodVec] = goodChannel_extract('bads',bads,'stimchans',stimChans,'numChans',numChans);
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% preprocess eco
 presamps = round(pre/1e3 * fs); % pre time in sec
 
@@ -60,7 +75,7 @@ diff_sig = permute(cat(3,zeros(size(raw_sig,2), size(raw_sig,3)),permute(diff(ra
 
 % find channel that has the max signal, and use this for subsequent
 % analysis
-[~,chanMax] = (max(max(diff_sig)));
+[~,chanMax] = (max(max(diff_sig(:,goodVec,:))));
 chanMax = chanMax(1);
 lengthMax = 0; % length vector to build up the dictionary of templates later
 fprintf(['\n']);
@@ -110,7 +125,7 @@ for trial = 1:size(raw_sig,3)
     [~,inds_onset] = find(abs(zscore(diff_bt_inds))>2);
     %[~,inds_onset] = find(diff_bt_inds>5);
     start_inds{trial} = [inds(1)-presamps; inds(inds_onset+1)-presamps];
-    end_inds{trial} = start_inds{trial}+postsamps+17;
+    end_inds{trial} = start_inds{trial}+postsamps+8; % 17 to start, try 8
     %end_inds = [ inds(inds_onset)+postsamps; inds(end)+postsamps];
     
     if plotIt
@@ -139,7 +154,8 @@ for trial = 1:size(raw_sig,3)
             win = start_inds{trial}(sts):start_inds{trial}(sts)+default_time_average-1;
             % avg_signal(:,sts) = raw_sig_temp(win);
             %avg_signal(:,sts) = raw_sig_temp(win) - raw_sig_temp(start_inds{trial}(sts));% take off first sample
-            avg_signal(:,sts) = raw_sig_temp(win) - mean(raw_sig_temp(start_inds{trial}(sts):start_inds{trial}(sts)+presamps-8));% take off pre period
+            % was -8 below here, then became - 3
+            avg_signal(:,sts) = raw_sig_temp(win) - mean(raw_sig_temp(start_inds{trial}(sts):start_inds{trial}(sts)+presamps-3));% take off pre period 
         end
         
         % find average stimulus
@@ -160,7 +176,7 @@ for trial = 1:size(raw_sig,3)
 end
 fprintf(['-------Finished getting artifacts-------- \n'])
 %% build up dictionary
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 templateArray_cell = {};
 
 switch type
@@ -239,7 +255,7 @@ switch type
         
         fprintf(['-------Finished clustering artifacts-------- \n'])
         
-        %%
+        %
         % now do the template subtraction
         for trial = 1:size(raw_sig,3)
             
@@ -250,6 +266,7 @@ switch type
                 for sts = 1:length(start_inds{trial})
                     win = start_inds{trial}(sts):start_inds{trial}(sts)+default_time_average-1;
                     extracted_sig = raw_sig_temp(win);
+                    extracted_sig = extracted_sig - extracted_sig(1);
                     
                     % find best artifact
                     
@@ -258,23 +275,25 @@ switch type
                     % add on the trial one
                     templates = [templates mean(template{chan}{trial},2)];
                     
-                    % correlation
-                    
-                    correlations = corr(extracted_sig,templates);
-                    [~,index] = max((correlations));
-                    template_subtract = templates(:,index);
-                    
-                    % - cosine similarity
-                    %             denominator = sqrt(sum(extracted_sig.*extracted_sig)).*sqrt(sum(templates.*templates));
-                    %             numerator = (extracted_sig'*templates);
-                    %             correlations = numerator./denominator;
-                    %                         [~,index] = max(abs(correlations));
-                    
-                    % distance
-                    
-                    v = templates - repmat(extracted_sig,1,size(templates,2));
-                    distance = sum(v.*v);
-                    [~,index] = min(distance);
+                    switch distance_metric
+                        case 'correlation'
+                            % correlation 
+                            correlations = corr(extracted_sig,templates);
+                            [~,index] = max((correlations));
+                            
+                        case 'cosineSim'
+                            % - cosine similarity
+                            denominator = sqrt(sum(extracted_sig.*extracted_sig)).*sqrt(sum(templates.*templates));
+                            numerator = (extracted_sig'*templates);
+                            correlations = numerator./denominator;
+                            [~,index] = max(abs(correlations));
+                            
+                        case 'eucl'
+                            % distance
+                            v = templates - repmat(extracted_sig,1,size(templates,2));
+                            distance = sum(v.*v);
+                            [~,index] = min(distance);
+                    end
                     
                     template_subtract = templates(:,index);
                     
@@ -324,6 +343,8 @@ switch type
             end
         end
         
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  
+
     case 'average'
         fprintf(['-------Average Template-------- \n'])
         
@@ -357,6 +378,59 @@ switch type
             end
             
         end
+        
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%      
+
+    case 'trial'
+        fprintf(['-------Average Template-------- \n'])
+        templateArray_cell = {};
+        
+        for trial = 1:size(raw_sig,3)
+            
+            for chan = goodVec
+                templateArray = [];
+                raw_sig_temp = raw_sig(:,chan,trial);
+                artifacts = template{chan}{trial};
+                
+                
+                avg_trial = mean(artifacts,2);
+                %         last = find(abs(zscore(foo))>1,1,'last');
+                %         last2 = find(abs(diff(foo))>20e-6,1,'last')+1;
+                %         last3 = find(abs(diff(foo))>20e-6,1,'last')+1;
+                %
+                %         x = [last2:length(foo)]';
+                %         y = foo(x);
+                %         [f2,gof,output] = fit(x,y,'exp2');
+                %         func_fit = @(x) f2.a*exp(f2.b*x) + f2.c*exp(f2.d*x);
+                %
+                %         if gof.adjrsquare>0.9
+                %             foo(x) = func_fit(x);
+                %         end
+                %
+                %         if plotIt
+                %             figure
+                %             plot(foo)
+                %             vline(last2)
+                %             vline(last3,'g')
+                %
+                %             figure
+                %             plot(foo)
+                %             hold on
+                %             plot(x,y,'linewidth',2)
+                %         end
+                %
+                for sts = 1:length(start_inds{trial})
+                    win = start_inds{trial}(sts):start_inds{trial}(sts)+default_time_average-1;
+                    extracted_sig = raw_sig_temp(win);
+                    
+                    raw_sig_temp(win) = raw_sig_temp(win) - avg_trial;
+                    
+                end             
+                processedSig(:,chan,trial) = raw_sig_temp;       
+            end
+    
+        end
+
 end
 
 fprintf(['-------Extracting data-------- \n'])

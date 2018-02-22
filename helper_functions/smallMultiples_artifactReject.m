@@ -1,7 +1,6 @@
-function smallMultiples_arifactReject(signal,t,varargin)
+function smallMultiples_artifactReject(signal,t,varargin)
 % DJC - 2-18-2018 - small multiples plot for visualizing the results of 
 % time x channels x trials 
-
 
 % defaults
 type1 = [];
@@ -9,6 +8,8 @@ type2 = [];
 average = 0;
 newfig = true;
 highlight_range = [];
+xlims = [-200 1000];
+ylims = [-200 200];
 
 % variable input 
 for i=1:2:(length(varargin)-1)
@@ -28,6 +29,10 @@ for i=1:2:(length(varargin)-1)
             newfig = varargin{i+1};
         case 'highlight_range'
             highlight_range = varargin{i+1};
+        case 'xlims'
+            xlims = varargin{i+1};
+        case 'ylims'
+            ylims = varargin{i+1};
             
     end
 end
@@ -40,12 +45,11 @@ if newfig
     CT = cbrewer('qual','Accent',8);
     CT = flipud(CT);
 else
-    gcf
+    gcf;
     hold on
     CT = cbrewer('qual','Accent',8);
     CT = flipud(CT);
-    CT_diff = cbrewer('qual','Accent',8);
-    CT(1,:) = CT_diff(1,:);
+    CT(1,:) = CT(4,:);
 end
 
 
@@ -84,13 +88,12 @@ for idx=1:size(signal,2)
         
     end
     
-    
     axis off
     axis tight
     %xlim([-10 200])
-    xlim([-200 1000])
+    xlim(xlims)
     
-    ylim([-200 200])
+    ylim(ylims)
     vline(0)
     
     if ~isempty(highlight_range)
@@ -98,11 +101,10 @@ for idx=1:size(signal,2)
         y_range = ([-150 150]);
          highlight(plt_sub, highlight_range, y_range, hColor);
     end
-    
-    %subtitle(['Baseline CCEPs by Channel']);
-    
+       
     
 end
+
 obj = scalebar;
 obj.XLen = 100;              %X-Length, 10.
 obj.XUnit = 'ms';            %X-Unit, 'm'.

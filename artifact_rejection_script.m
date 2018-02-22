@@ -5,66 +5,105 @@
 close all;clear all;clc
 
 % load in the data file of interest
-dataChoice = 1;
+dataChoice = 2;
+
+% how long is the stimulation train supposed to be
 
 switch dataChoice
+    
     case 1
         load('2fd831_exampData_400ms.mat') % response timing data set
+        train_duration = [0 400];
+        xlims = [-200 1000];
+        chanIntList = [2 10 51 42];
     case 2
         load('693ffd_exampData_800ms.mat') % response timing data set
+        train_duration = [0 800];
+        xlims = [-200 1000];
+        chanIntList = [12 21 28 19 18 36 44 43 30 33 41 34];
     case 3
         load('50ad9_paramSweep4.mat') % DBS data set
     case 4
         load('ecb43e_RHI_async_trial14.mat') % rubber hand illusion data set
     case 5
         load('3f2113_stim_12_52.mat') % stimulation spacing data set
-end
-
-%% 1/22/2018 - template subtraction
-pre = 0.9; % started with 0.7
-post = 1.8; % started with 0.7, then 1.1, then 1.5, then 1.8
-[processedSig,templateDict_cell,template,start_inds,end_inds] = templateSubtract(dataInt,'type','average','fs',fs_data,'plotIt',0,'pre',pre,'post',post,'stimChans',stimChans);
-%processedSig = templateSubtract(dataInt,fs_data,'plotIt',0);
-
-numChans = size(dataInt,2);
-[goods,goodVec] = goodChannel_extract('stimchans',stimChans,'numChans',numChans);
-
-%
-figure
-hold on
-
-chanInt = 2;
-for i = 1:size(template{1},2)
-    plot(template{chanInt}{i});
-end
-%
-figure
-hold on
-for j = goodVec
-    subplot(8,8,j)
-    hold on
-    for i = 1:size(templateDict_cell{j},2)
-        timeVec = [0:size(templateDict_cell{j},1)-1];
+        train_duration = [0 5];
+        xlims = [-50 200];
         
-        %plotBTLError(timeVec,templateDict_cell{j}(:,i),'CI');
-        plot(timeVec,templateDict_cell{j}(:,i),'linewidth',2);
-    end
-    title(['Channel ' num2str(j)])
 end
 
-%% 1/22/2018 - linear interpolation
+% variables required for functions to work properly
+%
+% dataInt = time x channels x trials
+%
+% fs_data = sampling rate of the data Hz
+%
+% stimChans - the channels used for stimulation . These should be noted and
+% exluded from further analysis
+%
+% plotIt - determines whether or not to plot the intermediate results of
+% the functions.
 
-processedSig = interpolate_artifact(dataInt,'fs',fs_data,'plotIt',0,'type','pchip','stimchans',stimChans);
-%%
-avgResponse = mean(processedSig,3);
-smallMultiples_responseTiming(avgResponse,t_epoch,'type1',stimChans,'type2',0,'average',1)
-%%
-processedSig_rms = rms_func(avgResponse(t_epoch<1000 & t_epoch>-100,:));
-processedSig_var = var(avgResponse(t_epoch<1000 & t_epoch>-100,:));
-figure
-histogram(processedSig_rms)
-[~,ind] = max(processedSig_rms);
-ind
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% linear interpolation with simple linear interpolation scheme
+
+% process the signal
+%pre_interp
+%post_interp
+type = 'linear';
+useFixedEnd = 1;
+processedSig = interpolate_artifact(dataInt,'fs',fs_data,'plotIt',0,'type',type,'stimchans',stimChans,'useFixedEnd',useFixedEnd);
+%
+% visualization
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+multiple_visualizations(processedSig,dataInt,'fs_data',fs_data,'type',type,'t_epoch',...
+    t_epoch,'xlims',xlims,'train_duration',train_duration,...,
+    'chanInt',chanInt,'chanIntList',chanIntList,'template',template,'templateDict_cell',templateDict_cell)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% linear interpolation with polynomial piecewise interpolation
+
+% the type variable here determines whether to use a linear interpolation
+% scheme or a polynomial spline interpolation scheme
+type = 'pchip';
+useFixedEnd = 1;
+processedSig = interpolate_artifact(dataInt,'fs',fs_data,'plotIt',0,'type',type,'stimchans',stimChans);
+
+% visualization
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+multiple_visualizations(processedSig,dataInt,'fs_data',fs_data,'type',type,'t_epoch',...
+    t_epoch,'xlims',xlims,'train_duration',train_duration,...,
+    'chanInt',chanInt,'chanIntList',chanIntList,'template',template,'templateDict_cell',templateDict_cell)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% template subtraction
+% this is a section illustrating the template subtraction method
+% The type variable to the function call is what determines the
+% method used
+
+% pre defines how far back from the onset of the stimulus detect to look
+% back in time, in ms
+% post is the equivalent for after the offset of the stimulus pulse
+% fs_data is the sampling frequency in Hz
+
+% most recent - 0.9, 1.8
+
+type = 'trial';
+pre = 0.5; % started with 0.7
+post = 1; % started with 0.7, then 1.1, then 1.5, then 1.8
+distance_metric = 'eucl';
+[processedSig,templateDict_cell,template,start_inds,end_inds] = templateSubtract(dataInt,'type',type,...
+    'fs',fs_data,'plotIt',0,'pre',pre,'post',post,'stimChans',stimChans,'distance_metric',distance_metric);
+
+% visualization
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+multiple_visualizations(processedSig,dataInt,'fs_data',fs_data,'type',type,'t_epoch',...
+    t_epoch,'xlims',xlims,'train_duration',train_duration,...,
+    'chanInt',chanInt,'chanIntList',chanIntList,'template',template,'templateDict_cell',templateDict_cell)
+
 %% 1-29-2018 - template dictionary method
 
 pre = 1; % started with 0.7
@@ -123,7 +162,7 @@ avgResponse = mean(sig,3);
 
 stimChans = [20 29];
 
-smallMultiples_responseTiming(avgResponse,t_epoch,'type1',stimChans,'type2',0,'average',1,'highlight_range',[0 800])
+smallMultiples_artifactReject(avgResponse,t_epoch,'type1',stimChans,'type2',0,'average',1,'highlight_range',train_duration)
 
 % plot the average dictionary templates
 figure
@@ -208,73 +247,6 @@ post = 0.8; % started with 0.7, then 1.1, then 1.5, then 1.8
 [processedSig_v2,templateDict_cell_v2,template_v2] = templateSubtract_dictionary_iterative(processedSig,'fs',fs_data,'plotIt',0,...
     'pre',pre,'post',post,'stimChans',stimChans,'start_inds',start_inds,'end_inds',end_inds);
 
-
-%%
-chanIntList = [12 21 28 19 18 36 44 43 30 33 41 34];
-
-for ind = chanIntList
-    
-    exampChan = mean(squeeze(processedSig_v2(:,ind,:)),2);
-    
-    figure
-    ax1 = subplot(2,1,1);
-    plot(1e3*t_epoch,exampChan,'linewidth',2);
-    xlim([-200 1000])
-    ylim([-5e-5 5e-5])
-    
-    title(['Processed Signal - Channel ' num2str(ind)])
-    clear exampChan
-    
-    
-    ax2 = subplot(2,1,2);
-    exampChan = mean(squeeze(dataInt(:,ind,:)),2);
-    plot(1e3*t_epoch,exampChan,'linewidth',2);
-    xlim([-200 1000])
-    ylim([-5e-5 5e-5])
-    xlabel('time (ms)')
-    ylabel('Voltage (\muV)')
-    title(['Raw Signal Average - Channel ' num2str(ind)])
-    
-    linkaxes([ax1,ax2],'xy')
-    
-    clear exampChan
-end
-
-figure
-hold on
-for j = goodVec
-    subplot(8,8,j)
-    hold on
-    for i = 1:size(templateDict_cell_v2{j},2)
-        timeVec = [0:size(templateDict_cell_v2{j},1)-1];
-        
-        %plotBTLError(timeVec,templateDict_cell{j}(:,i),'CI');
-        plot(timeVec,templateDict_cell_v2{j}(:,i),'linewidth',2);
-    end
-    title(['Channel ' num2str(j)])
-end
-
-%
-sig = processedSig_v2;
-avgResponse = mean(sig,3);
-
-stimChans = [20 29];
-
-smallMultiples_responseTiming(avgResponse,t_epoch,'type1',stimChans,'type2',0,'average',1)
-
-% plot the average dictionary templates
-figure
-for j = goodVec
-    subplot(8,8,j)
-    hold on
-    for i = 1:size(template_v2{j},2)
-        timeVec = [0:size(template_v2{j}{:,i},1)-1];
-        
-        plotBTLError(timeVec,template_v2{j}{:,i},'CI',rand(1,3)');
-        %plot(timeVec,templateDict_cell{j}(:,i),'linewidth',2);
-    end
-    title(['Channel ' num2str(j)])
-end
 
 %% PROCESS THE DATA
 % process the wavelet using morlet process and PLV
@@ -365,7 +337,6 @@ end
 % normalized spectogram
 
 powerout_norm = normalize_spectrogram(powerout,t_morlet);
-
 avg_power_norm = mean(powerout_norm,4);
 stimChans = badChans;
 smallMultiples_responseTiming_spectrogram(avg_power_norm,t_morlet,f_morlet,'type1',stimChans,'type2',0,'average',1);

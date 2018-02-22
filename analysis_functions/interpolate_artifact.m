@@ -10,11 +10,23 @@ function [processedSig] = interpolate_artifact(raw_sig,varargin)
 % post = the number of ms after which the stimulation pulse onset as
 % detected by a thresholding method should still be considered as artifact
 % pre_interp = the number of ms before the stimulation which to consider an
-% interpolation scheme on. Does not apply to the linear case 
+% interpolation scheme on. Does not apply to the linear case
 % post_interp = the number of ms before the stimulation which to consider an
-% interpolation scheme on. Does not apply to the linear case 
+% interpolation scheme on. Does not apply to the linear case
 % fs = sampling rate (Hz)
 % plotIt = plot intermediate steps if true
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Check some basic data requirements
+if nargin == 0
+  error ('You must supply data');
+end
+
+if length (size (raw_sig)) > 3
+  error ('Input data can not have more than three dimensions.');
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % default parameters
 fs = 1.2207e04;
@@ -24,7 +36,10 @@ pre = 0.4096;
 post = 0.4096;
 pre_interp = 0.5734;
 post_interp = 0.5734;
+%pre_interp = 0.9;
+%post_interp = 0.9;
 stimChans = [];
+useFixedEnd = 1;
 
 % define matrix of zeros
 processedSig = zeros(size(raw_sig));
@@ -48,6 +63,8 @@ for i=1:2:(length(varargin)-1)
             post_interp = varargin{i+1};
         case 'stimchans'
             stimChans = varargin{i+1};
+        case 'usefixedend'
+            useFixedEnd = varargin{i+1};
     end
 end
 
@@ -85,35 +102,65 @@ diff_sig = permute(cat(3,zeros(size(raw_sig,2), size(raw_sig,3)),permute(diff(ra
 
 % find channel that has the max signal, and use this for subsequent
 % analysis
-[~,chanMax] = (max(max(diff_sig)));
+[~,chanMax] = (max(max(diff_sig(:,goodVec,:))));
 chanMax = chanMax(1);
+
+fprintf(['-------Interpolation-------- \n'])
+fprintf(['-------' type '-------- \n'])
 
 for trial = 1:size(raw_sig,3)
     
     % find onset
     
-%     inds = find(abs(zscore(diff_sig(:,chanMax,trial)))>0.5);
-%     diff_bt_inds = [diff(inds)' 0];
-%     [~,inds_onset] = find(abs(zscore(diff_bt_inds))>0.5);
-%     start_inds = [inds(1)-presamps; inds(inds_onset+1)-presamps];
-%     end_inds = [ inds(inds_onset)+postsamps; inds(end)+postsamps];
+    %     inds = find(abs(zscore(diff_sig(:,chanMax,trial)))>0.5);
+    %     diff_bt_inds = [diff(inds)' 0];
+    %     [~,inds_onset] = find(abs(zscore(diff_bt_inds))>0.5);
+    %     start_inds = [inds(1)-presamps; inds(inds_onset+1)-presamps];
+    %     end_inds = [ inds(inds_onset)+postsamps; inds(end)+postsamps];
     
-        inds = find(abs(zscore(diff_sig(:,chanMax,trial)))>2);
+    inds = find(abs(zscore(diff_sig(:,chanMax,trial)))>1.5);
     %inds = find(diff_sig(:,chanMax,trial)>2e-4);
     diff_bt_inds = [diff(inds)'];
     [~,inds_onset] = find(abs(zscore(diff_bt_inds))>2);
     %[~,inds_onset] = find(diff_bt_inds>5);
     start_inds{trial} = [inds(1)-presamps; inds(inds_onset+1)-presamps];
-    end_inds{trial} = start_inds{trial}+postsamps+17;
-    %end_inds = [ inds(inds_onset)+postsamps; inds(end)+postsamps];
     
-    
+    if useFixedEnd
+        end_inds{trial} = start_inds{trial}+postsamps+12; % 17 to start
+    else
+        
+        for idx = 1:length(start_inds{trial})
+            
+            win = start_inds{trial}(idx):start_inds{trial}(idx)+20; % get window that you know has the end of the stim pulse 
+            signal = raw_sig(win,chanMax,trial);
+            diff_signal = diff_sig(win,chanMax,trial);
+
+            last = find(abs(zscore(signal))>0.2,1,'last');
+            last2 = find(abs(zscore(diff_signal))>5e-3,1,'last')+1;
+            
+            if (isempty(last2))
+                if (isempty(last))
+                    error ('something is wrong with signal');
+                else
+                    ct = last;
+                end
+            else
+                if (isempty(last))
+                    ct = last2;
+                else
+                    ct = max(last, last2);
+                end
+            end
+             end_inds{trial}(idx) = ct + start_inds{trial}(idx);
+
+        end
+    end
+  
     if plotIt
         figure
         plot(diff_sig(:,chanMax,trial))
         vline(start_inds{trial})
         vline(end_inds{trial},'g')
-        
         figure
         plot(raw_sig(:,chanMax,trial))
         vline(start_inds{trial})
@@ -131,7 +178,7 @@ for trial = 1:size(raw_sig,3)
                 case 'pchip'
                     raw_sig_temp(win) = interp1([start_inds{trial}(sts)-pre_interp_samps:start_inds{trial}(sts)-1 end_inds{trial}(sts):end_inds{trial}(sts)+post_interp_samps],...
                         raw_sig_temp([start_inds{trial}(sts)-pre_interp_samps:start_inds{trial}(sts)-1 end_inds{trial}(sts):end_inds{trial}(sts)+post_interp_samps]),...
-                    start_inds{trial}(sts):end_inds{trial}(sts),'pchip');
+                        start_inds{trial}(sts):end_inds{trial}(sts),'pchip');
             end
             
         end
@@ -150,5 +197,6 @@ for trial = 1:size(raw_sig,3)
     
 end
 
+fprintf(['-------Finished-------- \n'])
 
 end
