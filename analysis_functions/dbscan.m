@@ -43,6 +43,7 @@ function [C, ptsC, centres] = dbscan(P, E, minPts,distanceMetric) % DJC - add di
 if ~exist('distanceMetric','var')
     distanceMetric = 'euclidean';
 end
+
 [dim, Npts] = size(P);
 
 ptsC  = zeros(Npts,1);

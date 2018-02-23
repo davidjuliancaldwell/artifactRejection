@@ -34,12 +34,13 @@ plotIt = 0;
 type = 'linear';
 pre = 0.4096;
 post = 0.4096;
-pre_interp = 0.5734;
-post_interp = 0.5734;
+pre_interp = 0.2; %0.5734;
+post_interp = 0.2;
 %pre_interp = 0.9;
 %post_interp = 0.9;
 stimChans = [];
 useFixedEnd = 1;
+fixed_distance = 1;
 
 % define matrix of zeros
 processedSig = zeros(size(raw_sig));
@@ -65,6 +66,8 @@ for i=1:2:(length(varargin)-1)
             stimChans = varargin{i+1};
         case 'usefixedend'
             useFixedEnd = varargin{i+1};
+        case 'fixed_distance'
+            fixed_distance = varargin{i+1};
     end
 end
 
@@ -97,6 +100,9 @@ pre_interp_samps = round(pre_interp/1e3 * fs);
 
 post_interp_samps = round(post_interp/1e3 * fs);
 
+fixed_distance_samps = round(fixed_distance/1e3 * fs); 
+default_win_average = fixed_distance_samps ; %end_inds{trial}(1)-start_inds{trial}(1)+1;
+
 % take diff of signal to find onset of stimulation train
 diff_sig = permute(cat(3,zeros(size(raw_sig,2), size(raw_sig,3)),permute(diff(raw_sig),[2 3 1])),[3 1 2]);
 
@@ -118,7 +124,7 @@ for trial = 1:size(raw_sig,3)
     %     start_inds = [inds(1)-presamps; inds(inds_onset+1)-presamps];
     %     end_inds = [ inds(inds_onset)+postsamps; inds(end)+postsamps];
     
-    inds = find(abs(zscore(diff_sig(:,chanMax,trial)))>1.5);
+    inds = find(abs(zscore(diff_sig(:,chanMax,trial)))>0.1);
     %inds = find(diff_sig(:,chanMax,trial)>2e-4);
     diff_bt_inds = [diff(inds)'];
     [~,inds_onset] = find(abs(zscore(diff_bt_inds))>2);
@@ -126,12 +132,12 @@ for trial = 1:size(raw_sig,3)
     start_inds{trial} = [inds(1)-presamps; inds(inds_onset+1)-presamps];
     
     if useFixedEnd
-        end_inds{trial} = start_inds{trial}+postsamps+12; % 17 to start
+        end_inds{trial} = start_inds{trial}+fixed_distance_samps; % 17 to start
     else
         
         for idx = 1:length(start_inds{trial})
             
-            win = start_inds{trial}(idx):start_inds{trial}(idx)+20; % get window that you know has the end of the stim pulse 
+            win = start_inds{trial}(idx):start_inds{trial}(idx)+default_win_average; % get window that you know has the end of the stim pulse 
             signal = raw_sig(win,chanMax,trial);
             diff_signal = diff_sig(win,chanMax,trial);
 
@@ -151,7 +157,7 @@ for trial = 1:size(raw_sig,3)
                     ct = max(last, last2);
                 end
             end
-             end_inds{trial}(idx) = ct + start_inds{trial}(idx);
+             end_inds{trial}(idx) = ct + start_inds{trial}(idx) + postsamps;
 
         end
     end
@@ -173,8 +179,8 @@ for trial = 1:size(raw_sig,3)
             win = start_inds{trial}(sts):end_inds{trial}(sts);
             switch type
                 case 'linear'
-                    raw_sig_temp(win) = interp1([start_inds{trial}(sts)-1 end_inds{trial}(sts)],...
-                        raw_sig_temp([start_inds{trial}(sts)-1 end_inds{trial}(sts)]), start_inds{trial}(sts):end_inds{trial}(sts));
+                    raw_sig_temp(win) = interp1([start_inds{trial}(sts)-1 end_inds{trial}(sts)+1],...
+                        raw_sig_temp([start_inds{trial}(sts)-1 end_inds{trial}(sts)+1]), start_inds{trial}(sts):end_inds{trial}(sts));
                 case 'pchip'
                     raw_sig_temp(win) = interp1([start_inds{trial}(sts)-pre_interp_samps:start_inds{trial}(sts)-1 end_inds{trial}(sts):end_inds{trial}(sts)+post_interp_samps],...
                         raw_sig_temp([start_inds{trial}(sts)-pre_interp_samps:start_inds{trial}(sts)-1 end_inds{trial}(sts):end_inds{trial}(sts)+post_interp_samps]),...
@@ -197,6 +203,6 @@ for trial = 1:size(raw_sig,3)
     
 end
 
-fprintf(['-------Finished-------- \n'])
+fprintf(['-------Finished-------- \n \n'])
 
 end

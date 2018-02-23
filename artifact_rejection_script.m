@@ -1,4 +1,4 @@
-% DJC - This is a script to demonstrate different stimulation artifact
+% David Caldwell - This is a script to demonstrate different stimulation artifact
 % approaches to extract neural signals of interest.
 
 % clear the workspace
@@ -6,8 +6,6 @@ close all;clear all;clc
 
 % load in the data file of interest
 dataChoice = 2;
-
-% how long is the stimulation train supposed to be
 
 switch dataChoice
     
@@ -50,32 +48,51 @@ end
 % process the signal
 %pre_interp
 %post_interp
+
+% the type variable here determines whether to use a linear interpolation
+% scheme or a polynomial spline interpolation scheme
 type = 'linear';
-useFixedEnd = 1;
-processedSig = interpolate_artifact(dataInt,'fs',fs_data,'plotIt',0,'type',type,'stimchans',stimChans,'useFixedEnd',useFixedEnd);
-%
+
+% this determines whether or not to march a set amount of time after
+% stimulation onset, or to detect the end of each pulse
+useFixedEnd = 1; 
+
+pre = 0.4096; % in ms
+post = 0.4096; % in ms
+fixed_distance = 2.2; % in ms
+
+% perform the processing
+processedSig = interpolate_artifact(dataInt,'fs',fs_data,'plotIt',0,'type',type,...,
+    'stimchans',stimChans,'useFixedEnd',useFixedEnd,'fixed_distance',fixed_distance,'pre',pre,'post',post);
+
 % visualization
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 multiple_visualizations(processedSig,dataInt,'fs_data',fs_data,'type',type,'t_epoch',...
-    t_epoch,'xlims',xlims,'train_duration',train_duration,...,
-    'chanInt',chanInt,'chanIntList',chanIntList,'template',template,'templateDict_cell',templateDict_cell)
+    t_epoch,'xlims',xlims,'train_duration',train_duration,'stimChans',stimChans,...,
+    'chanIntList',chanIntList)
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% linear interpolation with polynomial piecewise interpolation
 
-% the type variable here determines whether to use a linear interpolation
-% scheme or a polynomial spline interpolation scheme
 type = 'pchip';
 useFixedEnd = 1;
-processedSig = interpolate_artifact(dataInt,'fs',fs_data,'plotIt',0,'type',type,'stimchans',stimChans);
+pre = 0.4096; % in ms
+post = 0.4096; % in ms
+fixed_distance = 2.2; % in ms
+
+
+processedSig = interpolate_artifact(dataInt,'fs',fs_data,'plotIt',0,'type',type,...,
+    'stimchans',stimChans,'useFixedEnd',useFixedEnd,'fixed_distance',fixed_distance,'pre',pre,'post',post);
 
 % visualization
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 multiple_visualizations(processedSig,dataInt,'fs_data',fs_data,'type',type,'t_epoch',...
-    t_epoch,'xlims',xlims,'train_duration',train_duration,...,
-    'chanInt',chanInt,'chanIntList',chanIntList,'template',template,'templateDict_cell',templateDict_cell)
+    t_epoch,'xlims',xlims,'train_duration',train_duration,'stimChans',stimChans,...,
+    'chanIntList',chanIntList)
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -92,91 +109,29 @@ multiple_visualizations(processedSig,dataInt,'fs_data',fs_data,'type',type,'t_ep
 % most recent - 0.9, 1.8
 
 type = 'trial';
-pre = 0.5; % started with 0.7
-post = 1; % started with 0.7, then 1.1, then 1.5, then 1.8
-distance_metric = 'eucl';
+useFixedEnd = 1;
+fixed_distance = 2.8; % in ms
+
+pre = 0.4096; % in ms
+post = 0.4096; % in ms
+
+pre = 1; % started with 0.7, then 0.9, adjusted the window, move it to 0.4
+post = 0.2; % started with 0.7, then 1.1, then 1.5, then 1.8
+
+distance_metric_dbscan = 'eucl';
+distance_metric_sigMatch = 'eucl';
 [processedSig,templateDict_cell,template,start_inds,end_inds] = templateSubtract(dataInt,'type',type,...
-    'fs',fs_data,'plotIt',0,'pre',pre,'post',post,'stimChans',stimChans,'distance_metric',distance_metric);
+    'fs',fs_data,'plotIt',0,'pre',pre,'post',post,'stimChans',stimChans,'useFixedEnd',useFixedEnd,'fixed_distance',fixed_distance,...,
+    'distance_metric_dbscan',distance_metric_dbscan,'distance_metric_sigMatch',distance_metric_sigMatch);
 
 % visualization
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 multiple_visualizations(processedSig,dataInt,'fs_data',fs_data,'type',type,'t_epoch',...
-    t_epoch,'xlims',xlims,'train_duration',train_duration,...,
-    'chanInt',chanInt,'chanIntList',chanIntList,'template',template,'templateDict_cell',templateDict_cell)
+    t_epoch,'xlims',xlims,'train_duration',train_duration,'stimChans',stimChans,...,
+    'chanIntList',chanIntList,'template',template,'templateDict_cell',templateDict_cell)
 
-%% 1-29-2018 - template dictionary method
 
-pre = 1; % started with 0.7
-post = 2; % started with 0.7, then 1.1, then 1.5, then 1.8
-[processedSig,templateDict_cell,template,start_inds,end_inds] = templateSubtract_dictionary(dataInt,'fs',fs_data,...
-    'plotIt',0,'pre',pre,'post',post,'stimChans',stimChans);
 
-chanIntList = [12 21 28 19 18 36 44 43 30 33 41 34];
-
-for ind = chanIntList
-    
-    exampChan = mean(squeeze(processedSig(:,ind,:)),2);
-    
-    figure
-    ax1 = subplot(2,1,1);
-    plot(1e3*t_epoch,exampChan,'linewidth',2);
-    xlim([-200 1000])
-    ylim([-5e-5 5e-5])
-    
-    title(['Processed Signal - Channel ' num2str(ind)])
-    clear exampChan
-    
-    
-    ax2 = subplot(2,1,2);
-    exampChan = mean(squeeze(dataInt(:,ind,:)),2);
-    plot(1e3*t_epoch,exampChan,'linewidth',2);
-    xlim([-200 1000])
-    ylim([-5e-5 5e-5])
-    xlabel('time (ms)')
-    ylabel('Voltage (\muV)')
-    title(['Raw Signal Average - Channel ' num2str(ind)])
-    
-    linkaxes([ax1,ax2],'xy')
-    
-    clear exampChan
-end
-%%=
-
-figure
-hold on
-for j = goodVec
-    subplot(8,8,j)
-    hold on
-    for i = 1:size(templateDict_cell{j},2)
-        timeVec = [0:size(templateDict_cell{j},1)-1];
-        
-        %plotBTLError(timeVec,templateDict_cell{j}(:,i),'CI');
-        plot(timeVec,templateDict_cell{j}(:,i),'linewidth',2);
-    end
-    title(['Channel ' num2str(j)])
-end
-
-%
-sig = processedSig;
-avgResponse = mean(sig,3);
-
-stimChans = [20 29];
-
-smallMultiples_artifactReject(avgResponse,t_epoch,'type1',stimChans,'type2',0,'average',1,'highlight_range',train_duration)
-
-% plot the average dictionary templates
-figure
-for j = goodVec
-    subplot(8,8,j)
-    hold on
-    for i = 1:size(template{j},2)
-        timeVec = [0:size(template{j}{:,i},1)-1];
-        
-        plotBTLError(timeVec,template{j}{:,i},'CI',rand(1,3)');
-        %plot(timeVec,templateDict_cell{j}(:,i),'linewidth',2);
-    end
-    title(['Channel ' num2str(j)])
-end
 
 %% - template trial method
 stimChans = [1 9 20 24 29 32]; % 29 was bad too, 1 9 29 32 were the stim channels, 20 might also be bad

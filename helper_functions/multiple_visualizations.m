@@ -56,7 +56,7 @@ for i=1:2:(length(varargin)-1)
             fs_data = varargin{i+1};
         case 'template'
             template = varargin{i+1};
-        case 'templateDict_cell'
+        case 'templatedict_cell'
             templateDict_cell = varargin{i+1};
     end
 end
@@ -142,10 +142,14 @@ end
 [fRaw,P1Raw] = fourierTransformCalc(fs_data,avgRaw);
 
 smallMultiples_fourier(P1Raw,fRaw,'type1',stimChans,'type2',0)
+legend('raw')
 smallMultiples_fourier(P1,f,'type1',stimChans,'type2',0,'newfig',0)
+legend('processed')
 
 smallMultiples_fourier(P1Raw,fRaw,'type1',stimChans,'type2',0,'plotLog',1)
+legend('raw')
 smallMultiples_fourier(P1,f,'type1',stimChans,'type2',0,'newfig',0,'plotLog',1)
+legend('processed')
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
