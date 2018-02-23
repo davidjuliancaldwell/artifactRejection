@@ -51,8 +51,8 @@ end
 type = 'linear';
 
 % this determines whether or not to march a set amount of time after
-% stimulation onset, or to detect the end of each pulse
-useFixedEnd = 1; 
+% stimulation onset, or to detect the end of each pulse dynamically
+useFixedEnd = 0; 
 
 % this is how far to look before the algorithm detects each stimulation
 % pulse onset to allow for maximal artifact rejection
@@ -89,7 +89,7 @@ multiple_visualizations(processedSig,dataInt,'fs_data',fs_data,'type',type,'t_ep
 
 % using piecewise polynomial interpolation here 
 type = 'pchip';
-useFixedEnd = 1;
+useFixedEnd = 0;
 %pre = 0.4096; % in ms
 pre = 0.6;
 post = 0.4096; % in ms
@@ -128,7 +128,7 @@ multiple_visualizations(processedSig,dataInt,'fs_data',fs_data,'type',type,'t_ep
 % artifacts. 
 
 type = 'trial';
-useFixedEnd = 1;
+useFixedEnd = 0;
 fixed_distance = 2.8; % in ms
 
 %pre = 0.4096; % in ms
