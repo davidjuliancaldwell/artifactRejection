@@ -116,7 +116,7 @@ fprintf(['-------' type '-------- \n'])
 
 for trial = 1:size(raw_sig,3)
 
-    inds = find(abs(zscore(diff_sig(:,chanMax,trial)))>0.1);
+    inds = find(abs(zscore(diff_sig(:,chanMax,trial)))>2);
     diff_bt_inds = [diff(inds)'];
     [~,inds_onset] = find(abs(zscore(diff_bt_inds))>2);
     start_inds{trial} = [inds(1)-presamps; inds(inds_onset+1)-presamps];

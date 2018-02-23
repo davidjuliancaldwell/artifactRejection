@@ -56,7 +56,8 @@ useFixedEnd = 1;
 
 % this is how far to look before the algorithm detects each stimulation
 % pulse onset to allow for maximal artifact rejection
-pre = 0.4096; % in ms
+pre = 0.6; % in ms
+
 
 % this is how far to look after the algorithm detects each stimulation
 % pulse onset to allow for maximal artifact rejection
@@ -89,12 +90,13 @@ multiple_visualizations(processedSig,dataInt,'fs_data',fs_data,'type',type,'t_ep
 % using piecewise polynomial interpolation here 
 type = 'pchip';
 useFixedEnd = 1;
-pre = 0.4096; % in ms
+%pre = 0.4096; % in ms
+pre = 0.6;
 post = 0.4096; % in ms
 fixed_distance = 2.2; % in ms
 
 
-processedSig = interpolate_artifact(dataInt,'fs',fs_data,'plotIt',0,'type',type,...,
+processedSig = interpolate_artifact(dataInt,'fs',fs_data,'plotIt',1,'type',type,...,
     'stimchans',stimChans,'useFixedEnd',useFixedEnd,'fixed_distance',fixed_distance,'pre',pre,'post',post);
 
 % visualization
