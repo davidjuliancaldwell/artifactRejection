@@ -129,34 +129,6 @@ neighbours = [];
 vector_pts = 1:size(P,2);
 
 switch distanceMetric
-%     case 'euclidean'
-%         for i = 1:Npts
-%             if i ~= n
-%                 % Test if distance^2 < E^2
-%                 v = P(:,i)-P(:,n);
-%                 dist2 = v'*v;
-%                 if dist2 < E2
-%                     neighbours = [neighbours i];
-%                 end
-%             end
-%         end
-        
-        %     case 'corr'
-        %         for i = 1:Npts
-        %             if i ~= n
-        %                 % Test if xcorr less than
-        %                % [cor,lags] = xcorr(P(:,i),P(:,n));
-        %                 cor = min(corrcoef(P(:,i),P(:,n)));
-        %                % zscore_cor = zscore(cor);
-        %                 if cor > E
-        %                     neighbours = [neighbours i];
-        %                 end
-        %             end
-        %         end
-        
-        %     case 'euclidean'
-        %
-        %        [~,neighbours] = find(distance<E2);
         
     case 'euclidean'
         eucl = zeros(1,size(P,2));

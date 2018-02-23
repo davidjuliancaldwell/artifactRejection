@@ -115,20 +115,10 @@ fprintf(['-------Interpolation-------- \n'])
 fprintf(['-------' type '-------- \n'])
 
 for trial = 1:size(raw_sig,3)
-    
-    % find onset
-    
-    %     inds = find(abs(zscore(diff_sig(:,chanMax,trial)))>0.5);
-    %     diff_bt_inds = [diff(inds)' 0];
-    %     [~,inds_onset] = find(abs(zscore(diff_bt_inds))>0.5);
-    %     start_inds = [inds(1)-presamps; inds(inds_onset+1)-presamps];
-    %     end_inds = [ inds(inds_onset)+postsamps; inds(end)+postsamps];
-    
+
     inds = find(abs(zscore(diff_sig(:,chanMax,trial)))>0.1);
-    %inds = find(diff_sig(:,chanMax,trial)>2e-4);
     diff_bt_inds = [diff(inds)'];
     [~,inds_onset] = find(abs(zscore(diff_bt_inds))>2);
-    %[~,inds_onset] = find(diff_bt_inds>5);
     start_inds{trial} = [inds(1)-presamps; inds(inds_onset+1)-presamps];
     
     if useFixedEnd

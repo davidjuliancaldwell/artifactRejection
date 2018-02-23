@@ -75,7 +75,6 @@ if strcmp(type,'dictionary') || strcmp(type,'trial') || strcmp(type,'average')
             timeVec = [0:size(template{j}{:,i},1)-1];
             
             plotBTLError(timeVec,template{j}{:,i},'CI',rand(1,3)');
-            %plot(timeVec,templateDict_cell{j}(:,i),'linewidth',2);
         end
         title(['Channel ' num2str(j)])
     end
@@ -90,7 +89,6 @@ if strcmp(type,'dictionary') || strcmp(type,'trial') || strcmp(type,'average')
             for i = 1:size(templateDict_cell{j},2)
                 timeVec = [0:size(templateDict_cell{j},1)-1];
                 
-                %plotBTLError(timeVec,templateDict_cell{j}(:,i),'CI');
                 plot(timeVec,templateDict_cell{j}(:,i),'linewidth',2);
             end
             title(['Channel ' num2str(j)])
@@ -168,16 +166,5 @@ title('RMS Reduction in Decibels')
 xlabel('magnitude of decibel decrease')
 ylabel('count')
 set(gca,'fontsize',14)
-
-%processedSig_var = var(avgResponse(t_epoch<1000 & t_epoch>-100,:));
-% figure
-% subplot(2,1,1)
-% histogram(rawSig_rms,10)
-% title('raw signal')
-% subplot(2,1,2)
-% histogram(processedSig_rms,10)
-% hold on
-% title('processed signal')
-% [~,ind] = max(processedSig_rms);
 
 end

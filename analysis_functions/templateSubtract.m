@@ -96,10 +96,8 @@ fprintf(['-------Templates-------- \n'])
 for trial = 1:size(raw_sig,3)
     
     inds = find(abs(zscore(diff_sig(:,chanMax,trial)))>2);
-    %inds = find(diff_sig(:,chanMax,trial)>2e-4);
     diff_bt_inds = [diff(inds)'];
     [~,inds_onset] = find(abs(zscore(diff_bt_inds))>2);
-    %[~,inds_onset] = find(diff_bt_inds>5);
     start_inds{trial} = [inds(1)-presamps; inds(inds_onset+1)-presamps];
     
     if useFixedEnd
@@ -149,15 +147,11 @@ for trial = 1:size(raw_sig,3)
         % get single trial
         raw_sig_temp = raw_sig(:,chan,trial);
         
-        %avg_signal = zeros((end_inds{trial}(1)-start_inds{trial}(1)+1),length(start_inds{trial}));
         avg_signal = {};
         lengthMax_vec_temp = [];
         for sts = 1:length(start_inds{trial})
             win = start_inds{trial}(sts):end_inds{trial}(sts);
             lengthMax_temp = length(win);
-            % avg_signal(:,sts) = raw_sig_temp(win);
-            %avg_signal{sts} = raw_sig_temp(win) - raw_sig_temp(start_inds{trial}(sts));% take off first sample
-            % was -8 below here, then became - 3
              avg_signal{sts} = raw_sig_temp(win) - mean(raw_sig_temp(start_inds{trial}(sts):start_inds{trial}(sts)+presamps-8));% take off average of first 3 samples
             
             lengthMax_vec_temp = [lengthMax_vec_temp lengthMax_temp];
@@ -222,29 +216,7 @@ switch type
         
         for chan = GoodVec
             
-            templateArray = templateArray_cell{chan};
-            % adaptively change dbscan parameter
-            %     if max(templateArray(:)) < 3e-4
-            %         distanceDBscan = 0.0001;
-            %     else
-            %         distanceDBscan = 0.001;
-            %     end
-            
-            %distanceDBscan = 0;
-            %  if max(templateArray(:)) < 3e-4
-            % distanceDBscan = 0.99;
-            %  else
-            distanceDBscan = 0.95;
-            % end
-            %  if chan == 12
-            %         distanceDBscan = 0.995;
-            % else
-            % distanceDBscan = 0.99;
-            
-            %end
-            distanceDBscan = 1e-7;
-            distanceDBscan = 0.95;
-            
+            templateArray = templateArray_cell{chan};         
             if max(templateArray(:)) < 3e-4
                 distanceDBscan = 0.9;
             else
@@ -267,9 +239,6 @@ switch type
             for i = 1:length(vectorUniq)
                 meanTempArray = mean(templateArray(:,ptsC==i),2);
                 templateArray_extracted = [templateArray_extracted (meanTempArray )]; %no subtraction
-                %  templateArray_extracted = [templateArray_extracted (meanTempArray-meanTempArray(1) )]; %take off first sample
-                % templateArray_extracted = [templateArray_extracted (meanTempArray-median(meanTempArray(1:(presamps-6) )))]; % take off pre period
-                
             end
             
             templateArray_cell_output{chan} = templateArray_extracted;
@@ -326,21 +295,6 @@ switch type
                     
                     template_subtract = templates(:,index);
                     
-                    %             if max((correlations))>0.9
-                    %                 template_subtract = templates(:,index);
-                    %             else
-                    %                 template_subtract = zeros(size(templates(:,index)));
-                    %             end
-                    %
-                    % scale
-                    %        span_art = max(template_subtract)-min(template_subtract);
-                    %         span_sig = max(extracted_sig)-min(extracted_sig);
-                    %         ratio = span_art/span_sig;
-                    %             ratio_max = max(template_subtract)/max(extracted_sig);
-                    %             ratio_min = min(template_subtract)/min(extracted_sig);
-                    %           ratio = mean([ratio_max,ratio_min]);
-                    %       template_subtract = template_subtract/ratio;
-                    
                     raw_sig_temp(win) = raw_sig_temp(win) - template_subtract;
                 end
                 
@@ -359,12 +313,6 @@ switch type
                     plot(template_subtract)
                     plot(extracted_sig-template_subtract)
                     legend('extracted','template','subtracted');
-                    %
-                    %
-                    %             plot(a)
-                    %             plot(extracted_sig-a)
-                    %             legend('extracted','template','subtracted','trial_temp','subt_trial');
-                    
                 end
                 
                 processedSig(:,chan,trial) = raw_sig_temp;
@@ -372,7 +320,7 @@ switch type
             end
         end
         
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
     case 'average'
         templateArray_cell_output = {};
@@ -397,8 +345,7 @@ switch type
             end
             
         end
-        
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
     case 'trial'
         fprintf(['-------Trial Based Template-------- \n'])
@@ -426,18 +373,6 @@ switch type
                     
                     vline(start_inds{trial})
                     vline(end_inds{trial},'g')
-                    
-%                     figure
-%                     plot(extracted_sig)
-%                     hold on
-%                     plot(template_subtract)
-%                     plot(extracted_sig-template_subtract)
-%                     legend('extracted','template','subtracted');
-                    %
-                    %
-                    %             plot(a)
-                    %             plot(extracted_sig-a)
-                    %             legend('extracted','template','subtracted','trial_temp','subt_trial');
                     
                 end
                 
