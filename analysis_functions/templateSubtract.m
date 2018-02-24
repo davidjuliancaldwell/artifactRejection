@@ -152,7 +152,7 @@ for trial = 1:size(raw_sig,3)
         for sts = 1:length(start_inds{trial})
             win = start_inds{trial}(sts):end_inds{trial}(sts);
             lengthMax_temp = length(win);
-             avg_signal{sts} = raw_sig_temp(win) - mean(raw_sig_temp(start_inds{trial}(sts):start_inds{trial}(sts)+presamps-8));% take off average of first 3 samples
+            avg_signal{sts} = raw_sig_temp(win) - mean(raw_sig_temp(start_inds{trial}(sts):start_inds{trial}(sts)+presamps-8));% take off average of first 3 samples
             
             lengthMax_vec_temp = [lengthMax_vec_temp lengthMax_temp];
             
@@ -216,11 +216,19 @@ switch type
         
         for chan = GoodVec
             
-            templateArray = templateArray_cell{chan};         
-            if max(templateArray(:)) < 3e-4
-                distanceDBscan = 0.9;
+            templateArray = templateArray_cell{chan};
+            if strcmp(type,'eucl')
+                if max(templateArray(:)) < 3e-4
+                    distanceDBscan = 1e-3;
+                else
+                    distanceDBscan = 1e-4;
+                end
             else
-                distanceDBscan = 0.95;
+                if max(templateArray(:)) < 3e-4
+                    distanceDBscan = 0.9;
+                else
+                    distanceDBscan = 0.95;
+                end
             end
             
             [c,ptsC,centres] = dbscan(templateArray,distanceDBscan,1,distance_metric_dbscan);
@@ -320,7 +328,7 @@ switch type
             end
         end
         
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
     case 'average'
         templateArray_cell_output = {};
@@ -345,7 +353,7 @@ switch type
             end
             
         end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
     case 'trial'
         fprintf(['-------Trial Based Template-------- \n'])
