@@ -141,7 +141,7 @@ post = 0.2; % started with 0.7, then 1.1, then 1.5, then 1.8
 % options are 'eucl', 'cosine', 'corr', for either euclidean distance,
 % cosine similarity, or correlation for clustering and template matching. 
 
-distance_metric_dbscan = 'eucl';
+distance_metric_dbscan = 'corr';
 distance_metric_sigMatch = 'eucl';
 [processedSig,templateDict_cell,template,start_inds,end_inds] = templateSubtract(dataInt,'type',type,...
     'fs',fs_data,'plotIt',0,'pre',pre,'post',post,'stimChans',stimChans,'useFixedEnd',useFixedEnd,'fixed_distance',fixed_distance,...,
