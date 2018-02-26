@@ -1,3 +1,5 @@
 *.png
 *.asv
 *.mat
+
+!visualization_functions/colorbrewer.mat
