@@ -2,33 +2,32 @@ function smallMultiples_fourier(P1,f,varargin)
 % DJC - 2-18-2018 - small multiples plot for visualizing the results of
 % time x channels x trials
 
-% defaults
-type1 = [];
-type2 = [];
-newfig = 1;
-plotLog = 0;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% get inputs
+p = inputParser;
 
-% variable input
-for i=1:2:(length(varargin)-1)
-    if ~ischar (varargin{i})
-        error (['Unknown type of optional parameter name (parameter' ...
-            ' names must be strings).']);
-    end
-    % change the value of parameter
-    switch lower (varargin{i})
-        case 'type1'
-            type1 = varargin{i+1};
-        case 'type2'
-            type2 = varargin{i+1};
-        case 'newfig'
-            newfig = varargin{i+1};
-        case 'plotlog'
-            plotLog = varargin{i+1};
-    end
-end
+addRequired(p,'P1',@isnumeric);
+addRequired(p,'f',@isnumeric);
+
+addParameter(p,'type1',[],@isnumeric);
+addParameter(p,'type2',[],@isnumeric);
+addParameter(p,'newFig',1,@(x) x==0 || x ==1)
+addParameter(p,'plotLog',0,@(x) x==0 || x ==1)
+
+p.parse(P1,f,varargin{:});
+
+P1 = p.Results.P1;
+f = p.Results.f;
+type1 = p.Results.type1;
+type2 = p.Results.type2;
+newFig = p.Results.newFig;
+plotLog = p.Results.plotLog;
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% define new figure
-if newfig
+if newFig
     totalFig = figure;
     totalFig.Units = 'inches';
     totalFig.Position = [   10.4097    3.4722   13.2708   10.4514];

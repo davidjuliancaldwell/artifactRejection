@@ -80,7 +80,7 @@ processedSig = analyFunc.interpolate_artifact(dataInt,'fs',fs_data,'plotIt',0,'t
 % multiple visualizations are created with this call, including time domain
 % and spectral analyses
 
-vizFunc.multiple_visualizations(processedSig,dataInt,'fs_data',fs_data,'type',type,'t_epoch',...
+vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fs_data,'type',type,'tEpoch',...
     t_epoch,'xlims',xlims,'trainDuration',trainDuration,'stimChans',stimChans,...,
     'chanIntList',chanIntList)
 
@@ -103,7 +103,7 @@ processedSig = analyFunc.interpolate_artifact(dataInt,'fs',fs_data,'plotIt',0,'t
 % visualization
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-vizFunc.multiple_visualizations(processedSig,dataInt,'fs_data',fs_data,'type',type,'t_epoch',...
+vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fs_data,'type',type,'tEpoch',...
     t_epoch,'xlims',xlims,'trainDuration',trainDuration,'stimChans',stimChans,...,
     'chanIntList',chanIntList)
 
@@ -152,7 +152,7 @@ distanceMetricSigMatch = 'eucl';
 % of note - more visualizations are created here, including what the
 % templates look like on each channel, and what the discovered templates are
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-vizFunc.multiple_visualizations(processedSig,dataInt,'fs_data',fs_data,'type',type,'t_epoch',...
+vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fs_data,'type',type,'tEpoch',...
     t_epoch,'xlims',xlims,'train_duration',trainDuration,'stimChans',stimChans,...,
     'chanIntList',chanIntList,'template',template,'templateDict_cell',templateDictCell)
 

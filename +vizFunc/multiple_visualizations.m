@@ -3,67 +3,50 @@ function multiple_visualizations(processedSig,rawSig,varargin)
 % of the processing
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Check some basic data requirements
-if nargin == 0
-    error ('You must supply data');
-end
 
-if length (size (rawSig)) > 3
-    error ('Input data can not have more than three dimensions.');
-end
+% get inputs
+p = inputParser;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+validData = @(x) isnumeric(x) && size(x,3)>2;
+addRequired(p,'processedSig',validData);
+addRequired(p,'rawSig',validData);
+
+addParameter(p,'type','linear',@isstr);
+
+addParameter(p,'xlims',[-100 1000],@isnumeric);
+addParameter(p,'ylims',[-500 500],@isnumeric);
+addParameter(p,'trainDuration',[0 400],@isnumeric);
+addParameter(p,'tEpoch',0.2,@isnumeric);
+addParameter(p,'stimChans',[],@isnumeric);
+addParameter(p,'bads',[],@isnumeric);
+addParameter(p,'chanIntList',[1,2,3],@isnumeric);
+addParameter(p,'fs',12207,@isnumeric);
+addParameter(p,'template',@iscell)
+addParameter(p,'templateDictCell',@iscell);
+
+p.parse(processedSig,rawSig,varargin{:});
+
+rawSig = p.Results.rawSig;
+
+type = p.Results.type;
+
+stimChans = p.Results.stimChans;
+bads = p.Results.bads;
+fs = p.Results.fs;
+
+template = p.Results.template;
+templateDictCell = p.Results.templateDictCell;
+trainDuration = p.Results.trainDuration;
+xlims = p.Results.xlims;
+ylims = p.Results.ylims;
+tEpoch = p.Results.tEpoch;
+chanIntList = p.Results.chanIntList;
 
 
-% defaults
-type = 'linear';
-template = {};
-templateDictCell = {};
-chanInt = [];
-chanIntList = [];
-stimChans = [];
-t_epoch = [0:size(rawSig,1)-1];
-xlims = [-100 1000];
-ylims = [-500 500];
-trainDuration = [0 400];
-fs_data = 12207;
-
-% variable input
-for i=1:2:(length(varargin)-1)
-    if ~ischar (varargin{i})
-        error (['Unknown type of optional parameter name (parameter' ...
-            ' names must be strings).']);
-    end
-    % change the value of parameter
-    switch lower (varargin{i})
-        case 'type'
-            type= varargin{i+1};
-        case 'chanint'
-            chanInt = varargin{i+1};
-        case 'chanintlist'
-            chanIntList = varargin{i+1};
-        case 'stimchans'
-            stimChans = varargin{i+1};
-        case 't_epoch'
-            t_epoch = varargin{i+1};
-        case 'trainduration'
-            trainDuration = varargin{i+1};
-        case 'xlims'
-            xlims = varargin{i+1};
-        case 'ylims'
-            ylims = varargin{i+1};
-        case 'fs_data'
-            fs_data = varargin{i+1};
-        case 'template'
-            template = varargin{i+1};
-        case 'templatedictcell'
-            templateDictCell = varargin{i+1};
-    end
-end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 numChans = size(rawSig,2);
-[goods,goodVec] = helpFunc.goodChannel_extract('stimchans',stimChans,'numChans',numChans);
+[goods,goodVec] = helpFunc.goodChannel_extract('bads',bads,'stimchans',stimChans,'numChans',numChans);
 
 if strcmp(type,'dictionary') || strcmp(type,'trial') || strcmp(type,'average')
 
@@ -99,7 +82,7 @@ end
 avgResponse = mean(processedSig,3);
 avgRaw = mean(rawSig,3);
 
-vizFunc.smallMultiples_artifactReject(avgResponse,t_epoch,'type1',stimChans,'type2',0,'average',1,'highlight_range',trainDuration)
+vizFunc.smallMultiples_artifactReject(avgResponse,tEpoch,'type1',stimChans,'type2',0,'average',1,'highlightRange',trainDuration)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -111,7 +94,7 @@ for ind = chanIntList
     
     figure
     ax1 = subplot(2,1,1);
-    plot(1e3*t_epoch,1e6*exampChan,'linewidth',2);
+    plot(1e3*tEpoch,1e6*exampChan,'linewidth',2);
     xlim(xlims)
     ylim(ylims)
     
@@ -121,7 +104,7 @@ for ind = chanIntList
     
     ax2 = subplot(2,1,2);
     exampChan = mean(squeeze(rawSig(:,ind,:)),2);
-    plot(1e3*t_epoch,1e6*exampChan,'linewidth',2);
+    plot(1e3*tEpoch,1e6*exampChan,'linewidth',2);
     xlim(xlims)
     ylim(ylims)
     xlabel('time (ms)')
@@ -136,8 +119,8 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % look at the FFT difference
-[f,P1] = helpFunc.fourierTransformCalc(fs_data,avgResponse);
-[fRaw,P1Raw] = helpFunc.fourierTransformCalc(fs_data,avgRaw);
+[f,P1] = helpFunc.fourierTransformCalc(fs,avgResponse);
+[fRaw,P1Raw] = helpFunc.fourierTransformCalc(fs,avgRaw);
 
 vizFunc.smallMultiples_fourier(P1Raw,fRaw,'type1',stimChans,'type2',0)
 legend('raw')
@@ -152,8 +135,8 @@ legend('processed')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % look at the RMS reduction within particular section
-processedSig_rms = helpFunc.rms_func(avgResponse(t_epoch<1000 & t_epoch>-100,:));
-rawSig_rms = helpFunc.rms_func(avgRaw(t_epoch<1000 & t_epoch>-100,:));
+processedSig_rms = helpFunc.rms_func(avgResponse(tEpoch<1000 & tEpoch>-100,:));
+rawSig_rms = helpFunc.rms_func(avgRaw(tEpoch<1000 & tEpoch>-100,:));
 
 % look at decibel reduction for each channel
 

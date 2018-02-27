@@ -2,43 +2,37 @@ function smallMultiples_artifactReject(signal,t,varargin)
 % DJC - 2-18-2018 - small multiples plot for visualizing the results of 
 % time x channels x trials 
 
-% defaults
-type1 = [];
-type2 = [];
-average = 0;
-newfig = true;
-highlight_range = [];
-xlims = [-200 1000];
-ylims = [-200 200];
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% get inputs
+p = inputParser;
 
-% variable input 
-for i=1:2:(length(varargin)-1)
-    if ~ischar (varargin{i})
-        error (['Unknown type of optional parameter name (parameter' ...
-            ' names must be strings).']);
-    end
-    % change the value of parameter
-    switch lower (varargin{i})
-        case 'type1'
-            type1 = varargin{i+1};
-        case 'type2'
-            type2 = varargin{i+1};
-        case 'average'
-            average = varargin{i+1};
-        case 'newfig'
-            newfig = varargin{i+1};
-        case 'highlight_range'
-            highlight_range = varargin{i+1};
-        case 'xlims'
-            xlims = varargin{i+1};
-        case 'ylims'
-            ylims = varargin{i+1};
-            
-    end
-end
+addRequired(p,'signal',@isnumeric);
+addRequired(p,'t',@isnumeric);
+
+addParameter(p,'type1',[],@isnumeric);
+addParameter(p,'type2',[],@isnumeric);
+addParameter(p,'newFig',1,@(x) x==0 || x ==1)
+addParameter(p,'xlims',[-200 1000],@isnumeric);
+addParameter(p,'ylims',[-200 200],@isnumeric);
+addParameter(p,'highlightRange',[],@isnumeric);
+addParameter(p,'average',1,@(x) x==0 || x ==1)
+
+p.parse(signal,t,varargin{:});
+
+signal = p.Results.signal;
+t = p.Results.t;
+type1 = p.Results.type1;
+type2 = p.Results.type2;
+newFig = p.Results.newFig;
+xlims = p.Results.xlims;
+ylims = p.Results.ylims;
+highlightRange = p.Results.highlightRange;
+average = p.Results.average;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% define new figure 
-if newfig
+if newFig
     totalFig = figure;
     totalFig.Units = 'inches';
     totalFig.Position = [   10.4097    3.4722   13.2708   10.4514];
@@ -96,10 +90,10 @@ for idx=1:size(signal,2)
     ylim(ylims)
     vizFunc.vline(0)
     
-    if ~isempty(highlight_range)
+    if ~isempty(highlightRange)
         hColor = [116/255 255/255 112/255];
         y_range = ([-150 150]);
-         vizFunc.highlight(plt_sub, highlight_range, y_range, hColor);
+         vizFunc.highlight(plt_sub, highlightRange, y_range, hColor);
     end
        
     
