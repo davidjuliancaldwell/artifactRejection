@@ -38,7 +38,7 @@
 
 % PK January 2013
 
-function [C, ptsC, centres] = dbscan(P, E, minPts,distanceMetric) % DJC - add distance
+function [C, ptsC, centres] = db_scan(P, E, minPts,distanceMetric) % DJC - add distance
 
 if ~exist('distanceMetric','var')
     distanceMetric = 'euclidean';
@@ -107,7 +107,8 @@ for n = 1:length(C)
     centres(:,n) = centres(:,n)/length(C{n});
 end
 
-end % of dbscan
+end
+
 
 %------------------------------------------------------------------------
 % Find indices of all points within distance E of point with index n
@@ -126,36 +127,34 @@ function neighbours = regionQuery(P, n, E,distanceMetric)
 E2 = E^2;
 [dim, Npts] = size(P);
 neighbours = [];
-vector_pts = 1:size(P,2);
+vectorPts = 1:size(P,2);
 
 switch distanceMetric
-        
+    
     case 'euclidean'
         eucl = zeros(1,size(P,2));
         eucl(n) = nan;
-        v = P(:,vector_pts(vector_pts~=n)) - repmat(P(:,n),1,size(P(:,vector_pts(vector_pts~=n)),2));
-        eucl(vector_pts(vector_pts~=n)) = sum(v.*v);
-       [~,neighbours] = find(eucl<E2);
-
+        v = P(:,vectorPts(vectorPts~=n)) - repmat(P(:,n),1,size(P(:,vectorPts(vectorPts~=n)),2));
+        eucl(vectorPts(vectorPts~=n)) = sum(v.*v);
+        [~,neighbours] = find(eucl<E2);
+        
         
     case 'corr'
         cor = zeros(1,size(P,2));
-        cor(vector_pts(vector_pts~=n)) = corr(P(:,n),P(:,vector_pts(vector_pts~=n)));
+        cor(vectorPts(vectorPts~=n)) = corr(P(:,n),P(:,vectorPts(vectorPts~=n)));
         [~,neighbours] = find(cor>E);
         
     case 'cosine'
         cosTheta = zeros(size(P,2),1);
         % cosTheta = dot(P(:,n),P(:,vector_pts(vector_pts~=n)),2)/(norm(P(:,n))*norm(P(:,vector_pts(vector_pts~=n))));
-        denominator = sqrt(sum(P(:,n).*P(:,n))).*sqrt(sum(P(:,vector_pts(vector_pts~=n)).*P(:,vector_pts(vector_pts~=n))));
-        numerator = (P(:,n)'*P(:,vector_pts(vector_pts~=n)));
-        cosTheta(vector_pts(vector_pts~=n)) = numerator./denominator;
+        denominator = sqrt(sum(P(:,n).*P(:,n))).*sqrt(sum(P(:,vectorPts(vectorPts~=n)).*P(:,vectorPts(vectorPts~=n))));
+        numerator = (P(:,n)'*P(:,vectorPts(vectorPts~=n)));
+        cosTheta(vectorPts(vectorPts~=n)) = numerator./denominator;
         
-     %   cosTheta(vector_pts(vector_pts~=n)) = (P(:,n)'*P(:,vector_pts(vector_pts~=n)))'./((sqrt(P(:,n)'*...
-      %      P(:,n))).*sqrt(diag(P(:,vector_pts(vector_pts~=n))'*P(:,vector_pts(vector_pts~=n)))));
+        %   cosTheta(vector_pts(vector_pts~=n)) = (P(:,n)'*P(:,vector_pts(vector_pts~=n)))'./((sqrt(P(:,n)'*...
+        %      P(:,n))).*sqrt(diag(P(:,vector_pts(vector_pts~=n))'*P(:,vector_pts(vector_pts~=n)))));
         [~,neighbours] = find(cosTheta'>E);
         
 end
-
-
 
 end % of regionQuery

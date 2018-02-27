@@ -42,25 +42,25 @@ if newfig
     totalFig = figure;
     totalFig.Units = 'inches';
     totalFig.Position = [   10.4097    3.4722   13.2708   10.4514];
-    CT = cbrewer('qual','Accent',8);
+    CT = vizFunc.cbrewer('qual','Accent',8);
     CT = flipud(CT);
 else
     gcf;
     hold on
-    CT = cbrewer('qual','Accent',8);
+    CT = vizFunc.cbrewer('qual','Accent',8);
     CT = flipud(CT);
     CT(1,:) = CT(4,:);
 end
 
 
 % determine number of subplots using subplots helper function 
-p = numSubplots(size(signal,2));
+p = vizFunc.numSubplots(size(signal,2));
 
 nullSig = zeros(length(t),1);
 
 for idx=1:size(signal,2)
     %smplot(p(1),p(2),idx,'axis','on')
-    plt_sub = smplot(8,8,idx,'axis','on');
+    plt_sub = vizFunc.smplot(8,8,idx,'axis','on');
     
     if average
         if ismember(idx,type1)
@@ -94,18 +94,18 @@ for idx=1:size(signal,2)
     xlim(xlims)
     
     ylim(ylims)
-    vline(0)
+    vizFunc.vline(0)
     
     if ~isempty(highlight_range)
         hColor = [116/255 255/255 112/255];
         y_range = ([-150 150]);
-         highlight(plt_sub, highlight_range, y_range, hColor);
+         vizFunc.highlight(plt_sub, highlight_range, y_range, hColor);
     end
        
     
 end
 
-obj = scalebar;
+obj = vizFunc.scalebar;
 obj.XLen = 100;              %X-Length, 10.
 obj.XUnit = 'ms';            %X-Unit, 'm'.
 obj.YLen = 200;

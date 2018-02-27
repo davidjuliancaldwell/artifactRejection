@@ -2,4 +2,4 @@
 *.asv
 *.mat
 
-!visualization_functions/colorbrewer.mat
+!+visualization_functions/colorbrewer.mat

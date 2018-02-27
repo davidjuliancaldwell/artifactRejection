@@ -32,25 +32,25 @@ if newfig
     totalFig = figure;
     totalFig.Units = 'inches';
     totalFig.Position = [   10.4097    3.4722   13.2708   10.4514];
-    CT = cbrewer('qual','Accent',8);
+    CT = vizFunc.cbrewer('qual','Accent',8);
     CT = flipud(CT);
 else
     gcf;
     hold on
-    CT = cbrewer('qual','Accent',8);
+    CT = vizFunc.cbrewer('qual','Accent',8);
     CT = flipud(CT);
     CT(1,:) = CT(4,:);
 end
 
 % determine number of subplots using subplots helper function
-p = numSubplots(size(P1,2));
+p = vizFunc.numSubplots(size(P1,2));
 
 nullSig = zeros(length(f),1);
 
 if ~plotLog
     for idx=1:size(P1,2)
         %smplot(p(1),p(2),idx,'axis','on')
-        plt_sub = smplot(8,8,idx,'axis','on');
+        plt_sub = vizFunc.smplot(8,8,idx,'axis','on');
         
         if ismember(idx,type1)
             plot(f,nullSig,'Color',CT(3,:),'LineWidth',2)
@@ -73,7 +73,7 @@ if ~plotLog
     %xlabel('f (Hz)')
     %ylabel('|P1(f)|')
     
-    obj = scalebar;
+    obj = vizFunc.scalebar;
     obj.XLen = 50;              %X-Length, 10.
     obj.XUnit = 'f (Hz)';            %X-Unit, 'm'.
     obj.YLen = 1e-5;
@@ -90,7 +90,7 @@ if ~plotLog
 else
     for idx=1:size(P1,2)
         %smplot(p(1),p(2),idx,'axis','on')
-        plt_sub = smplot(8,8,idx,'axis','on');
+        plt_sub = vizFunc.smplot(8,8,idx,'axis','on');
         
         if ismember(idx,type1)
             semilogy(f,nullSig,'Color',CT(3,:),'LineWidth',2)

@@ -71,7 +71,7 @@ if (~exist('ctype', 'var') | ~exist('cname', 'var') | ~exist('ncol', 'var'))
     z={'Accent', 'Dark2', 'Paired', 'Pastel1', 'Pastel2', 'Set1', 'Set2', 'Set3'};
     z(:)
 
-    plot_brewer_cmap
+    vizFunc.plot_brewer_cmap
     return
 end
 
@@ -98,7 +98,7 @@ if (ncol>length(colorbrewer.(ctype).(cname)))
     disp('----------------------------------------------------------------------')
     disp(' ')
     cbrew_init=colorbrewer.(ctype).(cname){length(colorbrewer.(ctype).(cname))};
-    colormap=interpolate_cbrewer(cbrew_init, interp_method, ncol);
+    colormap=vizFunc.interpolate_cbrewer(cbrew_init, interp_method, ncol);
     colormap=colormap./255;
     return
 end
