@@ -39,11 +39,11 @@ for trial = 1:size(rawSig,3)
             
             switch normalize
                 case 'preAverage'
-                    avgSignal{sts} = rawSigTemp(win) - mean(rawSigTemp(startInds{trial}(sts):startInds{trial}(sts)+amntPreAverage));% take off average of first 3 samples
+                    avgSignal{sts} = rawSigTemp(win) - mean(rawSigTemp(startInds{trial}(sts):startInds{trial}(sts)+amntPreAverage));% take off average of first x samples
                 case 'none'
                     avgSignal{sts} = rawSigTemp(win);
                 case 'firstSamp'
-                    avgSignal{sts} = rawSigtemp(win) - rawSigTemp(startInds{trial}(sts));
+                    avgSignal{sts} = rawSigTemp(win) - rawSigTemp(startInds{trial}(sts));
             end
             
             lengthMaxVecTemp = [lengthMaxVecTemp lengthMaxTemp];

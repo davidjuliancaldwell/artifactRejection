@@ -132,7 +132,7 @@ vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fs_data,'type',type,'t
 % matching algorithm with DBSCAN clustering to discover the family of
 % artifacts.
 
-type = 'dictionary';
+type = 'trial';
 useFixedEnd = 0;
 %fixedDistance = 2;
 fixedDistance = 2.8; % in ms
@@ -140,8 +140,8 @@ fixedDistance = 2.8; % in ms
 %pre = 0.4096; % in ms
 %post = 0.4096; % in ms
 
-pre = 1; % started with 0.7, then 0.9, adjusted the window, move it to 0.4
-post = 0.2; % started with 0.7, then 1.1, then 1.5, then 1.8
+pre = 1; % started with 1
+post = 0.5; % started with 0.2
 
 % these are the metrics used if the dictionary method is selected. The
 % options are 'eucl', 'cosine', 'corr', for either euclidean distance,
@@ -149,9 +149,13 @@ post = 0.2; % started with 0.7, then 1.1, then 1.5, then 1.8
 
 distanceMetricDbscan = 'corr';
 distanceMetricSigMatch = 'eucl';
+
+amntPreAverage = 3;
+normalize = 'preAverage';
+normalize = 'firstSamp';
 [processedSig,templateDictCell,template] = analyFunc.template_subtract(dataInt,'type',type,...
     'fs',fs_data,'plotIt',0,'pre',pre,'post',post,'stimChans',stimChans,'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,...,
-    'distanceMetricDbscan',distanceMetricDbscan,'distanceMetricSigMatch',distanceMetricSigMatch);
+    'distanceMetricDbscan',distanceMetricDbscan,'distanceMetricSigMatch',distanceMetricSigMatch,'normalize',normalize,'amntPreAverage',amntPreAverage);
 
 % visualization
 % of note - more visualizations are created here, including what the
