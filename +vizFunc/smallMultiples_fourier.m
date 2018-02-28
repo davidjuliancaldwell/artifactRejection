@@ -66,26 +66,28 @@ if ~plotLog
         axis tight
         xlim([0 500])
         ylim([0 2e-5])
-  
+        
     end
     
     %xlabel('f (Hz)')
     %ylabel('|P1(f)|')
     
-    obj = vizFunc.scalebar;
-    obj.XLen = 50;              %X-Length, 10.
-    obj.XUnit = 'f (Hz)';            %X-Unit, 'm'.
-    obj.YLen = 1e-5;
-    obj.YUnit = 'Power';
-    
-    obj.Position = [5,0.25e-5];
-    obj.hTextX_Pos = [5,0.5e-5]; %move only the LABEL position
-    obj.hTextY_Pos =  [-10,0.5e-5];
-    obj.hLineY(2).LineWidth = 5;
-    obj.hLineY(1).LineWidth = 5;
-    obj.hLineX(2).LineWidth = 5;
-    obj.hLineX(1).LineWidth = 5;
-    obj.Border = 'LL';          %'LL'(default), 'LR', 'UL', 'UR'   
+    if ~newFig
+        obj = vizFunc.scalebar;
+        obj.XLen = 50;              %X-Length, 10.
+        obj.XUnit = 'f (Hz)';            %X-Unit, 'm'.
+        obj.YLen = 1e-5;
+        obj.YUnit = 'Power';
+        
+        obj.Position = [5,0.25e-5];
+        obj.hTextX_Pos = [5,0.5e-5]; %move only the LABEL position
+        obj.hTextY_Pos =  [-10,0.5e-5];
+        obj.hLineY(2).LineWidth = 5;
+        obj.hLineY(1).LineWidth = 5;
+        obj.hLineX(2).LineWidth = 5;
+        obj.hLineX(1).LineWidth = 5;
+        obj.Border = 'LL';          %'LL'(default), 'LR', 'UL', 'UR'
+    end
 else
     for idx=1:size(P1,2)
         %smplot(p(1),p(2),idx,'axis','on')
@@ -111,21 +113,21 @@ else
     
     %xlabel('f (Hz)')
     %ylabel('|P1(f)|')
-%     
-%     obj = scalebar;
-%     obj.XLen = 50;              %X-Length, 10.
-%     obj.XUnit = 'f (Hz)';            %X-Unit, 'm'.
-%     obj.YLen = 1e-5;
-%     obj.YUnit = 'Power';
-%     
-%     obj.Position = [5,0.25e-5];
-%     obj.hTextX_Pos = [5,0.5e-5]; %move only the LABEL position
-%     obj.hTextY_Pos =  [-10,0.5e-5];
-%     obj.hLineY(2).LineWidth = 5;
-%     obj.hLineY(1).LineWidth = 5;
-%     obj.hLineX(2).LineWidth = 5;
-%     obj.hLineX(1).LineWidth = 5;
-%     obj.Border = 'LL';          %'LL'(default), 'LR', 'UL', 'UR'
+    %
+    %     obj = scalebar;
+    %     obj.XLen = 50;              %X-Length, 10.
+    %     obj.XUnit = 'f (Hz)';            %X-Unit, 'm'.
+    %     obj.YLen = 1e-5;
+    %     obj.YUnit = 'Power';
+    %
+    %     obj.Position = [5,0.25e-5];
+    %     obj.hTextX_Pos = [5,0.5e-5]; %move only the LABEL position
+    %     obj.hTextY_Pos =  [-10,0.5e-5];
+    %     obj.hLineY(2).LineWidth = 5;
+    %     obj.hLineY(1).LineWidth = 5;
+    %     obj.hLineX(2).LineWidth = 5;
+    %     obj.hLineX(1).LineWidth = 5;
+    %     obj.Border = 'LL';          %'LL'(default), 'LR', 'UL', 'UR'
 end
 
 

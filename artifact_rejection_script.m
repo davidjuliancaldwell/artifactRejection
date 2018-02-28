@@ -19,15 +19,19 @@ switch dataChoice
         trainDuration = [0 400]; % this is how long the stimulation train was
         xlims = [-200 1000]; % these are the x limits to visualize in plots
         chanIntList = [2 10 51 42]; % these are the channels of interest to visualize in closer detail
-    case 3
-        load('+data/50ad9_paramSweep4.mat') % DBS data set
-    case 4
-        load('+data/ecb43e_RHI_async_trial14.mat') % rubber hand illusion data set
-    case 5
+     case 3
         load('+data/3f2113_stim_12_52.mat') % stimulation spacing data set
         trainDuration = [0 5];
-        xlims = [-50 200];
-        
+        xlims = [-10 100];
+        chanIntList = [13 53 51 42 60 61 ]; % these are the channels of interest to visualize in closer detail
+    case 4
+        load('+data/50ad9_paramSweep4.mat') % DBS data set
+        xlims = [-200 600];
+        chanIntList = [1:10];
+        trainDuration = [0 500];
+    case 5
+        load('+data/ecb43e_RHI_async_trial14.mat') % rubber hand illusion data set
+
 end
 
 % variables required for functions to work properly
@@ -53,7 +57,7 @@ type = 'linear';
 
 % this determines whether or not to march a set amount of time after
 % stimulation onset, or to detect the end of each pulse dynamically
-useFixedEnd = 1;
+useFixedEnd = 0;
 
 % this is how far to look before the algorithm detects each stimulation
 % pulse onset to allow for maximal artifact rejection
@@ -68,7 +72,7 @@ post = 0.4096; % in ms
 % for each pulse, and if using "useFixedEnd", it simply considers this time
 % window. Otherwise, the algorithm detects the individual offset of each
 % stimulation pulse.
-fixedDistance = 2.2; % in ms
+fixedDistance = 1.2; % in ms % 2.2 for the first 2 cases, 4 for the 3rd, 
 
 % perform the processing
 processedSig = analyFunc.interpolate_artifact(dataInt,'fs',fs_data,'plotIt',0,'type',type,...,
@@ -93,8 +97,8 @@ type = 'pchip';
 useFixedEnd = 0;
 %pre = 0.4096; % in ms
 pre = 0.6;
-post = 0.4096; % in ms
-fixedDistance = 2.2; % in ms
+post = 0.4096; % in ms1
+fixedDistance = 2; % in ms
 
 
 processedSig = analyFunc.interpolate_artifact(dataInt,'fs',fs_data,'plotIt',0,'type',type,...,
@@ -130,6 +134,7 @@ vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fs_data,'type',type,'t
 
 type = 'dictionary';
 useFixedEnd = 0;
+%fixedDistance = 2;
 fixedDistance = 2.8; % in ms
 
 %pre = 0.4096; % in ms
@@ -153,6 +158,6 @@ distanceMetricSigMatch = 'eucl';
 % templates look like on each channel, and what the discovered templates are
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fs_data,'type',type,'tEpoch',...
-    t_epoch,'xlims',xlims,'train_duration',trainDuration,'stimChans',stimChans,...,
-    'chanIntList',chanIntList,'template',template,'templateDict_cell',templateDictCell)
+    t_epoch,'xlims',xlims,'trainDuration',trainDuration,'stimChans',stimChans,...,
+    'chanIntList',chanIntList,'template',template,'templateDictCell',templateDictCell)
 

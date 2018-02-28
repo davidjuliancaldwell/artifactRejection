@@ -34,6 +34,8 @@ addParameter(p,'stimChans',[],@isnumeric);
 addParameter(p,'bads',[],@isnumeric);
 addParameter(p,'fixedDistance',2,@isnumeric);
 addParameter(p,'fs',12207,@isnumeric);
+addParameter(p,'amntPreAverage',5,@isnumeric);
+addParameter(p,'normalize','preAverage',@isstr);
 
 p.parse(rawSig,varargin{:});
 
@@ -54,6 +56,9 @@ bads = p.Results.bads;
 fixedDistance = p.Results.fixedDistance;
 fs = p.Results.fs;
 
+amntPreAverage = p.Results.amntPreAverage;
+normalize = p.Results.normalize;
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -73,8 +78,6 @@ numChans = size(rawSig,2);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% extract artifacts
 
-normalize = 'preAverage';
-amntPreAverage = 5;
 [lengthMax,templateCell] = analyFunc.get_artifacts(rawSig,'goodVec',goodVec,...,
     'startInds',startInds,'endInds',endInds,'plotIt',plotIt,'normalize',normalize,'amntPreAverage',amntPreAverage);
 

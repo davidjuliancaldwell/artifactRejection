@@ -60,6 +60,8 @@ numChans = size(rawSig,2);
 [goods,goodVec] = helpFunc.goodChannel_extract('bads',bads,'stimchans',stimChans,...,
     'numChans',numChans);
 
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 fprintf(['-------Interpolation-------- \n'])
@@ -82,6 +84,8 @@ for trial = 1:size(rawSig,3)
                     rawSigTemp(win) = interp1([startInds{trial}(sts)-1 endInds{trial}(sts)+1],...
                         rawSigTemp([startInds{trial}(sts)-1 endInds{trial}(sts)+1]), startInds{trial}(sts):endInds{trial}(sts));
                 case 'pchip'
+                    preInterpSamps = round(preInterp*fs/1e3);
+                    postInterpSamps = round(postInterp*fs/1e3);
                     rawSigTemp(win) = interp1([startInds{trial}(sts)-preInterpSamps:startInds{trial}(sts)-1 endInds{trial}(sts):endInds{trial}(sts)+postInterpSamps],...
                         rawSigTemp([startInds{trial}(sts)-preInterpSamps:startInds{trial}(sts)-1 endInds{trial}(sts):endInds{trial}(sts)+postInterpSamps]),...
                         startInds{trial}(sts):endInds{trial}(sts),'pchip');
