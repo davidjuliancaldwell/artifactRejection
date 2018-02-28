@@ -96,7 +96,7 @@ for trial = 1:size(rawSig,3)
             
             % find best artifact
             
-            templates = templateArrayCell{chan};
+            templates = templateArrayCellOutput{chan};
             
             % add on the trial one
             templates = [templates mean(template{chan}{trial},2)];
@@ -126,6 +126,16 @@ for trial = 1:size(rawSig,3)
             
             template_subtract = templates(:,index);
             
+%             k = 2;
+%             all = templateArrayCell{chan};
+%             [u,s,v] = svd(all);
+%             
+%             c = u(:,1:k);
+%             %c = template_subtract; 
+%             a = rawSigTemp(win);
+%             d = (c'*c)\(c'*a);
+%             clean = a - (c'*c)\(c'*a);
+%             
             rawSigTemp(win) = rawSigTemp(win) - template_subtract;
         end
         
