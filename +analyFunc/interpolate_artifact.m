@@ -1,4 +1,4 @@
-function [processedSig] = interpolate_artifact(rawSig,varargin)
+function [processedSig,startInds,endInds] = interpolate_artifact(rawSig,varargin)
 %USAGE:
 % This function will perform an interpolation scheme for artifacts on a
 % trial by trial, channel by channel basis, implementing either a linear

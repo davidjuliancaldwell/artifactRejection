@@ -75,7 +75,7 @@ post = 0.4096; % in ms
 fixedDistance = 1.2; % in ms % 2.2 for the first 2 cases, 4 for the 3rd, 
 
 % perform the processing
-processedSig = analyFunc.interpolate_artifact(dataInt,'fs',fs_data,'plotIt',0,'type',type,...,
+[processedSig,startInds,endInds] = analyFunc.interpolate_artifact(dataInt,'fs',fs_data,'plotIt',0,'type',type,...,
     'stimchans',stimChans,'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,'pre',pre,'post',post);
 
 % visualization
@@ -101,7 +101,7 @@ post = 0.4096; % in ms1
 fixedDistance = 2; % in ms
 
 
-processedSig = analyFunc.interpolate_artifact(dataInt,'fs',fs_data,'plotIt',0,'type',type,...,
+[processedSig,startInds,endInds] = analyFunc.interpolate_artifact(dataInt,'fs',fs_data,'plotIt',0,'type',type,...,
     'stimchans',stimChans,'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,'pre',pre,'post',post);
 
 % visualization
@@ -153,7 +153,7 @@ distanceMetricSigMatch = 'eucl';
 amntPreAverage = 3;
 normalize = 'preAverage';
 normalize = 'firstSamp';
-[processedSig,templateDictCell,template] = analyFunc.template_subtract(dataInt,'type',type,...
+[processedSig,templateDictCell,template,startInds,endInds] = analyFunc.template_subtract(dataInt,'type',type,...
     'fs',fs_data,'plotIt',0,'pre',pre,'post',post,'stimChans',stimChans,'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,...,
     'distanceMetricDbscan',distanceMetricDbscan,'distanceMetricSigMatch',distanceMetricSigMatch,'normalize',normalize,'amntPreAverage',amntPreAverage);
 
@@ -165,3 +165,6 @@ vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fs_data,'type',type,'t
     t_epoch,'xlims',xlims,'trainDuration',trainDuration,'stimChans',stimChans,...,
     'chanIntList',chanIntList,'template',template,'templateDictCell',templateDictCell)
 
+%%
+[processedSig_v2,templateDictCell,template] = analyFunc.template_subtract_iterative(processedSig,...,
+    'fs',fs_data,'plotIt',0,'pre',pre,'post',post,'stimChans',stimChans,'startInds',startInds,'endInds',endInds);

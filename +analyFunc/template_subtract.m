@@ -1,4 +1,4 @@
-function [processedSig,templateArrayCellOutput,template] = template_subtract(rawSig,varargin)
+function [processedSig,templateArrayCellOutput,template,startInds,endInds] = template_subtract(rawSig,varargin)
 %USAGE:
 % This function will perform a template subtraction scheme for artifacts on
 % a trial by trial, channel by channel basis. This function will build up
