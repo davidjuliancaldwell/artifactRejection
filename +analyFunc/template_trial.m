@@ -1,4 +1,4 @@
-function [processedSig,templateArrayCellOutput] = template_trial(template,rawSig,varargin)
+function [processedSig,templateArrayCellOutput] = template_trial(templateTrial,rawSig,varargin)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -14,8 +14,8 @@ addParameter(p,'startInds',[],@iscell);
 addParameter(p,'endInds',[],@iscell);
 
 
-p.parse(template,rawSig,varargin{:});
-template = p.Results.template;
+p.parse(templateTrial,rawSig,varargin{:});
+templateTrial = p.Results.template;
 plotIt = p.Results.plotIt;
 rawSig = p.Results.rawSig;
 
@@ -32,11 +32,11 @@ for trial = 1:size(rawSig,3)
     
     for chan = goodVec
         rawSigTemp = rawSig(:,chan,trial);
-        artifacts = template{chan}{trial};
+        artifacts = templateTrial{chan}{trial};
         
         avgTrial = nanmean(artifacts,2);
-        for sts = 1:length(startInds{trial})
-            win = startInds{trial}(sts):endInds{trial}(sts);            
+        for sts = 1:length(startInds{trial}{chan})
+            win = startInds{trial}{chan}(sts):endInds{trial}{chan}(sts);            
             rawSigTemp(win) = rawSigTemp(win) - avgTrial(1:length(win));
             
         end
@@ -47,8 +47,8 @@ for trial = 1:size(rawSig,3)
             hold on
             plot(rawSig(:,chan,trial),'linewidth',2)
             
-            vline(startInds{trial})
-            vline(endInds{trial},'g')
+            vline(startInds{trial}{chan})
+            vline(endInds{trial}{chan},'g')
             
         end
         

@@ -2,10 +2,10 @@
 % approaches to extract neural signals of interest.
 
 % clear the workspace
-close all;clear all;clc
+%close all;clear all;clc
 
 % load in the data file of interest
-dataChoice = 1;
+dataChoice = 6;
 
 switch dataChoice
     
@@ -19,7 +19,7 @@ switch dataChoice
         trainDuration = [0 400]; % this is how long the stimulation train was
         xlims = [-200 1000]; % these are the x limits to visualize in plots
         chanIntList = [2 10 51 42]; % these are the channels of interest to visualize in closer detail
-     case 3
+    case 3
         load('+data/3f2113_stim_12_52.mat') % stimulation spacing data set
         trainDuration = [0 5];
         xlims = [-10 100];
@@ -31,7 +31,16 @@ switch dataChoice
         trainDuration = [0 500];
     case 5
         load('+data/ecb43e_RHI_async_trial14.mat') % rubber hand illusion data set
-
+    case 6
+        load('+data/a1355e_examplePriming_Prime_high.mat')
+        trainDuration = [0 200]; % this is how long the stimulation train was
+        xlims = [-200 1000]; % these are the x limits to visualize in plots
+        chanIntList = [7 8 15 22 23 29 30 31 32]; % these are the channels of interest to visualize in closer detail
+    case 7
+        load('+data/a1355e_examplePriming_noPrime_high.mat')
+        trainDuration = [0 200]; % this is how long the stimulation train was
+        xlims = [-200 1000]; % these are the x limits to visualize in plots
+        chanIntList = [7 8 15 22 23 29 30 31 32]; % these are the channels of interest to visualize in closer detail
 end
 
 % variables required for functions to work properly
@@ -45,6 +54,8 @@ end
 %
 % plotIt - determines whether or not to plot the intermediate results of
 % the functions.
+%
+% t_epoch - epoched time window
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% linear interpolation with simple linear interpolation scheme
@@ -72,7 +83,7 @@ post = 0.4096; % in ms
 % for each pulse, and if using "useFixedEnd", it simply considers this time
 % window. Otherwise, the algorithm detects the individual offset of each
 % stimulation pulse.
-fixedDistance = 1.2; % in ms % 2.2 for the first 2 cases, 4 for the 3rd, 
+fixedDistance = 1.2; % in ms % 2.2 for the first 2 cases, 4 for the 3rd,
 
 % perform the processing
 [processedSig,startInds,endInds] = analyFunc.interpolate_artifact(dataInt,'fs',fs_data,'plotIt',0,'type',type,...,
@@ -86,7 +97,7 @@ fixedDistance = 1.2; % in ms % 2.2 for the first 2 cases, 4 for the 3rd,
 
 vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fs_data,'type',type,'tEpoch',...
     t_epoch,'xlims',xlims,'trainDuration',trainDuration,'stimChans',stimChans,...,
-    'chanIntList',chanIntList)
+    'chanIntList',chanIntList,'modePlot','confInt')
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -109,7 +120,7 @@ fixedDistance = 2; % in ms
 
 vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fs_data,'type',type,'tEpoch',...
     t_epoch,'xlims',xlims,'trainDuration',trainDuration,'stimChans',stimChans,...,
-    'chanIntList',chanIntList)
+    'chanIntList',chanIntList,'modePlot','confInt')
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -128,42 +139,49 @@ vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fs_data,'type',type,'t
 % are 'average', 'trial', and 'dictionary'. Average is the simplest
 % approach, and on a channel by channel basis it simply averages the
 % artifact for each channel. Trial uses the stimulation pulse train within
-% each trial. 'Dictionary' is the most advanced, and uses a template
+% each trial. 'dictionary' is the most advanced, and uses a template
 % matching algorithm with DBSCAN clustering to discover the family of
 % artifacts.
 
-type = 'trial';
+type = 'dictionary';
 useFixedEnd = 0;
 %fixedDistance = 2;
-fixedDistance = 2.8; % in ms
+fixedDistance = 4; % in ms
 
 %pre = 0.4096; % in ms
 %post = 0.4096; % in ms
 
-pre = 1; % started with 1
+pre = 0.8; % started with 1
 post = 0.5; % started with 0.2
+
+
+% 2.8, 1, 0.5 was 3/19/2018 
 
 % these are the metrics used if the dictionary method is selected. The
 % options are 'eucl', 'cosine', 'corr', for either euclidean distance,
 % cosine similarity, or correlation for clustering and template matching.
 
-distanceMetricDbscan = 'corr';
+distanceMetricDbscan = 'cosine';
 distanceMetricSigMatch = 'eucl';
 
 amntPreAverage = 3;
 normalize = 'preAverage';
-normalize = 'firstSamp';
-[processedSig,templateDictCell,template,startInds,endInds] = analyFunc.template_subtract(dataInt,'type',type,...
-    'fs',fs_data,'plotIt',0,'pre',pre,'post',post,'stimChans',stimChans,'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,...,
-    'distanceMetricDbscan',distanceMetricDbscan,'distanceMetricSigMatch',distanceMetricSigMatch,'normalize',normalize,'amntPreAverage',amntPreAverage);
+%normalize = 'firstSamp';
 
+recoverExp = 1; 
+
+[processedSig,templateDictCell,templateTrial,startInds,endInds] = analyFunc.template_subtract(dataInt,'type',type,...
+    'fs',fs_data,'plotIt',0,'pre',pre,'post',post,'stimChans',stimChans,'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,...,
+    'distanceMetricDbscan',distanceMetricDbscan,'distanceMetricSigMatch',distanceMetricSigMatch,...
+    'recoverExp',recoverExp,'normalize',normalize,'amntPreAverage',amntPreAverage);
+%
 % visualization
 % of note - more visualizations are created here, including what the
 % templates look like on each channel, and what the discovered templates are
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fs_data,'type',type,'tEpoch',...
     t_epoch,'xlims',xlims,'trainDuration',trainDuration,'stimChans',stimChans,...,
-    'chanIntList',chanIntList,'template',template,'templateDictCell',templateDictCell)
+    'chanIntList',chanIntList,'templateTrial',templateTrial,'templateDictCell',templateDictCell,'modePlot','confInt')
 
 %%
 [processedSig_v2,templateDictCell,template] = analyFunc.template_subtract_iterative(processedSig,...,

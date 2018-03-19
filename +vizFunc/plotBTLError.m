@@ -14,7 +14,7 @@ washeld = ishold(gca);
 
 sigma = std(y,0,2);
 n = size(y,2);
-if strcmp(type,'SE')% standard error 
+if strcmp(type,'SE')% standard error
     upper = mean(y,2) + sigma/sqrt(n);
     lower = mean(y,2) - sigma/sqrt(n);
 elseif strcmp(type,'SD') % standard deviation
@@ -32,8 +32,8 @@ end
 %plot(x, squeeze(nanmean(y,2)), color);
 plot(x, squeeze(nanmean(y,2)), 'color',color) % djc change 2-5-2018
 
-[fillhandle,msg]=jbfill(x,upper',lower',color',edge,add,transparency);
 
+[fillhandle,msg]=vizFunc.jbfill(x,upper',lower',color',edge,add,transparency);
 
 if (washeld == false)
     hold off;

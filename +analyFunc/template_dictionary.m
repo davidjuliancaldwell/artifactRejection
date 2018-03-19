@@ -1,11 +1,11 @@
-function [processedSig,templateArrayCellOutput] = template_dictionary(templateArrayCell,template,rawSig,varargin)
+function [processedSig,templateArrayCellOutput] = template_dictionary(templateArrayCell,templateTrial,rawSig,varargin)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 p = inputParser;
 
 addRequired(p,'templateArrayCell',@iscell);
-addRequired(p,'template',@iscell);
+addRequired(p,'templateTrial',@iscell);
 addRequired(p,'rawSig',@isnumeric);
 
 addParameter(p,'plotIt',0,@(x) x==0 || x ==1);
@@ -17,11 +17,13 @@ addParameter(p,'goodVec',[1:64],@isnumeric);
 addParameter(p,'startInds',[],@iscell);
 addParameter(p,'endInds',[],@iscell);
 
+addParameter(p,'recoverExp',1,@(x) x==0 || x ==1);
 
-p.parse(templateArrayCell,template,rawSig,varargin{:});
+
+p.parse(templateArrayCell,templateTrial,rawSig,varargin{:});
 
 templateArrayCell = p.Results.templateArrayCell;
-template = p.Results.template;
+templateTrial = p.Results.templateTrial;
 rawSig = p.Results.rawSig;
 
 plotIt = p.Results.plotIt;
@@ -30,6 +32,8 @@ distanceMetricSigMatch = p.Results.distanceMetricSigMatch;
 goodVec = p.Results.goodVec;
 startInds = p.Results.startInds;
 endInds = p.Results.endInds;
+
+recoverExp = p.Results.recoverExp;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -81,61 +85,67 @@ end
 
 fprintf(['-------Finished clustering artifacts-------- \n'])
 
-%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 % now do the template subtraction
 for trial = 1:size(rawSig,3)
     
     for chan = goodVec
         
         rawSigTemp = rawSig(:,chan,trial);
+        templates = templateArrayCellOutput{chan};
         
-        for sts = 1:length(startInds{trial})
-            win = startInds{trial}(sts):endInds{trial}(sts);
+        % add on the trial one
+        templates = [templates mean(templateTrial{chan}{trial},2)];
+        
+        
+        % ensure no subtraction of exponential
+        
+        if recoverExp
+            templates = analyFunc.recover_EP(templates);
+        end
+        
+        for sts = 1:length(startInds{trial}{chan})
+            win = startInds{trial}{chan}(sts):endInds{trial}{chan}(sts);
             extractedSig = rawSigTemp(win);
             extractedSig = extractedSig - extractedSig(1);
             
             % find best artifact
-            
-            templates = templateArrayCellOutput{chan};
-            
-            % add on the trial one
-            templates = [templates mean(template{chan}{trial},2)];
-            
             % get them to be the same length
-            templates = templates(1:length(extractedSig),:);
+            templatesSts = templates(1:length(extractedSig),:);
             
             switch distanceMetricSigMatch
                 case 'correlation'
                     % correlation
-                    correlations = corr(extractedSig,templates);
+                    correlations = corr(extractedSig,templatesSts);
                     [~,index] = max((correlations));
                     
                 case 'cosineSim'
                     % - cosine similarity
-                    denominator = sqrt(sum(extractedSig.*extractedSig)).*sqrt(sum(templates.*templates));
-                    numerator = (extractedSig'*templates);
+                    denominator = sqrt(sum(extractedSig.*extractedSig)).*sqrt(sum(templatesSts.*templates));
+                    numerator = (extractedSig'*templatesSts);
                     correlations = numerator./denominator;
                     [~,index] = max(abs(correlations));
                     
                 case 'eucl'
                     % distance
-                    v = templates - repmat(extractedSig,1,size(templates,2));
+                    v = templatesSts - repmat(extractedSig,1,size(templatesSts,2));
                     distance = sum(v.*v);
                     [~,index] = min(distance);
             end
             
-            template_subtract = templates(:,index);
+            template_subtract = templatesSts(:,index);
             
-%             k = 2;
-%             all = templateArrayCell{chan};
-%             [u,s,v] = svd(all);
-%             
-%             c = u(:,1:k);
-%             %c = template_subtract; 
-%             a = rawSigTemp(win);
-%             d = (c'*c)\(c'*a);
-%             clean = a - (c'*c)\(c'*a);
-%             
+            %             k = 2;
+            %             all = templateArrayCell{chan};
+            %             [u,s,v] = svd(all);
+            %
+            %             c = u(:,1:k);
+            %             %c = template_subtract;
+            %             a = rawSigTemp(win);
+            %             d = (c'*c)\(c'*a);
+            %             clean = a - (c'*c)\(c'*a);
+            %
             rawSigTemp(win) = rawSigTemp(win) - template_subtract;
         end
         
@@ -145,8 +155,8 @@ for trial = 1:size(rawSig,3)
             hold on
             plot(rawSig(:,chan,trial),'linewidth',2)
             
-            vline(startInds{trial})
-            vline(endInds{trial},'g')
+            vline(startInds{trial}{chan})
+            vline(endInds{trial}{chan},'g')
             
             figure
             plot(extractedSig)
@@ -157,8 +167,11 @@ for trial = 1:size(rawSig,3)
         end
         
         processedSig(:,chan,trial) = rawSigTemp;
-        
+            fprintf(['-------Template Processed - Channel ' num2str(chan) '--' 'Trial ' num2str(trial) '-----\n'])
+
     end
+    
+    
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

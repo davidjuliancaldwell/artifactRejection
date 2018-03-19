@@ -1,6 +1,6 @@
 function smallMultiples_artifactReject(signal,t,varargin)
-% DJC - 2-18-2018 - small multiples plot for visualizing the results of 
-% time x channels x trials 
+% DJC - 2-18-2018 - small multiples plot for visualizing the results of
+% time x channels x trials
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % get inputs
@@ -15,7 +15,7 @@ addParameter(p,'newFig',1,@(x) x==0 || x ==1)
 addParameter(p,'xlims',[-200 1000],@isnumeric);
 addParameter(p,'ylims',[-200 200],@isnumeric);
 addParameter(p,'highlightRange',[],@isnumeric);
-addParameter(p,'average',1,@(x) x==0 || x ==1)
+addParameter(p,'modePlot','avg',@isstr)
 
 p.parse(signal,t,varargin{:});
 
@@ -27,11 +27,11 @@ newFig = p.Results.newFig;
 xlims = p.Results.xlims;
 ylims = p.Results.ylims;
 highlightRange = p.Results.highlightRange;
-average = p.Results.average;
+modePlot = p.Results.modePlot;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% define new figure 
+%% define new figure
 if newFig
     totalFig = figure;
     totalFig.Units = 'inches';
@@ -47,40 +47,57 @@ else
 end
 
 
-% determine number of subplots using subplots helper function 
+% determine number of subplots using subplots helper function
 p = vizFunc.numSubplots(size(signal,2));
 
 nullSig = zeros(length(t),1);
 
+if strcmp(modePlot,'avg')
+    signal = mean(signal,3);
+    
+end
+
 for idx=1:size(signal,2)
     %smplot(p(1),p(2),idx,'axis','on')
     plt_sub = vizFunc.smplot(8,8,idx,'axis','on');
-    
-    if average
-        if ismember(idx,type1)
-            plot(1e3*t,nullSig,'Color',CT(3,:),'LineWidth',2)
-            title([num2str(idx)],'Color',CT(3,:))
-        elseif ismember(idx,type2)
-            plot(1e3*t,1e6*signal(:,idx),'Color',CT(2,:),'LineWidth',2)
-            title([num2str(idx)],'Color',CT(2,:))
-        else
-            plot(1e3*t,1e6*signal(:,idx),'Color',CT(1,:),'LineWidth',2)
-            title([num2str(idx)],'color',CT(1,:))
-        end
-        
-    elseif ~average
-        if ismember(idx,type1)
-            plot(1e3*t,nullSig,'Color',CT(3,:),'LineWidth',2)
-            title([num2str(idx)],'Color',CT(3,:))
-        elseif ismember(idx,type2)
-            plot(1e3*t,1e6*squeeze(signal(:,idx)),'Color',CT(2,:),'LineWidth',2)
-            title([num2str(idx)],'Color',CT(2,:))
-        else
-            plot(1e3*t,1e6*squeeze(signal(:,idx)),'Color',CT(1,:),'LineWidth',2)
-            title([num2str(idx)],'color',CT(1,:))
-        end
-        
+    switch modePlot
+        case 'avg'
+            if ismember(idx,type1)
+                plot(1e3*t,nullSig,'Color',CT(3,:),'LineWidth',2)
+                title([num2str(idx)],'Color',CT(3,:))
+            elseif ismember(idx,type2)
+                plot(1e3*t,1e6*signal(:,idx),'Color',CT(2,:),'LineWidth',2)
+                title([num2str(idx)],'Color',CT(2,:))
+            else
+                plot(1e3*t,1e6*signal(:,idx),'Color',CT(1,:),'LineWidth',2)
+                title([num2str(idx)],'color',CT(1,:))
+            end
+            
+        case 'ind'
+            if ismember(idx,type1)
+                plot(1e3*t,nullSig,'Color',CT(3,:),'LineWidth',2)
+                title([num2str(idx)],'Color',CT(3,:))
+            elseif ismember(idx,type2)
+                plot(1e3*t,1e6*squeeze(signal(:,idx)),'Color',CT(2,:),'LineWidth',2)
+                title([num2str(idx)],'Color',CT(2,:))
+            else
+                plot(1e3*t,1e6*squeeze(signal(:,idx)),'Color',CT(1,:),'LineWidth',2)
+                title([num2str(idx)],'color',CT(1,:))
+            end
+            
+        case 'confInt'
+            if ismember(idx,type1)
+                plot(1e3*t,nullSig,'Color',CT(3,:),'LineWidth',2)
+                title([num2str(idx)],'Color',CT(3,:))
+            elseif ismember(idx,type2)
+                vizFunc.plotBTLError(1e3*t',1e6*squeeze(signal(:,idx,:)),'CI',CT(2,:));
+                title([num2str(idx)],'Color',CT(2,:))
+            else
+                vizFunc.plotBTLError(1e3*t'',1e6*squeeze(signal(:,idx,:)),'CI',CT(1,:));
+                title([num2str(idx)],'color',CT(1,:))
+            end
     end
+    
     
     axis off
     axis tight
@@ -93,9 +110,8 @@ for idx=1:size(signal,2)
     if ~isempty(highlightRange)
         hColor = [116/255 255/255 112/255];
         y_range = ([-150 150]);
-         vizFunc.highlight(plt_sub, highlightRange, y_range, hColor);
+        vizFunc.highlight(plt_sub, highlightRange, y_range, hColor);
     end
-       
     
 end
 

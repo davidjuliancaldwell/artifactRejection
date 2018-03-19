@@ -39,7 +39,7 @@ for chan = goodVec
         rawSigTemp = rawSig(:,chan,trial);
         
         for sts = 1:length(startInds{trial})
-            win = start_inds{trial}(sts):endInds{trial}(sts);
+            win = startInds{trial}{chan}(sts):endInds{trial}{chan}(sts);
             rawSigTemp(win) = rawSigTemp(win) - avgSignalMean(1:length(win));
         end
         
@@ -49,8 +49,8 @@ for chan = goodVec
             hold on
             plot(rawSig(:,chan,trial),'linewidth',2)
             
-            vline(startInds{trial})
-            vline(endInds{trial},'g')
+            vline(startInds{trial}{chan})
+            vline(endInds{trial}{chan},'g')
             
         end
         

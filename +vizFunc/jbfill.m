@@ -34,7 +34,7 @@ if length(upper)==length(lower) && length(lower)==length(xpoints)
     if add
         hold on
     end
-    fillhandle=fill(xpoints,filled,color);%plot the data
+    fillhandle=fill(xpoints,filled,color');%plot the data
     set(fillhandle,'EdgeColor',edge,'FaceAlpha',transparency,'EdgeAlpha',transparency);%set edge color
     if add
         hold off

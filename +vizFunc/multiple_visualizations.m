@@ -21,8 +21,9 @@ addParameter(p,'stimChans',[],@isnumeric);
 addParameter(p,'bads',[],@isnumeric);
 addParameter(p,'chanIntList',[1,2,3],@isnumeric);
 addParameter(p,'fs',12207,@isnumeric);
-addParameter(p,'template',@iscell)
+addParameter(p,'templateTrial',@iscell)
 addParameter(p,'templateDictCell',@iscell);
+addParameter(p,'modePlot','avg',@isstr);
 
 p.parse(processedSig,rawSig,varargin{:});
 
@@ -34,36 +35,37 @@ stimChans = p.Results.stimChans;
 bads = p.Results.bads;
 fs = p.Results.fs;
 
-template = p.Results.template;
+templateTrial = p.Results.templateTrial;
 templateDictCell = p.Results.templateDictCell;
 trainDuration = p.Results.trainDuration;
 xlims = p.Results.xlims;
 ylims = p.Results.ylims;
 tEpoch = p.Results.tEpoch;
 chanIntList = p.Results.chanIntList;
-
+modePlot = p.Results.modePlot;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 numChans = size(rawSig,2);
 [goods,goodVec] = helpFunc.goodChannel_extract('bads',bads,'stimchans',stimChans,'numChans',numChans);
 
-if strcmp(type,'dictionary') || strcmp(type,'trial') || strcmp(type,'average')
+if (strcmp(type,'dictionary') || strcmp(type,'trial') || strcmp(type,'average')) && (exist('templateDictCell','var') || exist('templateTrial','var'))
 
+    if exist('templateTrial','var')
     figure
     for j = goodVec
         subplot(8,8,j)
         hold on
-        for i = 1:size(template{j},2)
-            timeVec = [0:size(template{j}{:,i},1)-1];
+        for i = 1:size(templateTrial{j},2)
+            timeVec = [0:size(templateTrial{j}{:,i},1)-1];
             
-            vizFunc.plotBTLError(timeVec,template{j}{:,i},'CI',rand(1,3)');
+            vizFunc.plotBTLError(timeVec,templateTrial{j}{:,i},'CI',rand(1,3));
         end
         title(['Channel ' num2str(j)])
     end
     
     % plot the average template dictionary if using a dictionary method
-    if strcmp(type,'dictionary')
+    if strcmp(type,'dictionary') && exist('templateDictCell','var')
         figure
         hold on
         for j = goodVec
@@ -82,7 +84,7 @@ end
 avgResponse = mean(processedSig,3);
 avgRaw = mean(rawSig,3);
 
-vizFunc.smallMultiples_artifactReject(avgResponse,tEpoch,'type1',stimChans,'type2',0,'average',1,'highlightRange',trainDuration)
+vizFunc.smallMultiples_artifactReject(processedSig,tEpoch,'type1',stimChans,'type2',0,'modePlot',modePlot,'highlightRange',trainDuration)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -135,12 +137,12 @@ legend('processed')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % look at the RMS reduction within particular section
-processedSig_rms = helpFunc.rms_func(avgResponse(tEpoch<1000 & tEpoch>-100,:));
-rawSig_rms = helpFunc.rms_func(avgRaw(tEpoch<1000 & tEpoch>-100,:));
+processedSigRms = helpFunc.rms_func(avgResponse(tEpoch<1000 & tEpoch>-100,:));
+rawSigRms = helpFunc.rms_func(avgRaw(tEpoch<1000 & tEpoch>-100,:));
 
 % look at decibel reduction for each channel
 
-rms_db = 20*log10(processedSig_rms./rawSig_rms);
+rms_db = 20*log10(processedSigRms./rawSigRms);
 
 figure
 numBins = 10;

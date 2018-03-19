@@ -28,7 +28,7 @@ for chan = goodVec
     for trial = 1:size(rawSig,3)
         artifacts_cell = templateCell{chan}{trial};
         artifactsMat = [];
-        for sts = 1:length(startInds{trial})
+        for sts = 1:length(startInds{trial}{chan})
             
             artifactsTrial = artifacts_cell{sts};
             

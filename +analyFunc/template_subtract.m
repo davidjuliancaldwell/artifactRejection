@@ -1,4 +1,4 @@
-function [processedSig,templateArrayCellOutput,template,startInds,endInds] = template_subtract(rawSig,varargin)
+function [processedSig,templateArrayCellOutput,templateTrial,startInds,endInds] = template_subtract(rawSig,varargin)
 %USAGE:
 % This function will perform a template subtraction scheme for artifacts on
 % a trial by trial, channel by channel basis. This function will build up
@@ -35,7 +35,8 @@ addParameter(p,'bads',[],@isnumeric);
 addParameter(p,'fixedDistance',2,@isnumeric);
 addParameter(p,'fs',12207,@isnumeric);
 addParameter(p,'amntPreAverage',5,@isnumeric);
-addParameter(p,'normalize','preAverage',@isstr);
+addParameter(p,'normalize','firstSamp',@isstr);
+addParameter(p,'recoverExp',1,@(x) x==0 || x ==1);
 
 p.parse(rawSig,varargin{:});
 
@@ -59,6 +60,7 @@ fs = p.Results.fs;
 amntPreAverage = p.Results.amntPreAverage;
 normalize = p.Results.normalize;
 
+recoverExp = p.Results.recoverExp;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -73,7 +75,7 @@ numChans = size(rawSig,2);
 %% get beginnings and ends of artifacts
 
 [startInds,endInds] = analyFunc.get_artifact_indices(rawSig,'pre',pre,'post',post,'plotIt',...,
-    plotIt,'fixedDistance',fixedDistance,'fs',fs,'goodVec',goodVec);
+    plotIt,'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,'fs',fs,'goodVec',goodVec);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% extract artifacts
@@ -84,21 +86,21 @@ numChans = size(rawSig,2);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% get templates all same length
 
-[template,templateArrayCell] = analyFunc.template_equalize_length(templateCell,rawSig,'lengthMax',...,
+[templateTrial,templateArrayCell] = analyFunc.template_equalize_length(templateCell,rawSig,'lengthMax',...,
     lengthMax,'startInds',startInds,'goodVec',goodVec);
 
 %% build up dictionary
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 switch type
     case 'dictionary'
-        [processedSig,templateArrayCellOutput] = analyFunc.template_dictionary(templateArrayCell,template,rawSig,'plotIt',plotIt,'distanceMetricDbscan',distanceMetricDbscan,...,
-            'distanceMetricSigMatch',distanceMetricSigMatch,'goodVec',goodVec,'startInds',startInds,'endInds',endInds);
+        [processedSig,templateArrayCellOutput] = analyFunc.template_dictionary(templateArrayCell,templateTrial,rawSig,'plotIt',plotIt,'distanceMetricDbscan',distanceMetricDbscan,...,
+            'distanceMetricSigMatch',distanceMetricSigMatch,'goodVec',goodVec,'startInds',startInds,'endInds',endInds,'recoverExp',recoverExp);
         
     case 'average'
         [processedSig,templateArrayCellOutput] = analyFunc.template_average(templateArrayCell,rawSig,'plotIt',plotIt...,
             ,'goodVec',goodVec,'startInds',startInds,'endInds',endInds);
     case 'trial'
-        [processedSig,templateArrayCellOutput] = analyFunc.template_trial(template,rawSig,'plotIt',plotIt...,
+        [processedSig,templateArrayCellOutput] = analyFunc.template_trial(templateTrial,rawSig,'plotIt',plotIt...,
             ,'goodVec',goodVec,'startInds',startInds,'endInds',endInds);
 end
 
