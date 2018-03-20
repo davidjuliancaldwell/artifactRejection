@@ -74,20 +74,23 @@ for trial = 1:size(rawSig,3)
                 
                 last = find(abs(zscore(signal))>0.2,1,'last');
                 last2 = find(abs(zscore(diff_signal))>5e-3,1,'last')+1;
+                ct = max(last, last2);
                 
-                if (isempty(last2))
-                    if (isempty(last))
-                        error ('something is wrong with signal');
-                    else
-                        ct = last;
+                if length(win) - ct > 8
+                    
+                    x = [ct:length(win)]';
+                    y = signal(x);
+                    [f2,gof,output] = fit(x,y,'exp2');
+                    func_fit = @(x) f2.a*exp(f2.b*x) + f2.c*exp(f2.d*x);
+                    
+                    % if its a good fit, set the end index to include that
+                    
+                    if gof.adjrsquare>0.8
+                        ct = length(win);
                     end
-                else
-                    if (isempty(last))
-                        ct = last2;
-                    else
-                        ct = max(last, last2);
-                    end
+                    
                 end
+                
                 endInds{trial}{chan}(idx) = ct + startInds{trial}{chan}(idx) + postsamps;
                 
             end
