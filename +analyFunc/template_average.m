@@ -26,6 +26,7 @@ endInds = p.Results.endInds;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 templateArrayCellOutput = {};
+processedSig = zeros(size(rawSig));
 
 fprintf(['-------Average Template-------- \n'])
 

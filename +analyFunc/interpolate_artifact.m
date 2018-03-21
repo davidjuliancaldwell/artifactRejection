@@ -1,20 +1,48 @@
 function [processedSig,startInds,endInds] = interpolate_artifact(rawSig,varargin)
-%USAGE:
+% Usage:  [processedSig,startInds,endInds] = interpolate_artifact(rawSig,varargin)
+%
 % This function will perform an interpolation scheme for artifacts on a
 % trial by trial, channel by channel basis, implementing either a linear
 % interpolation scheme, or a pchip interpolation scheme
+% 
+% Arguments:
+%   Required:
+%   rawSig - samples x channels x trials 
 %
-% raw_sig = samples x channels x trials
-% pre = the number of ms before which the stimulation pulse onset as
-% detected by a thresholding method should still be considered as artifact
-% post = the number of ms after which the stimulation pulse onset as
-% detected by a thresholding method should still be considered as artifact
-% pre_interp = the number of ms before the stimulation which to consider an
-% interpolation scheme on. Does not apply to the linear case
-% post_interp = the number of ms before the stimulation which to consider an
-% interpolation scheme on. Does not apply to the linear case
-% fs = sampling rate (Hz)
-% plotIt = plot intermediate steps if true
+%   Optional:
+%        pre - The number of ms before which the stimulation pulse onset as
+%              detected by a thresholding method should still be considered 
+%              as artifact
+%       post - The number of ms after which the stimulation pulse onset as
+%              detected by a thresholding method should still be 
+%              considered as artifact
+%  preInterp - The number of ms before the stimulation which to consider an
+%              interpolation scheme on. Does not apply to the linear case
+% postInterp - The number of ms before the stimulation which to consider an
+%              interpolation scheme on. Does not apply to the linear case
+%          fs - Sampling rate (Hz)
+%      plotIt - Plot intermediate steps if true
+% useFixedEnd - Use a fixed end
+%
+% Returns:
+%   processedSig - Processed signal following interpolation scheme
+%      startInds - Cell array of the start indices each artifact for each 
+%      channel and trial - startInds{trial}{channel}
+%       endsInds - Cell array of the end indices of each artifact for each 
+%      channel and
+%
+%
+% Copyright (c) 2018 Updated by David Caldwell
+% University of Washington
+% djcald at uw . edu 
+% Permission is hereby granted, free of charge, to any person obtaining a copy
+% of this software and associated documentation files (the "Software"), to deal
+% in the Software without restriction, subject to the following conditions:
+%
+% The above copyright notice and this permission notice shall be included in
+% all copies or substantial portions of the Software.
+%
+% The Software is provided "as is", without warranty of any kind.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -57,10 +85,8 @@ processedSig = zeros(size(rawSig));
 
 % make a vector of the good channels to process
 numChans = size(rawSig,2);
-[goods,goodVec] = helpFunc.goodChannel_extract('bads',bads,'stimchans',stimChans,...,
+[goods,goodVec] = helpFunc.good_channel_extract('bads',bads,'stimchans',stimChans,...
     'numChans',numChans);
-
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -68,10 +94,9 @@ fprintf(['-------Interpolation-------- \n'])
 fprintf(['-------' type '-------- \n'])
 
 [startInds,endInds] = analyFunc.get_artifact_indices(rawSig,'pre',pre,'post',post,'plotIt',...,
-    plotIt,'fixedDistance',fixedDistance,'fs',fs,'goodVec',goodVec);
+    plotIt,'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,'fs',fs,'goodVec',goodVec);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 for trial = 1:size(rawSig,3)
     

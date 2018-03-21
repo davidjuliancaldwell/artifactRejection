@@ -1,4 +1,4 @@
-function smallMultiples_artifactReject(signal,t,varargin)
+function small_multiples_time_series(signal,t,varargin)
 % DJC - 2-18-2018 - small multiples plot for visualizing the results of
 % time x channels x trials
 
@@ -59,7 +59,7 @@ end
 
 for idx=1:size(signal,2)
     %smplot(p(1),p(2),idx,'axis','on')
-    plt_sub = vizFunc.smplot(8,8,idx,'axis','on');
+    plt_sub = vizFunc.smplot(p(1),p(2),idx,'axis','on');
     switch modePlot
         case 'avg'
             if ismember(idx,type1)
@@ -90,10 +90,10 @@ for idx=1:size(signal,2)
                 plot(1e3*t,nullSig,'Color',CT(3,:),'LineWidth',2)
                 title([num2str(idx)],'Color',CT(3,:))
             elseif ismember(idx,type2)
-                vizFunc.plotBTLError(1e3*t',1e6*squeeze(signal(:,idx,:)),'CI',CT(2,:));
+                vizFunc.plot_error(1e3*t',1e6*squeeze(signal(:,idx,:)),'CI',CT(2,:));
                 title([num2str(idx)],'Color',CT(2,:))
             else
-                vizFunc.plotBTLError(1e3*t'',1e6*squeeze(signal(:,idx,:)),'CI',CT(1,:));
+                vizFunc.plot_error(1e3*t'',1e6*squeeze(signal(:,idx,:)),'CI',CT(1,:));
                 title([num2str(idx)],'color',CT(1,:))
             end
     end

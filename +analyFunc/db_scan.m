@@ -1,11 +1,13 @@
 % DBSCAN DBSCAN clustering algorithm
 %
-% Usage:  [C, ptsC, centres] = dbscan(P, E, minPts)
+% Usage:  [C, ptsC, centres] = dbscan(P, E, minPts, distanceMetric)
 %
 % Arguments:
 %         P - dim x Npts array of points.
 %         E - Distance threshold.
 %    minPts - Minimum number of points required to form a cluster.
+% distanceMetric - distance metric to use. Options include Euclidean, Cosine
+%             similarity, and correlation
 %
 % Returns:
 %         C - Cell array of length Nc listing indices of points associated with
@@ -37,11 +39,20 @@
 % The Software is provided "as is", without warranty of any kind.
 
 % PK January 2013
+%
+% Copyright (c) 2018 Updated by David Caldwell
+% University of Washington
+% djcald at uw . edu 
+% Updates included vectorization for new distance metric functions
+% 
+%
 
-function [C, ptsC, centres] = db_scan(P, E, minPts,distanceMetric) % DJC - add distance
 
-if ~exist('distanceMetric','var')
-    distanceMetric = 'euclidean';
+function [C, ptsC, centres] = db_scan(P, E, minPts,distanceMetric) 
+
+
+if ~exist('distanceMetric','var') 
+    distanceMetric = 'euclidean'; % Default distance metric 
 end
 
 [dim, Npts] = size(P);
@@ -121,6 +132,7 @@ end
 %              P - the dim x Npts array of data points
 %              n - Index of point of interest
 %              E - Distance threshold
+% distanceMetric - Distance metric to use
 
 function neighbours = regionQuery(P, n, E,distanceMetric)
 
@@ -131,20 +143,19 @@ vectorPts = 1:size(P,2);
 
 switch distanceMetric
     
-    case 'euclidean'
+    case 'euclidean' % euclidean distance metric
         eucl = zeros(1,size(P,2));
         eucl(n) = nan;
         v = P(:,vectorPts(vectorPts~=n)) - repmat(P(:,n),1,size(P(:,vectorPts(vectorPts~=n)),2));
         eucl(vectorPts(vectorPts~=n)) = sum(v.*v);
         [~,neighbours] = find(eucl<E2);
         
-        
-    case 'corr'
+    case 'corr' % correlation distance metric
         cor = zeros(1,size(P,2));
         cor(vectorPts(vectorPts~=n)) = corr(P(:,n),P(:,vectorPts(vectorPts~=n)));
         [~,neighbours] = find(cor>E);
         
-    case 'cosine'
+    case 'cosine' % cosine similarity distance metric 
         cosTheta = zeros(size(P,2),1);
         % cosTheta = dot(P(:,n),P(:,vector_pts(vector_pts~=n)),2)/(norm(P(:,n))*norm(P(:,vector_pts(vector_pts~=n))));
         denominator = sqrt(sum(P(:,n).*P(:,n))).*sqrt(sum(P(:,vectorPts(vectorPts~=n)).*P(:,vectorPts(vectorPts~=n))));

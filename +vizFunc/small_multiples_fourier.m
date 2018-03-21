@@ -1,4 +1,4 @@
-function smallMultiples_fourier(P1,f,varargin)
+function small_multiples_fourier(P1,f,varargin)
 % DJC - 2-18-2018 - small multiples plot for visualizing the results of
 % time x channels x trials
 
@@ -49,7 +49,7 @@ nullSig = zeros(length(f),1);
 if ~plotLog
     for idx=1:size(P1,2)
         %smplot(p(1),p(2),idx,'axis','on')
-        plt_sub = vizFunc.smplot(8,8,idx,'axis','on');
+        plt_sub = vizFunc.smplot(p(1),p(2),idx,'axis','on');
         
         if ismember(idx,type1)
             plot(f,nullSig,'Color',CT(3,:),'LineWidth',2)
@@ -91,7 +91,7 @@ if ~plotLog
 else
     for idx=1:size(P1,2)
         %smplot(p(1),p(2),idx,'axis','on')
-        plt_sub = vizFunc.smplot(8,8,idx,'axis','on');
+        plt_sub = vizFunc.smplot(p(1),p(2),idx,'axis','on');
         
         if ismember(idx,type1)
             semilogy(f,nullSig,'Color',CT(3,:),'LineWidth',2)

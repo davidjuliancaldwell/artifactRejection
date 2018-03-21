@@ -27,6 +27,7 @@ endInds = p.Results.endInds;
 
 fprintf(['-------Trial Based Template-------- \n'])
 templateArrayCellOutput = {};
+processedSig = zeros(size(rawSig));
 
 for trial = 1:size(rawSig,3)
     

@@ -1,5 +1,64 @@
 function [processedSig,templateArrayCellOutput] = template_dictionary(templateArrayCell,templateTrial,rawSig,varargin)
-
+% Usage:  [processedSig,templateArrayCellOutput] = template_dictionary(templateArrayCell,templateTrial,rawSig,varargin)
+%
+% This function implements the template dictionary method. Briefly, the
+% beginning and ending indices of stimulation artifact periods are
+% extracted on a channel and trial-wise basis. From here, 
+% 
+% Arguments:
+%   Required:
+%   templateArrayCell - a cell array with a collection of templates on a
+%   channel basis. Each entry, (e.g. templateArrayCell{channel}) has all of
+%   the channelwise artifact epochs.
+%   templateTrial - a cell array with a collection of templates on a
+%   channel and trial basis. Each entry, (e.g.
+%   templateTrial{channel}{trial} has all individual artifact epochs for a
+%   given channel and trial. 
+%  rawSig - time x channels x trials raw signal
+%
+%
+%   Optional:
+%useFixedEnd - use a fixed end distance (1), or dynamically calculate the
+%              offset of each stimulus pulse
+%      fixedDistance - the maximum distance in ms to either look beyond
+%        pre - the number of ms before which the stimulation pulse onset as
+%              detected by a thresholding method should still be considered 
+%              as artifact
+%       post - the number of ms after which the stimulation pulse onset as
+%              detected by a thresholding method should still be 
+%              considered as artifact
+%  preInterp - the number of ms before the stimulation which to consider an
+%              interpolation scheme on. Does not apply to the linear case
+% postInterp - the number of ms before the stimulation which to consider an
+%              interpolation scheme on. Does not apply to the linear case
+%          fs - sampling rate (Hz)
+%      plotIt - plot intermediate steps if true
+%     goodVec - vector (e.g. [1 2 4 10]) of the channel indices to use. If
+%              there are bad channels or stimulation channels for instance, 
+%              they should be excluded from goodVec
+%  recoverExp - 1 or 0. If "1", try to recover an early cortical response
+%  on a decaying exponential within the artifact transient.
+% distanceMetricDbscan - distance metric to use with the DBScan dictionary
+% building method. 
+%
+% Returns:
+%      startInds - cell array of the start indices each artifact for each 
+%      channel and trial - startInds{trial}{channel}
+%       endsInds - cell array of the end indices of each artifact for each 
+%      channel and
+%
+%
+% Copyright (c) 2018 Updated by David Caldwell
+% University of Washington
+% djcald at uw . edu 
+% Permission is hereby granted, free of charge, to any person obtaining a copy
+% of this software and associated documentation files (the "Software"), to deal
+% in the Software without restriction, subject to the following conditions:
+%
+% The above copyright notice and this permission notice shall be included in
+% all copies or substantial portions of the Software.
+%
+% The Software is provided "as is", without warranty of any kind.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 p = inputParser;
@@ -38,6 +97,7 @@ recoverExp = p.Results.recoverExp;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 templateArrayCellOutput = {};
+processedSig = zeros(size(rawSig));
 
 fprintf(['-------Dictionary-------- \n'])
 
@@ -134,7 +194,7 @@ for trial = 1:size(rawSig,3)
                     [~,index] = min(distance);
             end
             
-            template_subtract = templatesSts(:,index);
+            templateSubtract = templatesSts(:,index);
             
             %             k = 2;
             %             all = templateArrayCell{chan};
@@ -146,7 +206,7 @@ for trial = 1:size(rawSig,3)
             %             d = (c'*c)\(c'*a);
             %             clean = a - (c'*c)\(c'*a);
             %
-            rawSigTemp(win) = rawSigTemp(win) - template_subtract;
+            rawSigTemp(win) = rawSigTemp(win) - templateSubtract;
         end
         
         if plotIt && (trial == 10 || trial == 1000)
@@ -161,16 +221,13 @@ for trial = 1:size(rawSig,3)
             figure
             plot(extractedSig)
             hold on
-            plot(template_subtract)
-            plot(extractedSig-template_subtract)
+            plot(templateSubtract)
+            plot(extractedSig-templateSubtract)
             legend('extracted','template','subtracted');
         end
-        
         processedSig(:,chan,trial) = rawSigTemp;
             fprintf(['-------Template Processed - Channel ' num2str(chan) '--' 'Trial ' num2str(trial) '-----\n'])
-
     end
-    
     
 end
 

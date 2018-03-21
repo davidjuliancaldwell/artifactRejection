@@ -1,5 +1,4 @@
-
-function [f,P1] = fourierTransformPlot(fs_data,data,t)
+function [f,P1] = fourier_transform_plot(fs_data,data,t)
 % function to calculate and plot the results of applying the fourier
 % transform to an epoched signal
 % requires:

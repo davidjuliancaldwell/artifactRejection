@@ -1,4 +1,4 @@
-function plotBTLError(x, y,type,color,edge,add,transparency)
+function plot_error(x, y,type,color,edge,add,transparency)
 
 % plot standard error around mean
 % assume x is time, y is time x trials
@@ -8,7 +8,6 @@ if nargin<6;add=1;end     %default is to add to current plot
 if nargin<5;edge='k';end  %dfault edge color is black
 if nargin<4;color='b';end %default color is blue
 if nargin<3;type='SE';end %default is standard error, otherwise standard deviation
-
 
 washeld = ishold(gca);
 
@@ -31,7 +30,6 @@ end
 
 %plot(x, squeeze(nanmean(y,2)), color);
 plot(x, squeeze(nanmean(y,2)), 'color',color) % djc change 2-5-2018
-
 
 [fillhandle,msg]=vizFunc.jbfill(x,upper',lower',color',edge,add,transparency);
 

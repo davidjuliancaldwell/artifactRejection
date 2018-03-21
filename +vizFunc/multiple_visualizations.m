@@ -1,7 +1,48 @@
 function multiple_visualizations(processedSig,rawSig,varargin)
-% function to run multiple visualizations and analyses to assess the quality
-% of the processing
+% Usage:  [processedSig,startInds,endInds] = interpolate_artifact(rawSig,varargin)
+%
+% Function to visualize
+%
+% Arguments:
+%   Required:
+%   rawSig - samples x channels x trials
+%
+%   Optional:
+%        pre - The number of ms before which the stimulation pulse onset as
+%              detected by a thresholding method should still be considered
+%              as artifact
+%       post - The number of ms after which the stimulation pulse onset as
+%              detected by a thresholding method should still be
+%              considered as artifact
+%  preInterp - The number of ms before the stimulation which to consider an
+%              interpolation scheme on. Does not apply to the linear case
+% postInterp - The number of ms before the stimulation which to consider an
+%              interpolation scheme on. Does not apply to the linear case
+%          fs - Sampling rate (Hz)
+%      plotIt - Plot intermediate steps if true
+% useFixedEnd - Use a fixed end
+%
+% Returns:
+%   processedSig - Processed signal following interpolation scheme
+%      startInds - Cell array of the start indices each artifact for each
+%      channel and trial - startInds{trial}{channel}
+%       endsInds - Cell array of the end indices of each artifact for each
+%      channel and
+%
+%
+% Copyright (c) 2018 Updated by David Caldwell
+% University of Washington
+% djcald at uw . edu
+% Permission is hereby granted, free of charge, to any person obtaining a copy
+% of this software and associated documentation files (the "Software"), to deal
+% in the Software without restriction, subject to the following conditions:
+%
+% The above copyright notice and this permission notice shall be included in
+% all copies or substantial portions of the Software.
+%
+% The Software is provided "as is", without warranty of any kind.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % get inputs
@@ -47,29 +88,32 @@ modePlot = p.Results.modePlot;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 numChans = size(rawSig,2);
-[goods,goodVec] = helpFunc.goodChannel_extract('bads',bads,'stimchans',stimChans,'numChans',numChans);
+[goods,goodVec] = helpFunc.good_channel_extract('bads',bads,'stimchans',stimChans,'numChans',numChans);
+p = numSubplots(numChans);
 
 if (strcmp(type,'dictionary') || strcmp(type,'trial') || strcmp(type,'average')) && (exist('templateDictCell','var') || exist('templateTrial','var'))
-
+    
     if exist('templateTrial','var')
-    figure
-    for j = goodVec
-        subplot(8,8,j)
-        hold on
-        for i = 1:size(templateTrial{j},2)
-            timeVec = [0:size(templateTrial{j}{:,i},1)-1];
-            
-            vizFunc.plotBTLError(timeVec,templateTrial{j}{:,i},'CI',rand(1,3));
+        figure
+        for j = goodVec
+            subplot(p(1),p(2),j)
+            hold on
+            for i = 1:size(templateTrial{j},2)
+                timeVec = [0:size(templateTrial{j}{:,i},1)-1];
+                
+                vizFunc.plot_error(timeVec,templateTrial{j}{:,i},'CI',rand(1,3));
+            end
+            title(['Channel ' num2str(j)])
         end
-        title(['Channel ' num2str(j)])
     end
     
     % plot the average template dictionary if using a dictionary method
     if strcmp(type,'dictionary') && exist('templateDictCell','var')
         figure
+        
         hold on
         for j = goodVec
-            subplot(8,8,j)
+            subplot(p(1),p(2),j)
             hold on
             for i = 1:size(templateDictCell{j},2)
                 timeVec = [0:size(templateDictCell{j},1)-1];
@@ -84,7 +128,7 @@ end
 avgResponse = mean(processedSig,3);
 avgRaw = mean(rawSig,3);
 
-vizFunc.smallMultiples_artifactReject(processedSig,tEpoch,'type1',stimChans,'type2',0,'modePlot',modePlot,'highlightRange',trainDuration)
+vizFunc.small_multiples_time_series(processedSig,tEpoch,'type1',stimChans,'type2',0,'modePlot',modePlot,'highlightRange',trainDuration)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -121,17 +165,17 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % look at the FFT difference
-[f,P1] = helpFunc.fourierTransformCalc(fs,avgResponse);
-[fRaw,P1Raw] = helpFunc.fourierTransformCalc(fs,avgRaw);
+[f,P1] = helpFunc.fourier_transform_calc(fs,avgResponse);
+[fRaw,P1Raw] = helpFunc.fourier_transform_calc(fs,avgRaw);
 
-vizFunc.smallMultiples_fourier(P1Raw,fRaw,'type1',stimChans,'type2',0)
+vizFunc.small_multiples_fourier(P1Raw,fRaw,'type1',stimChans,'type2',0)
 legend('raw')
-vizFunc.smallMultiples_fourier(P1,f,'type1',stimChans,'type2',0,'newfig',0)
+vizFunc.small_multiples_fourier(P1,f,'type1',stimChans,'type2',0,'newfig',0)
 legend('processed')
 
-vizFunc.smallMultiples_fourier(P1Raw,fRaw,'type1',stimChans,'type2',0,'plotLog',1)
+vizFunc.small_multiples_fourier(P1Raw,fRaw,'type1',stimChans,'type2',0,'plotLog',1)
 legend('raw')
-vizFunc.smallMultiples_fourier(P1,f,'type1',stimChans,'type2',0,'newfig',0,'plotLog',1)
+vizFunc.small_multiples_fourier(P1,f,'type1',stimChans,'type2',0,'newfig',0,'plotLog',1)
 legend('processed')
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -142,11 +186,11 @@ rawSigRms = helpFunc.rms_func(avgRaw(tEpoch<1000 & tEpoch>-100,:));
 
 % look at decibel reduction for each channel
 
-rms_db = 20*log10(processedSigRms./rawSigRms);
+rmsDb = 20*log10(processedSigRms./rawSigRms);
 
 figure
 numBins = 10;
-histogram(rms_db,numBins)
+histogram(rmsDb,numBins)
 title('RMS Reduction in Decibels')
 xlabel('magnitude of decibel decrease')
 ylabel('count')

@@ -2,10 +2,26 @@
 % approaches to extract neural signals of interest.
 
 % clear the workspace
-%close all;clear all;clc
+close all;clear all;clc
 
 % load in the data file of interest
-dataChoice = 6;
+
+% variables required for functions to work properly
+%
+% dataInt = time x channels x trials
+%
+% fsData = sampling rate of the data Hz
+%
+% stimChans - the channels used for stimulation . These should be noted and
+% exluded from further analysis
+%
+% plotIt - determines whether or not to plot the intermediate results of
+% the functions.
+%
+% t_epoch - epoched time window
+
+
+dataChoice = 4;
 
 switch dataChoice
     
@@ -43,19 +59,7 @@ switch dataChoice
         chanIntList = [7 8 15 22 23 29 30 31 32]; % these are the channels of interest to visualize in closer detail
 end
 
-% variables required for functions to work properly
-%
-% dataInt = time x channels x trials
-%
-% fs_data = sampling rate of the data Hz
-%
-% stimChans - the channels used for stimulation . These should be noted and
-% exluded from further analysis
-%
-% plotIt - determines whether or not to plot the intermediate results of
-% the functions.
-%
-% t_epoch - epoched time window
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% linear interpolation with simple linear interpolation scheme
@@ -86,7 +90,7 @@ post = 0.4096; % in ms
 fixedDistance = 1.2; % in ms % 2.2 for the first 2 cases, 4 for the 3rd,
 
 % perform the processing
-[processedSig,startInds,endInds] = analyFunc.interpolate_artifact(dataInt,'fs',fs_data,'plotIt',0,'type',type,...,
+[processedSig,startInds,endInds] = analyFunc.interpolate_artifact(dataInt,'fs',fsData,'plotIt',0,'type',type,...,
     'stimchans',stimChans,'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,'pre',pre,'post',post);
 
 % visualization
@@ -95,8 +99,8 @@ fixedDistance = 1.2; % in ms % 2.2 for the first 2 cases, 4 for the 3rd,
 % multiple visualizations are created with this call, including time domain
 % and spectral analyses
 
-vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fs_data,'type',type,'tEpoch',...
-    t_epoch,'xlims',xlims,'trainDuration',trainDuration,'stimChans',stimChans,...,
+vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fsData,'type',type,'tEpoch',...
+    tEpoch,'xlims',xlims,'trainDuration',trainDuration,'stimChans',stimChans,...,
     'chanIntList',chanIntList,'modePlot','confInt')
 
 
@@ -111,17 +115,15 @@ pre = 0.6;
 post = 0.4096; % in ms1
 fixedDistance = 2; % in ms
 
-
-[processedSig,startInds,endInds] = analyFunc.interpolate_artifact(dataInt,'fs',fs_data,'plotIt',0,'type',type,...,
+[processedSig,startInds,endInds] = analyFunc.interpolate_artifact(dataInt,'fs',fsData,'plotIt',0,'type',type,...,
     'stimchans',stimChans,'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,'pre',pre,'post',post);
 
 % visualization
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fs_data,'type',type,'tEpoch',...
-    t_epoch,'xlims',xlims,'trainDuration',trainDuration,'stimChans',stimChans,...,
+vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fsData,'type',type,'tEpoch',...
+    tEpoch,'xlims',xlims,'trainDuration',trainDuration,'stimChans',stimChans,...,
     'chanIntList',chanIntList,'modePlot','confInt')
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -133,7 +135,7 @@ vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fs_data,'type',type,'t
 % pre defines how far back from the onset of the stimulus detect to look
 % back in time, in ms
 % post is the equivalent for after the offset of the stimulus pulse
-% fs_data is the sampling frequency in Hz
+% fsData is the sampling frequency in Hz
 
 % this determines the type of template approach to use. The three options
 % are 'average', 'trial', and 'dictionary'. Average is the simplest
@@ -143,35 +145,65 @@ vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fs_data,'type',type,'t
 % matching algorithm with DBSCAN clustering to discover the family of
 % artifacts.
 
-type = 'dictionary';
-useFixedEnd = 0;
-%fixedDistance = 2;
-fixedDistance = 4; % in ms
 
-%pre = 0.4096; % in ms
-%post = 0.4096; % in ms
+if dataChoice == 6 || dataChoice == 7
+    type = 'dictionary';
 
-pre = 0.8; % started with 1
-post = 0.5; % started with 0.2
+    useFixedEnd = 0;
+    %fixedDistance = 2;
+    fixedDistance = 4; % in ms
+    plotIt = 0;
+    
+    %pre = 0.4096; % in ms
+    %post = 0.4096; % in ms
+    
+    pre = 0.8; % started with 1
+    post = 0.5; % started with 0.2
+    % 2.8, 1, 0.5 was 3/19/2018
+    
+    % these are the metrics used if the dictionary method is selected. The
+    % options are 'eucl', 'cosine', 'corr', for either euclidean distance,
+    % cosine similarity, or correlation for clustering and template matching.
+    
+    distanceMetricDbscan = 'cosine';
+    distanceMetricSigMatch = 'eucl';
+    amntPreAverage = 3;
+    normalize = 'preAverage';
+    %normalize = 'firstSamp';
+    
+    recoverExp = 1;
+    
+elseif dataChoice == 4
+    type = 'trial';
 
-
-% 2.8, 1, 0.5 was 3/19/2018 
-
-% these are the metrics used if the dictionary method is selected. The
-% options are 'eucl', 'cosine', 'corr', for either euclidean distance,
-% cosine similarity, or correlation for clustering and template matching.
-
-distanceMetricDbscan = 'cosine';
-distanceMetricSigMatch = 'eucl';
-
-amntPreAverage = 3;
-normalize = 'preAverage';
-%normalize = 'firstSamp';
-
-recoverExp = 1; 
+    useFixedEnd = 0;
+    %fixedDistance = 2;
+    fixedDistance = 4; % in ms
+    plotIt = 1;
+    
+    %pre = 0.4096; % in ms
+    %post = 0.4096; % in ms
+    
+    pre = 0.4; % started with 1
+    post = 0.2; % started with 0.2
+    % 2.8, 1, 0.5 was 3/19/2018
+    
+    % these are the metrics used if the dictionary method is selected. The
+    % options are 'eucl', 'cosine', 'corr', for either euclidean distance,
+    % cosine similarity, or correlation for clustering and template matching.
+    
+    distanceMetricDbscan = 'cosine';
+    distanceMetricSigMatch = 'eucl';
+    amntPreAverage = 3;
+    normalize = 'preAverage';
+    %normalize = 'firstSamp';
+    
+    recoverExp = 1;    
+    
+end
 
 [processedSig,templateDictCell,templateTrial,startInds,endInds] = analyFunc.template_subtract(dataInt,'type',type,...
-    'fs',fs_data,'plotIt',0,'pre',pre,'post',post,'stimChans',stimChans,'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,...,
+    'fs',fsData,'plotIt',plotIt,'pre',pre,'post',post,'stimChans',stimChans,'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,...,
     'distanceMetricDbscan',distanceMetricDbscan,'distanceMetricSigMatch',distanceMetricSigMatch,...
     'recoverExp',recoverExp,'normalize',normalize,'amntPreAverage',amntPreAverage);
 %
@@ -179,10 +211,10 @@ recoverExp = 1;
 % of note - more visualizations are created here, including what the
 % templates look like on each channel, and what the discovered templates are
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fs_data,'type',type,'tEpoch',...
-    t_epoch,'xlims',xlims,'trainDuration',trainDuration,'stimChans',stimChans,...,
+vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fsData,'type',type,'tEpoch',...
+    tEpoch,'xlims',xlims,'trainDuration',trainDuration,'stimChans',stimChans,...,
     'chanIntList',chanIntList,'templateTrial',templateTrial,'templateDictCell',templateDictCell,'modePlot','confInt')
 
 %%
 [processedSig_v2,templateDictCell,template] = analyFunc.template_subtract_iterative(processedSig,...,
-    'fs',fs_data,'plotIt',0,'pre',pre,'post',post,'stimChans',stimChans,'startInds',startInds,'endInds',endInds);
+    'fs',fsData,'plotIt',0,'pre',pre,'post',post,'stimChans',stimChans,'startInds',startInds,'endInds',endInds);

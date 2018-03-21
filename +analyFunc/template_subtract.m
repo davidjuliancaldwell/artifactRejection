@@ -69,7 +69,7 @@ processedSig = zeros(size(rawSig));
 
 % make a vector of the good channels to process
 numChans = size(rawSig,2);
-[goods,goodVec] = helpFunc.goodChannel_extract('bads',bads,'stimchans',stimChans,'numChans',numChans);
+[goods,goodVec] = helpFunc.good_channel_extract('numChans',numChans,'bads',bads,'stimChans',stimChans);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% get beginnings and ends of artifacts
