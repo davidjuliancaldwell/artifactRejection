@@ -9,7 +9,7 @@ function [startInds,endInds] = get_artifact_indices(rawSig,varargin)
 %
 % Arguments:
 %   Required:
-%   raw_sig - samples x channels x trials
+%   rawSig - samples x channels x trials
 %
 %   Optional:
 %useFixedEnd - use a fixed end distance (1), or dynamically calculate the
@@ -52,7 +52,7 @@ function [startInds,endInds] = get_artifact_indices(rawSig,varargin)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 p = inputParser;
 
-validData = @(x) isnumeric(x) && size(x,3)>2;
+validData = @(x) isnumeric(x);
 addRequired(p,'rawSig',validData);
 
 addParameter(p,'useFixedEnd',0,@(x) x==0 || x ==1);
@@ -102,7 +102,9 @@ end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+pctl = @(v,p) interp1(linspace(0.5/length(v), 1-0.5/length(v), length(v))', sort(v), p*0.01, 'spline');
 
+timeSampsExtend = 1*fs/1000;% time_ms
 for trial = 1:size(rawSig,3)
     
     inds = find(abs(zscore(diffSig(:,chanMax,trial)))>2);
@@ -114,66 +116,112 @@ for trial = 1:size(rawSig,3)
         startInds{trial}{chan} = [inds(1)-presamps; inds(indsOnset+1)-presamps];
         
         if useFixedEnd
-            endInds{trial}{chan} = startInds{trial}{chan}+fixedDistanceSamps; % 17 to start
+            endInds{trial}{chan} = startInds{trial}{chan}+fixedDistanceSamps;
         else
             
             for idx = 1:length(startInds{trial}{chan})
                 
                 win = startInds{trial}{chan}(idx):startInds{trial}{chan}(idx)+defaultWinAverage; % get window that you know has the end of the stim pulse
                 signal = rawSig(win,chan,trial);
-                diff_signal = diffSig(win,chan,trial);
+                diffSignal = diffSig(win,chan,trial);
                 
-                last = find(abs(zscore(signal))>0.2,1,'last');
-                last2 = find(abs(zscore(diff_signal))>5e-3,1,'last')+1;
+                %                 threshSig = 0.2;
+                %                 threshDiff = 5e-3;
+                %                 threshShrinkSig = 2;
+                %                 if abs(zscore(signal)) < threshShrinkSig
+                %                    threshSig =  0.5; % DB was 2
+                %                    threshDiff = 0.5; % DBS was 2
+                %                 end
+                %
+                absZSig = abs(zscore(signal));
+                absZDiffSig = abs(zscore(diffSignal));
+                threshSig = pctl(absZSig,90); % 97.5 for DBS
+                threshDiff = pctl(absZDiffSig,90); % 97.5 for DBS
+                
+                last = find(abs(zscore(signal))>threshSig,1,'last'); % started with 0.2
+                last2 = find(abs(zscore(diffSignal))>threshDiff,1,'last')+1; % started with 5e-3
                 ctMax = max(last, last2);
                 ctMin = min(last,last2);
                 
-                if length(win) - ctMax > 8 % look for exponential decay and adjust if needed
-
+                if length(win) - ctMax > timeSampsExtend % look for exponential decay and adjust if needed
+                    
                     try
                         x = [ctMax:length(win)]';
                         y = signal(x);
                         [f2,gof,output] = fit(x,y,'exp2');
-                    catch
-                        x = [ctMin:length(win)]';
-                        y = signal(x);
-                        [f2,gof,output] = fit(x,y,'exp2');
+                        func_fit = @(x) f2.a*exp(f2.b*x) + f2.c*exp(f2.d*x);
                         
+                        if gof.adjrsquare>0.9
+                            ct = length(win);
+                        else
+                            ct = ctMax;
+                            if isempty(ctMax)
+                                ct = ctMin;
+                            end
+                        end
+                        
+                    catch
+                        
+                        try
+                            x = [ctMin:length(win)]';
+                            y = signal(x);
+                            [f2,gof,output] = fit(x,y,'exp2');
+                            func_fit = @(x) f2.a*exp(f2.b*x) + f2.c*exp(f2.d*x);
+                            
+                            if gof.adjrsquare>0.9
+                                ct = length(win);
+                            else
+                                ct = ctMax;
+                                if isempty(ctMax)
+                                    ct = ctMin;
+                                end
+                            end
+                            
+                        catch
+                            
+                        end
                     end
-                    func_fit = @(x) f2.a*exp(f2.b*x) + f2.c*exp(f2.d*x);
                     
                     % if its a good fit, set the end index to include that
                     
-                    if gof.adjrsquare>0.9
-                        ct = length(win);
-                    else
-                        ct = ctMax;
-                    end
                 else
                     ct = ctMax;
+                    if isempty(ctMax)
+                        ct = ctMin;
+                    end
                     
                 end
                 
+                if isempty(ctMax) && isempty(ctMin)
+                    ct = last;
+                    if isempty(last)
+                        ct = last2;
+                        if isempty(last2)
+                            ct = postsamps;
+                        end
+                    end
+                end
+                % sprintf(['trial ' num2str(trial) ' channel ' num2str(chan)])
                 endInds{trial}{chan}(idx) = ct + startInds{trial}{chan}(idx) + postsamps;
-                
             end
         end
-        
     end
     
+end
+
+
+if plotIt
+    figure
+    plot(abs(zscore(diffSig(:,chanInt,trial))))
+    vline(startInds{trial}{chanInt})
+    vline(endInds{trial}{chanInt},'g')
     
-    if plotIt
-        figure
-        plot(diffSig(:,chanInt,trial))
-        vline(startInds{trial}{chanInt})
-        vline(endInds{trial}{chanInt},'g')
-        
-        figure
-        plot(rawSig(:,chanInt,trial))
-        vline(startInds{trial}{chanInt})
-        vline(endInds{trial}{chanInt},'g')
-    end
-    
-    fprintf(['-------Finished getting artifacts - Trial ' num2str(trial) '-------- \n'])
-    
+    figure
+    plot(abs(zscore(rawSig(:,chanInt,trial))))
+    vline(startInds{trial}{chanInt})
+    vline(endInds{trial}{chanInt},'g')
+end
+
+fprintf(['-------Finished getting artifacts - Trial ' num2str(trial) '-------- \n'])
+
 end

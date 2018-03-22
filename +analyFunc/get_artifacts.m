@@ -3,7 +3,7 @@ function [lengthMax,templateCell] = get_artifacts(rawSig,varargin)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 p = inputParser;
 
-validData = @(x) isnumeric(x) && size(x,3)>2;
+validData = @(x) isnumeric(x);
 addRequired(p,'rawSig',validData);
 addParameter(p,'plotIt',0,@(x) x==0 || x ==1);
 addParameter(p,'goodVec',[1:64],@isnumeric);
@@ -23,10 +23,11 @@ amntPreAverage = p.Results.amntPreAverage;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-lengthMaxVec = [];
+lengthMaxVecTrial = zeros(size(rawSig,3),size(rawSig,2));
 
 for trial = 1:size(rawSig,3)
     
+    lengthMaxChan = zeros(1,size(rawSig,2));
     for chan = goodVec
         % get single trial
         rawSigTemp = rawSig(:,chan,trial);
@@ -50,7 +51,8 @@ for trial = 1:size(rawSig,3)
             
         end
         
-        lengthMaxVec = [lengthMaxVec max(lengthMaxVecTemp)];
+        lengthMaxChan(chan) = max(lengthMaxVecTemp);
+        
         templateCell{chan}{trial} = avgSignal;
         
         if plotIt && (trial == 10 || trial == 1000)
@@ -61,9 +63,10 @@ for trial = 1:size(rawSig,3)
         end
         
     end
+    lengthMaxVecTrial(trial,:) = lengthMaxChan; 
     
 end
 
-lengthMax = max(lengthMaxVec);
+lengthMax = max(lengthMaxVecTrial,[],1);
 
 end

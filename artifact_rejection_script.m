@@ -21,7 +21,7 @@ close all;clear all;clc
 % t_epoch - epoched time window
 
 
-dataChoice = 4;
+dataChoice = 6;
 
 switch dataChoice
     
@@ -174,13 +174,13 @@ if dataChoice == 6 || dataChoice == 7
     recoverExp = 1;
     
 elseif dataChoice == 4
-    type = 'trial';
+    type = 'dictionary';
 
     useFixedEnd = 0;
     %fixedDistance = 2;
     fixedDistance = 4; % in ms
-    plotIt = 1;
-    
+    plotIt = 0;
+   
     %pre = 0.4096; % in ms
     %post = 0.4096; % in ms
     
@@ -193,6 +193,7 @@ elseif dataChoice == 4
     % cosine similarity, or correlation for clustering and template matching.
     
     distanceMetricDbscan = 'cosine';
+    
     distanceMetricSigMatch = 'eucl';
     amntPreAverage = 3;
     normalize = 'preAverage';

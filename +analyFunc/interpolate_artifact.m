@@ -48,7 +48,7 @@ function [processedSig,startInds,endInds] = interpolate_artifact(rawSig,varargin
 
 p = inputParser;
 
-validData = @(x) isnumeric(x) && size(x,3)>2;
+validData = @(x) isnumeric(x);
 addRequired(p,'rawSig',validData);
 
 addParameter(p,'plotIt',0,@(x) x==0 || x ==1);

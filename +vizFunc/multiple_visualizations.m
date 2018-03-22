@@ -48,7 +48,7 @@ function multiple_visualizations(processedSig,rawSig,varargin)
 % get inputs
 p = inputParser;
 
-validData = @(x) isnumeric(x) && size(x,3)>2;
+validData = @(x) isnumeric(x);
 addRequired(p,'processedSig',validData);
 addRequired(p,'rawSig',validData);
 

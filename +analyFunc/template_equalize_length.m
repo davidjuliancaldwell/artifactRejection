@@ -24,17 +24,18 @@ lengthMax = p.Results.lengthMax;
 for chan = goodVec
     templateArray = [];
     templateArrayExtracted = [];
+    lengthMaxChan = lengthMax(chan);
     
     for trial = 1:size(rawSig,3)
-        artifacts_cell = templateCell{chan}{trial};
+        artifactsCell = templateCell{chan}{trial};
         artifactsMat = [];
         for sts = 1:length(startInds{trial}{chan})
             
-            artifactsTrial = artifacts_cell{sts};
+            artifactsTrial = artifactsCell{sts};
             
-            if size(artifactsTrial,1) < lengthMax
-                amntPad = lengthMax - size(artifactsTrial,1);
-                artifacts_pad = padarray(artifactsTrial,amntPad,nan,'post');
+            if size(artifactsTrial,1) < lengthMaxChan
+                amntPad = lengthMaxChan - size(artifactsTrial,1);
+                artifacts_pad = padarray(artifactsTrial,amntPad,0,'post');
             else
                 artifacts_pad = artifactsTrial;
             end

@@ -42,17 +42,17 @@
 %
 % Copyright (c) 2018 Updated by David Caldwell
 % University of Washington
-% djcald at uw . edu 
+% djcald at uw . edu
 % Updates included vectorization for new distance metric functions
-% 
+%
 %
 
 
-function [C, ptsC, centres] = db_scan(P, E, minPts,distanceMetric) 
+function [C, ptsC, centres] = db_scan(P, E, minPts,distanceMetric)
 
 
-if ~exist('distanceMetric','var') 
-    distanceMetric = 'euclidean'; % Default distance metric 
+if ~exist('distanceMetric','var')
+    distanceMetric = 'euclidean'; % Default distance metric
 end
 
 [dim, Npts] = size(P);
@@ -141,6 +141,12 @@ E2 = E^2;
 neighbours = [];
 vectorPts = 1:size(P,2);
 
+% add in amplitude check
+amplitudes = max(P,[],1);
+maxDiff = zeros(1,size(P,2));
+maxDiff(n) = nan;
+maxDiff(vectorPts(vectorPts~=n)) = (amplitudes(vectorPts(vectorPts~=n)) - amplitudes(n)).^2;
+maxDiffThresh = 1e-6;
 switch distanceMetric
     
     case 'euclidean' % euclidean distance metric
@@ -155,7 +161,7 @@ switch distanceMetric
         cor(vectorPts(vectorPts~=n)) = corr(P(:,n),P(:,vectorPts(vectorPts~=n)));
         [~,neighbours] = find(cor>E);
         
-    case 'cosine' % cosine similarity distance metric 
+    case 'cosine' % cosine similarity distance metric
         cosTheta = zeros(size(P,2),1);
         % cosTheta = dot(P(:,n),P(:,vector_pts(vector_pts~=n)),2)/(norm(P(:,n))*norm(P(:,vector_pts(vector_pts~=n))));
         denominator = sqrt(sum(P(:,n).*P(:,n))).*sqrt(sum(P(:,vectorPts(vectorPts~=n)).*P(:,vectorPts(vectorPts~=n))));
@@ -164,7 +170,7 @@ switch distanceMetric
         
         %   cosTheta(vector_pts(vector_pts~=n)) = (P(:,n)'*P(:,vector_pts(vector_pts~=n)))'./((sqrt(P(:,n)'*...
         %      P(:,n))).*sqrt(diag(P(:,vector_pts(vector_pts~=n))'*P(:,vector_pts(vector_pts~=n)))));
-        [~,neighbours] = find(cosTheta'>E);
+        [~,neighbours] = find(cosTheta'>E & maxDiff<maxDiffThresh);
         
 end
 

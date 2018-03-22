@@ -16,7 +16,7 @@ function [processedSig,templateArrayCellOutput,templateTrial,startInds,endInds] 
 % get inputs
 p = inputParser;
 
-validData = @(x) isnumeric(x) && size(x,3)>2;
+validData = @(x) isnumeric(x);
 addRequired(p,'rawSig',validData);
 
 addParameter(p,'plotIt',0,@(x) x==0 || x ==1);
@@ -93,7 +93,7 @@ numChans = size(rawSig,2);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 switch type
     case 'dictionary'
-        [processedSig,templateArrayCellOutput] = analyFunc.template_dictionary(templateArrayCell,templateTrial,rawSig,'plotIt',plotIt,'distanceMetricDbscan',distanceMetricDbscan,...,
+        [processedSig,templateArrayCellOutput] = analyFunc.template_dictionary(templateArrayCell,templateTrial,rawSig,fs,'plotIt',plotIt,'distanceMetricDbscan',distanceMetricDbscan,...,
             'distanceMetricSigMatch',distanceMetricSigMatch,'goodVec',goodVec,'startInds',startInds,'endInds',endInds,'recoverExp',recoverExp);
         
     case 'average'
