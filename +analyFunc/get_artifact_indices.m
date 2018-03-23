@@ -64,6 +64,7 @@ addParameter(p,'post',0.4096,@isnumeric);
 addParameter(p,'fs',12207,@isnumeric);
 addParameter(p,'goodVec',[1:64],@isnumeric);
 addParameter(p,'chanInt',1,@isnumeric);
+addParameter(p,'minDuration',0,@isnumeric);
 
 p.parse(rawSig,varargin{:});
 
@@ -76,11 +77,14 @@ fixedDistance = p.Results.fixedDistance;
 fs = p.Results.fs;
 goodVec = p.Results.goodVec;
 chanInt = p.Results.chanInt;
+minDuration = p.Results.minDuration;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 presamps = round(pre/1e3 * fs); % pre time in sec
 
 postsamps = round(post/1e3 * fs); %
+
+minDuration = round(minDuration/1e3 * fs);
 
 fixedDistanceSamps = round(fixedDistance/1e3 * fs);
 
@@ -104,7 +108,7 @@ end
 
 pctl = @(v,p) interp1(linspace(0.5/length(v), 1-0.5/length(v), length(v))', sort(v), p*0.01, 'spline');
 
-timeSampsExtend = 1*fs/1000;% time_ms
+timeSampsExtend = 2*fs/1000;% time_ms
 for trial = 1:size(rawSig,3)
     
     inds = find(abs(zscore(diffSig(:,chanMax,trial)))>2);
@@ -135,64 +139,34 @@ for trial = 1:size(rawSig,3)
                 %
                 absZSig = abs(zscore(signal));
                 absZDiffSig = abs(zscore(diffSignal));
-                threshSig = pctl(absZSig,90); % 97.5 for DBS
-                threshDiff = pctl(absZDiffSig,90); % 97.5 for DBS
+                threshSig = pctl(absZSig,80); % 97.5 for DBS
+                threshDiff = pctl(absZDiffSig,80); % 97.5 for DBS
                 
-                last = find(abs(zscore(signal))>threshSig,1,'last'); % started with 0.2
-                last2 = find(abs(zscore(diffSignal))>threshDiff,1,'last')+1; % started with 5e-3
-                ctMax = max(last, last2);
-                ctMin = min(last,last2);
+                % look past minimum start time
+                last = presamps+minDuration+find(absZSig(presamps+minDuration:end)>threshSig,1,'last'); % started with 0.2
+                last2 = presamps+minDuration+find(absZDiffSig(presamps+minDuration:end)>threshDiff,1,'last')+1; % started with 5e-3
+                ct = max(last, last2);
+                %ctMin = min(last,last2);
                 
-                if length(win) - ctMax > timeSampsExtend % look for exponential decay and adjust if needed
-                    
-                    try
-                        x = [ctMax:length(win)]';
-                        y = signal(x);
-                        [f2,gof,output] = fit(x,y,'exp2');
-                        func_fit = @(x) f2.a*exp(f2.b*x) + f2.c*exp(f2.d*x);
-                        
-                        if gof.adjrsquare>0.9
-                            ct = length(win);
-                        else
-                            ct = ctMax;
-                            if isempty(ctMax)
-                                ct = ctMin;
-                            end
-                        end
-                        
-                    catch
-                        
-                        try
-                            x = [ctMin:length(win)]';
-                            y = signal(x);
-                            [f2,gof,output] = fit(x,y,'exp2');
-                            func_fit = @(x) f2.a*exp(f2.b*x) + f2.c*exp(f2.d*x);
-                            
-                            if gof.adjrsquare>0.9
-                                ct = length(win);
-                            else
-                                ct = ctMax;
-                                if isempty(ctMax)
-                                    ct = ctMin;
-                                end
-                            end
-                            
-                        catch
-                            
-                        end
-                    end
-                    
-                    % if its a good fit, set the end index to include that
-                    
-                else
-                    ct = ctMax;
-                    if isempty(ctMax)
-                        ct = ctMin;
-                    end
-                    
-                end
+%                 if ~isempty(ct) && length(win) - ct > timeSampsExtend  % look for exponential decay and adjust if needed
+%                     
+%                     try
+%                         x = [ct:length(win)]';
+%                         y = signal(x);
+%                         [f2,gof,output] = fit(x,y,'exp2');
+%                         func_fit = @(x) f2.a*exp(f2.b*x) + f2.c*exp(f2.d*x);
+%                         
+%                         if gof.adjrsquare>0.95
+%                             ct = length(win);
+%                         end
+%                         
+%                     catch
+% 
+%                     end
+% 
+%                 end
                 
-                if isempty(ctMax) && isempty(ctMin)
+                if isempty(ct)
                     ct = last;
                     if isempty(last)
                         ct = last2;
@@ -201,27 +175,38 @@ for trial = 1:size(rawSig,3)
                         end
                     end
                 end
-                % sprintf(['trial ' num2str(trial) ' channel ' num2str(chan)])
+                
                 endInds{trial}{chan}(idx) = ct + startInds{trial}{chan}(idx) + postsamps;
+                
             end
         end
+        
+        if plotIt
+            figure
+            plot(abs(zscore(diffSig(:,chanInt,trial))))
+            vline(startInds{trial}{chanInt})
+            vline(endInds{trial}{chanInt},'g')
+            
+            figure
+            plot(abs(zscore(rawSig(:,chanInt,trial))))
+            vline(startInds{trial}{chanInt})
+            vline(endInds{trial}{chanInt},'g')
+            
+            figure
+            plot(diffSig(:,chanInt,trial))
+            vline(startInds{trial}{chanInt})
+            vline(endInds{trial}{chanInt},'g')
+            
+            figure
+            plot(rawSig(:,chanInt,trial))
+            vline(startInds{trial}{chanInt})
+            vline(endInds{trial}{chanInt},'g')
+        end
+        
+        
     end
+    fprintf(['-------Finished getting artifacts - Trial ' num2str(trial) '-------- \n'])
     
 end
-
-
-if plotIt
-    figure
-    plot(abs(zscore(diffSig(:,chanInt,trial))))
-    vline(startInds{trial}{chanInt})
-    vline(endInds{trial}{chanInt},'g')
-    
-    figure
-    plot(abs(zscore(rawSig(:,chanInt,trial))))
-    vline(startInds{trial}{chanInt})
-    vline(endInds{trial}{chanInt},'g')
-end
-
-fprintf(['-------Finished getting artifacts - Trial ' num2str(trial) '-------- \n'])
 
 end

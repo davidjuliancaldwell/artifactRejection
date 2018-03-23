@@ -30,33 +30,44 @@ switch dataChoice
         trainDuration = [0 800]; % this is how long the stimulation train was
         xlims = [-200 1000]; % these are the x limits to visualize in plots
         chanIntList = [12 21 28 19 18 36 44 43 30 33 41 34]; % these are the channels of interest to visualize in closer detail
+        minDuration = 0.5; % minimum duration of artifact in ms
     case 2
         load('+data/2fd831_exampData_400ms.mat') % response timing data set
         trainDuration = [0 400]; % this is how long the stimulation train was
         xlims = [-200 1000]; % these are the x limits to visualize in plots
         chanIntList = [2 10 51 42]; % these are the channels of interest to visualize in closer detail
+                minDuration = 0.5; % minimum duration of artifact in ms
+
     case 3
         load('+data/3f2113_stim_12_52.mat') % stimulation spacing data set
         trainDuration = [0 5];
         xlims = [-10 100];
         chanIntList = [13 53 51 42 60 61 ]; % these are the channels of interest to visualize in closer detail
+                minDuration = 0.5; % minimum duration of artifact in ms
+
     case 4
         load('+data/50ad9_paramSweep4.mat') % DBS data set
         xlims = [-200 600];
         chanIntList = [1:10];
         trainDuration = [0 500];
+                minDuration = 0.250; % minimum duration of artifact in ms
+
     case 5
         load('+data/ecb43e_RHI_async_trial14.mat') % rubber hand illusion data set
     case 6
         load('+data/a1355e_examplePriming_Prime_high.mat')
         trainDuration = [0 200]; % this is how long the stimulation train was
         xlims = [-200 1000]; % these are the x limits to visualize in plots
-        chanIntList = [7 8 15 22 23 29 30 31 32]; % these are the channels of interest to visualize in closer detail
+        chanIntList = [7 8 10 15 17 22 23 29 30 31 32]; % these are the channels of interest to visualize in closer detail
+                minDuration = 0.5; % minimum duration of artifact in ms
+
     case 7
         load('+data/a1355e_examplePriming_noPrime_high.mat')
         trainDuration = [0 200]; % this is how long the stimulation train was
         xlims = [-200 1000]; % these are the x limits to visualize in plots
-        chanIntList = [7 8 15 22 23 29 30 31 32]; % these are the channels of interest to visualize in closer detail
+        chanIntList = [7 8 10 15 17 22 23 29 30 31 32]; % these are the channels of interest to visualize in closer detail
+                minDuration = 0.5; % minimum duration of artifact in ms
+
 end
 
 
@@ -199,14 +210,14 @@ elseif dataChoice == 4
     normalize = 'preAverage';
     %normalize = 'firstSamp';
     
-    recoverExp = 1;    
+    recoverExp = 0;    
     
 end
 
 [processedSig,templateDictCell,templateTrial,startInds,endInds] = analyFunc.template_subtract(dataInt,'type',type,...
     'fs',fsData,'plotIt',plotIt,'pre',pre,'post',post,'stimChans',stimChans,'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,...,
     'distanceMetricDbscan',distanceMetricDbscan,'distanceMetricSigMatch',distanceMetricSigMatch,...
-    'recoverExp',recoverExp,'normalize',normalize,'amntPreAverage',amntPreAverage);
+    'recoverExp',recoverExp,'normalize',normalize,'amntPreAverage',amntPreAverage,'minDuration',minDuration);
 %
 % visualization
 % of note - more visualizations are created here, including what the

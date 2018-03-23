@@ -78,6 +78,7 @@ addParameter(p,'startInds',[],@iscell);
 addParameter(p,'endInds',[],@iscell);
 
 addParameter(p,'recoverExp',1,@(x) x==0 || x ==1);
+addParameter(p,'maxAmps',ones(size(rawSig,2),size(rawSig,3)),@isnumeric)
 
 
 p.parse(templateArrayCell,templateTrial,rawSig,fs,varargin{:});
@@ -95,37 +96,51 @@ startInds = p.Results.startInds;
 endInds = p.Results.endInds;
 
 recoverExp = p.Results.recoverExp;
+maxAmps = p.Results.maxAmps;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 templateArrayCellOutput = {};
 processedSig = zeros(size(rawSig));
 pctl = @(v,p) interp1(linspace(0.5/length(v), 1-0.5/length(v), length(v))', sort(v), p*0.01, 'spline');
+transform_vals = @(x,a,b,c,d) ((x-a)*(d-c)/(b-a)) + c;
 
 fprintf(['-------Dictionary-------- \n'])
+
+distanceDBscanMax = 0.95;
+maximumAmps = max(maxAmps(:));
+rangeDistanceDBscan = [0.92,0.97];
 
 for chan = goodVec
     templateArrayExtracted = [];
     templateArray = templateArrayCell{chan};
-    if strcmp(distanceMetricDbscan,'eucl')
-        if max(templateArray(:)) < 3e-4
-            distanceDBscan = 1e-3;
-        else
-            distanceDBscan = 1e-4;
-        end
-    else
-        %         if max(templateArray(:)) < 3e-4
-        %             distanceDBscan = 0.9;
-        %         else
-        %             distanceDBscan = 0.95;
-        %         end
-        if    pctl(abs(zscore(diff(templateArray(:)))),99) > 1
-                        distanceDBscan = 0.95;
-        else
-                        distanceDBscan = 0.8;
-        end
-        distanceDBscan
-    end
+    
+    % extract max amplitude for a given channel
+    maxAmpsChan = max(maxAmps(chan,:));
+   
+    
+%     if strcmp(distanceMetricDbscan,'eucl')
+%         if max(templateArray(:)) < 3e-4
+%             distanceDBscan = 1e-3;
+%         else
+%             distanceDBscan = 1e-4;
+%         end
+%     else
+%         if max(templateArray(:)) < 3e-4
+%             %             distanceDBscan = 0.9;
+%             %         else
+%             %             distanceDBscan = 0.95;
+%             %         end
+%             %  if    pctl(abs(zscore(diff(templateArray(:)))),99) > 4
+%             distanceDBscan = 0.95;
+%         else
+%             distanceDBscan = 0.9;
+%         end
+%     end
+%     
+    % try scaling - affine transformation 
+    distanceDBscan = transform_vals(maxAmpsChan/maximumAmps,0,1,rangeDistanceDBscan(1),rangeDistanceDBscan(2));
+
     
     [c,ptsC,centres] = analyFunc.db_scan(templateArray,distanceDBscan,1,distanceMetricDbscan);
     
@@ -166,7 +181,7 @@ for trial = 1:size(rawSig,3)
         
         % add on the trial one
         templates = [templates mean(templateTrial{chan}{trial},2)];
-       
+        
         % ensure no subtraction of exponential
         if recoverExp
             templates = analyFunc.recover_EP(templates,fs);

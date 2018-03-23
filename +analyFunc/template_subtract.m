@@ -37,6 +37,8 @@ addParameter(p,'fs',12207,@isnumeric);
 addParameter(p,'amntPreAverage',5,@isnumeric);
 addParameter(p,'normalize','firstSamp',@isstr);
 addParameter(p,'recoverExp',1,@(x) x==0 || x ==1);
+addParameter(p,'minDuration',0,@isnumeric);
+
 
 p.parse(rawSig,varargin{:});
 
@@ -61,6 +63,7 @@ amntPreAverage = p.Results.amntPreAverage;
 normalize = p.Results.normalize;
 
 recoverExp = p.Results.recoverExp;
+minDuration = p.Results.minDuration;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -75,12 +78,12 @@ numChans = size(rawSig,2);
 %% get beginnings and ends of artifacts
 
 [startInds,endInds] = analyFunc.get_artifact_indices(rawSig,'pre',pre,'post',post,'plotIt',...,
-    plotIt,'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,'fs',fs,'goodVec',goodVec);
+    plotIt,'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,'fs',fs,'goodVec',goodVec,'minDuration',minDuration);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% extract artifacts
 
-[lengthMax,templateCell] = analyFunc.get_artifacts(rawSig,'goodVec',goodVec,...,
+[templateCell,lengthMax,maxAmps] = analyFunc.get_artifacts(rawSig,'goodVec',goodVec,...,
     'startInds',startInds,'endInds',endInds,'plotIt',plotIt,'normalize',normalize,'amntPreAverage',amntPreAverage);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -93,8 +96,9 @@ numChans = size(rawSig,2);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 switch type
     case 'dictionary'
-        [processedSig,templateArrayCellOutput] = analyFunc.template_dictionary(templateArrayCell,templateTrial,rawSig,fs,'plotIt',plotIt,'distanceMetricDbscan',distanceMetricDbscan,...,
-            'distanceMetricSigMatch',distanceMetricSigMatch,'goodVec',goodVec,'startInds',startInds,'endInds',endInds,'recoverExp',recoverExp);
+        [processedSig,templateArrayCellOutput] = analyFunc.template_dictionary(templateArrayCell,templateTrial,rawSig,fs,'plotIt',plotIt,...
+            'distanceMetricDbscan',distanceMetricDbscan,'distanceMetricSigMatch',distanceMetricSigMatch,...
+            'goodVec',goodVec,'startInds',startInds,'endInds',endInds,'recoverExp',recoverExp,'maxAmps',maxAmps);
         
     case 'average'
         [processedSig,templateArrayCellOutput] = analyFunc.template_average(templateArrayCell,rawSig,'plotIt',plotIt...,

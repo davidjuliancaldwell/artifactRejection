@@ -1,4 +1,4 @@
-function [lengthMax,templateCell] = get_artifacts(rawSig,varargin)
+function [templateCell,lengthMax,maxAmps] = get_artifacts(rawSig,varargin)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 p = inputParser;
@@ -25,16 +25,16 @@ amntPreAverage = p.Results.amntPreAverage;
 
 lengthMaxVecTrial = zeros(size(rawSig,3),size(rawSig,2));
 
-for trial = 1:size(rawSig,3)
-    
+for trial = 1:size(rawSig,3) % loop through trials 
     lengthMaxChan = zeros(1,size(rawSig,2));
-    for chan = goodVec
+    
+    for chan = goodVec % loop through channels
         % get single trial
         rawSigTemp = rawSig(:,chan,trial);
         
         avgSignal = {};
         lengthMaxVecTemp = [];
-        for sts = 1:length(startInds{trial}{chan})
+        for sts = 1:length(startInds{trial}{chan}) % loop through individual stimulation epochs 
             win = startInds{trial}{chan}(sts):endInds{trial}{chan}(sts);
             lengthMaxTemp = length(win);
             
@@ -67,6 +67,12 @@ for trial = 1:size(rawSig,3)
     
 end
 
+% figure out the maximum amplitude artifact for each given channel and
+% trial 
+
+maxAmps = squeeze(max(rawSig,[],1));
+
+% get the maximum length of any given artifact window for each channel
 lengthMax = max(lengthMaxVecTrial,[],1);
 
 end

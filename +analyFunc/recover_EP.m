@@ -23,8 +23,8 @@ for ind = 1:size(template,2)
     
     absZSig = abs(zscore(templateInd));
     absZDiffSig = abs(zscore(diff(templateInd)));
-    threshSig = pctl(absZSig,97.5);
-    threshDiff = pctl(absZDiffSig,97.5);
+    threshSig = pctl(absZSig,50);
+    threshDiff = pctl(absZDiffSig,50);
     
     last = find(absZSig>threshSig,1,'last'); % started with 0.2
     last2 = find(absZDiffSig>threshDiff,1,'last')+1; % started with 5e-3
@@ -34,7 +34,7 @@ for ind = 1:size(template,2)
     %     last2 = find(abs(diff(templateInd))>20e-6,1,'last')+1;
     ct = max(last,last2);
     
-    if (length(templateInd)- ct > timeSampsExtend) & ~isempty(ct)
+    if ~isempty(ct) && (length(templateInd)- ct > timeSampsExtend) 
         x = [ct:length(templateInd)]';
         y = templateInd(x);
         try

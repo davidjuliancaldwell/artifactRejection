@@ -99,12 +99,14 @@ if (strcmp(type,'dictionary') || strcmp(type,'trial') || strcmp(type,'average'))
             subplot(p(1),p(2),j)
             hold on
             for i = 1:size(templateTrial{j},2)
-                timeVec = [0:size(templateTrial{j}{:,i},1)-1];
+                timeVec = 1e3*[0:size(templateTrial{j}{:,i},1)-1]/fs;
                 
                 vizFunc.plot_error(timeVec,templateTrial{j}{:,i},'CI',rand(1,3));
             end
             title(['Channel ' num2str(j)])
         end
+        xlabel('time (ms')
+        ylabel('Voltage (V)')
     end
     
     % plot the average template dictionary if using a dictionary method
@@ -116,12 +118,14 @@ if (strcmp(type,'dictionary') || strcmp(type,'trial') || strcmp(type,'average'))
             subplot(p(1),p(2),j)
             hold on
             for i = 1:size(templateDictCell{j},2)
-                timeVec = [0:size(templateDictCell{j},1)-1];
+                timeVec = 1e3*[0:size(templateDictCell{j},1)-1]/fs;
                 
                 plot(timeVec,templateDictCell{j}(:,i),'linewidth',2);
             end
             title(['Channel ' num2str(j)])
         end
+        xlabel('time (ms')
+        ylabel('Voltage (V)')
     end
 end
 
