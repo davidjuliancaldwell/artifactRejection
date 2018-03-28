@@ -182,7 +182,7 @@ if dataChoice == 6 || dataChoice == 7
     normalize = 'preAverage';
     %normalize = 'firstSamp';
     
-    recoverExp = 1;
+    recoverExp = 0;
     
 elseif dataChoice == 4
     type = 'dictionary';
@@ -211,6 +211,7 @@ elseif dataChoice == 4
     %normalize = 'firstSamp';
     
     recoverExp = 0;    
+   
     
 end
 

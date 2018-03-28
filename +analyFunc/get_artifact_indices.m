@@ -148,23 +148,23 @@ for trial = 1:size(rawSig,3)
                 ct = max(last, last2);
                 %ctMin = min(last,last2);
                 
-                if ~isempty(ct) && length(win) - ct > timeSampsExtend  % look for exponential decay and adjust if needed
-                    
-                    try
-                        x = [ct:length(win)]';
-                        y = signal(x);
-                        [f2,gof,output] = fit(x,y,'exp2');
-                        func_fit = @(x) f2.a*exp(f2.b*x) + f2.c*exp(f2.d*x);
-                        
-                        if gof.adjrsquare>0.95
-                            ct = length(win);
-                        end
-                        
-                    catch
-
-                    end
-
-                end
+%                 if ~isempty(ct) && length(win) - ct > timeSampsExtend  % look for exponential decay and adjust if needed
+%                     
+%                     try
+%                         x = [ct:length(win)]';
+%                         y = signal(x);
+%                         [f2,gof,output] = fit(x,y,'exp2');
+%                         func_fit = @(x) f2.a*exp(f2.b*x) + f2.c*exp(f2.d*x);
+%                         
+%                         if gof.adjrsquare>0.95
+%                             ct = length(win);
+%                         end
+%                         
+%                     catch
+% 
+%                     end
+% 
+%                 end
                 
                 if isempty(ct)
                     ct = last;

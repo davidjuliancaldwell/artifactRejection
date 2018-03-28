@@ -36,7 +36,7 @@ addParameter(p,'fixedDistance',2,@isnumeric);
 addParameter(p,'fs',12207,@isnumeric);
 addParameter(p,'amntPreAverage',5,@isnumeric);
 addParameter(p,'normalize','firstSamp',@isstr);
-addParameter(p,'recoverExp',1,@(x) x==0 || x ==1);
+addParameter(p,'recoverExp',0,@(x) x==0 || x ==1);
 addParameter(p,'minDuration',0,@isnumeric);
 
 
