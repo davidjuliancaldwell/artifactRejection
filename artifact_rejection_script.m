@@ -57,14 +57,14 @@ switch dataChoice
     case 6
         load('+data/a1355e_examplePriming_Prime_high.mat')
         trainDuration = [0 200]; % this is how long the stimulation train was
-        xlims = [-200 1000]; % these are the x limits to visualize in plots
+        xlims = [-50 500]; % these are the x limits to visualize in plots
         chanIntList = [7 8 10 15 17 22 23 29 30 31 32]; % these are the channels of interest to visualize in closer detail
                 minDuration = 0.5; % minimum duration of artifact in ms
 
     case 7
         load('+data/a1355e_examplePriming_noPrime_high.mat')
         trainDuration = [0 200]; % this is how long the stimulation train was
-        xlims = [-200 1000]; % these are the x limits to visualize in plots
+        xlims = [-50 500]; % these are the x limits to visualize in plots
         chanIntList = [7 8 10 15 17 22 23 29 30 31 32]; % these are the channels of interest to visualize in closer detail
                 minDuration = 0.5; % minimum duration of artifact in ms
 
@@ -169,7 +169,7 @@ if dataChoice == 6 || dataChoice == 7
     %post = 0.4096; % in ms
     
     pre = 0.8; % started with 1
-    post = 0.5; % started with 0.2
+    post = 0.6; % started with 0.2
     % 2.8, 1, 0.5 was 3/19/2018
     
     % these are the metrics used if the dictionary method is selected. The

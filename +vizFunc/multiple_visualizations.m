@@ -62,8 +62,8 @@ addParameter(p,'stimChans',[],@isnumeric);
 addParameter(p,'bads',[],@isnumeric);
 addParameter(p,'chanIntList',[1,2,3],@isnumeric);
 addParameter(p,'fs',12207,@isnumeric);
-addParameter(p,'templateTrial',@iscell)
-addParameter(p,'templateDictCell',@iscell);
+addParameter(p,'templateTrial',{},@iscell)
+addParameter(p,'templateDictCell',{},@iscell);
 addParameter(p,'modePlot','avg',@isstr);
 
 p.parse(processedSig,rawSig,varargin{:});
@@ -91,7 +91,7 @@ numChans = size(rawSig,2);
 [goods,goodVec] = helpFunc.good_channel_extract('bads',bads,'stimchans',stimChans,'numChans',numChans);
 p = numSubplots(numChans);
 
-if (strcmp(type,'dictionary') || strcmp(type,'trial') || strcmp(type,'average')) && (exist('templateDictCell','var') || exist('templateTrial','var'))
+if (strcmp(type,'dictionary') || strcmp(type,'trial') || strcmp(type,'average')) && (~isempty(templateDictCell) || ~isempty(templateTrial))
     
     if exist('templateTrial','var')
         figure
@@ -132,7 +132,7 @@ end
 avgResponse = mean(processedSig,3);
 avgRaw = mean(rawSig,3);
 
-vizFunc.small_multiples_time_series(processedSig,tEpoch,'type1',stimChans,'type2',0,'modePlot',modePlot,'highlightRange',trainDuration)
+vizFunc.small_multiples_time_series(processedSig(:,:,:),tEpoch,'type1',stimChans,'type2',0,'xlims',xlims,'modePlot',modePlot,'highlightRange',trainDuration)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

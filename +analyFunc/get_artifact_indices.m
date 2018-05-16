@@ -139,8 +139,8 @@ for trial = 1:size(rawSig,3)
                 %
                 absZSig = abs(zscore(signal));
                 absZDiffSig = abs(zscore(diffSignal));
-                threshSig = pctl(absZSig,80); % 97.5 for DBS
-                threshDiff = pctl(absZDiffSig,80); % 97.5 for DBS
+                threshSig = pctl(absZSig,65); % 97.5 for DBS, was 80, try 75 for TOJ
+                threshDiff = pctl(absZDiffSig,65); % 97.5 for DBS, was 80, try 75 for TOJ 
                 
                 % look past minimum start time
                 last = presamps+minDuration+find(absZSig(presamps+minDuration:end)>threshSig,1,'last'); % started with 0.2
