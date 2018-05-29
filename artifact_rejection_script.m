@@ -21,7 +21,7 @@ close all;clear all;clc
 % t_epoch - epoched time window
 
 
-dataChoice = 6;
+dataChoice = 5;
 
 switch dataChoice
     
