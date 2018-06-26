@@ -118,7 +118,6 @@ for chan = goodVec
     % extract max amplitude for a given channel
     maxAmpsChan = max(maxAmps(chan,:));
    
-    
 %     if strcmp(distanceMetricDbscan,'eucl')
 %         if max(templateArray(:)) < 3e-4
 %             distanceDBscan = 1e-3;
@@ -154,14 +153,12 @@ for chan = goodVec
         end
     end
     
-    
     for i = 1:length(vectorUniq)
         meanTempArray = mean(templateArray(:,ptsC==i),2);
         templateArrayExtracted = [templateArrayExtracted (meanTempArray )]; %no subtraction
     end
     
     templateArrayCellOutput{chan} = templateArrayExtracted;
-    
     fprintf(['-------Artifact Channel ' num2str(chan) ' -------- \n'])
     
     

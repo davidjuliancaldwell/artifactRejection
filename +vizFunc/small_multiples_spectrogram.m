@@ -35,15 +35,17 @@ end
 totalFig = figure;
 totalFig.Units = 'inches';
 totalFig.Position = [   10.4097    3.4722   13.2708   10.4514];
-CT = cbrewer('qual','Accent',8);
-CT = flipud(CT);
+
 
 p = numSubplots(size(signal,3));
 %min_c = squeeze(min(min(min(signal))));
 %max_c = squeeze(max(max(max(signal))));
 minC = -6;
 maxC = 6;
-cmap=flipud(cbrewer('div', 'RdBu', 13));
+%cmap=flipud(cbrewer('div', 'RdBu', 13));
+load('america');
+cmap = cm;
+CT = cm;
 colormap(cmap)
 
 for idx=1:size(signal,3)
@@ -66,7 +68,7 @@ for idx=1:size(signal,3)
     axis tight;
     
     colormap(cmap);
-    set_colormap_threshold(gcf, [-0.5 0.5], [minC maxC], [.5 .5 .5])
+    set_colormap_threshold(gcf, [-0.5 0.5], [minC maxC], [1 1 1])
     
     axis off
     axis tight
