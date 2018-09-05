@@ -53,7 +53,7 @@ p = vizFunc.numSubplots(size(signal,2));
 nullSig = zeros(length(t),1);
 
 if strcmp(modePlot,'avg')
-    signal = mean(signal,3);
+    signal = nanmean(signal,3);
     
 end
 

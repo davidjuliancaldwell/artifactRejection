@@ -147,6 +147,7 @@ maxDiff = zeros(1,size(P,2));
 maxDiff(n) = nan;
 maxDiff(vectorPts(vectorPts~=n)) = (amplitudes(vectorPts(vectorPts~=n)) - amplitudes(n)).^2;
 maxDiffThresh = 1e-6;
+
 switch distanceMetric
     
     case 'euclidean' % euclidean distance metric
@@ -154,12 +155,12 @@ switch distanceMetric
         eucl(n) = nan;
         v = P(:,vectorPts(vectorPts~=n)) - repmat(P(:,n),1,size(P(:,vectorPts(vectorPts~=n)),2));
         eucl(vectorPts(vectorPts~=n)) = sum(v.*v);
-        [~,neighbours] = find(eucl<E2);
+        [~,neighbours] = find(eucl<E2 & maxDiff<maxDiffThresh);
         
     case 'corr' % correlation distance metric
         cor = zeros(1,size(P,2));
         cor(vectorPts(vectorPts~=n)) = corr(P(:,n),P(:,vectorPts(vectorPts~=n)));
-        [~,neighbours] = find(cor>E);
+        [~,neighbours] = find(cor>E & maxDiff<maxDiffThresh);
         
     case 'cosine' % cosine similarity distance metric
         cosTheta = zeros(size(P,2),1);

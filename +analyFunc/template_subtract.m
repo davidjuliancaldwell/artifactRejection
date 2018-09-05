@@ -103,6 +103,7 @@ switch type
     case 'average'
         [processedSig,templateArrayCellOutput] = analyFunc.template_average(templateArrayCell,rawSig,'plotIt',plotIt...,
             ,'goodVec',goodVec,'startInds',startInds,'endInds',endInds);
+        
     case 'trial'
         [processedSig,templateArrayCellOutput] = analyFunc.template_trial(templateTrial,rawSig,'plotIt',plotIt...,
             ,'goodVec',goodVec,'startInds',startInds,'endInds',endInds);

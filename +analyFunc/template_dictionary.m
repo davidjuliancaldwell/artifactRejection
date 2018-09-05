@@ -28,10 +28,6 @@ function [processedSig,templateArrayCellOutput] = template_dictionary(templateAr
 %       post - the number of ms after which the stimulation pulse onset as
 %              detected by a thresholding method should still be
 %              considered as artifact
-%  preInterp - the number of ms before the stimulation which to consider an
-%              interpolation scheme on. Does not apply to the linear case
-% postInterp - the number of ms before the stimulation which to consider an
-%              interpolation scheme on. Does not apply to the linear case
 %      plotIt - plot intermediate steps if true
 %     goodVec - vector (e.g. [1 2 4 10]) of the channel indices to use. If
 %              there are bad channels or stimulation channels for instance,
@@ -99,7 +95,7 @@ recoverExp = p.Results.recoverExp;
 maxAmps = p.Results.maxAmps;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+%%
 templateArrayCellOutput = {};
 processedSig = zeros(size(rawSig));
 pctl = @(v,p) interp1(linspace(0.5/length(v), 1-0.5/length(v), length(v))', sort(v), p*0.01, 'spline');
@@ -109,7 +105,11 @@ fprintf(['-------Dictionary-------- \n'])
 
 distanceDBscanMax = 0.95;
 maximumAmps = max(maxAmps(:));
-rangeDistanceDBscan = [0.92,0.97];
+
+% before 8.17, was [0.85,0.97];
+% before 8.31.2018, was [0.92, 0.99];
+
+rangeDistanceDBscan = [0.97,0.99];
 
 for chan = goodVec
     templateArrayExtracted = [];
@@ -117,29 +117,29 @@ for chan = goodVec
     
     % extract max amplitude for a given channel
     maxAmpsChan = max(maxAmps(chan,:));
-   
-%     if strcmp(distanceMetricDbscan,'eucl')
-%         if max(templateArray(:)) < 3e-4
-%             distanceDBscan = 1e-3;
-%         else
-%             distanceDBscan = 1e-4;
-%         end
-%     else
-%         if max(templateArray(:)) < 3e-4
-%             %             distanceDBscan = 0.9;
-%             %         else
-%             %             distanceDBscan = 0.95;
-%             %         end
-%             %  if    pctl(abs(zscore(diff(templateArray(:)))),99) > 4
-%             distanceDBscan = 0.95;
-%         else
-%             distanceDBscan = 0.9;
-%         end
-%     end
-%     
-    % try scaling - affine transformation 
+    
+    %     if strcmp(distanceMetricDbscan,'eucl')
+    %         if max(templateArray(:)) < 3e-4
+    %             distanceDBscan = 1e-3;
+    %         else
+    %             distanceDBscan = 1e-4;
+    %         end
+    %     else
+    %         if max(templateArray(:)) < 3e-4
+    %             %             distanceDBscan = 0.9;
+    %             %         else
+    %             %             distanceDBscan = 0.95;
+    %             %         end
+    %             %  if    pctl(abs(zscore(diff(templateArray(:)))),99) > 4
+    %             distanceDBscan = 0.95;
+    %         else
+    %             distanceDBscan = 0.9;
+    %         end
+    %     end
+    %
+    % try scaling - affine transformation
     distanceDBscan = transform_vals(maxAmpsChan/maximumAmps,0,1,rangeDistanceDBscan(1),rangeDistanceDBscan(2));
-
+    
     
     [c,ptsC,centres] = analyFunc.db_scan(templateArray,distanceDBscan,1,distanceMetricDbscan);
     
@@ -153,21 +153,22 @@ for chan = goodVec
         end
     end
     
+    % build up array of templates
     for i = 1:length(vectorUniq)
         meanTempArray = mean(templateArray(:,ptsC==i),2);
         templateArrayExtracted = [templateArrayExtracted (meanTempArray )]; %no subtraction
     end
     
+    % assign templates to channel
     templateArrayCellOutput{chan} = templateArrayExtracted;
     fprintf(['-------Artifact Channel ' num2str(chan) ' -------- \n'])
-    
     
 end
 
 fprintf(['-------Finished clustering artifacts-------- \n'])
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+%%
 % now do the template subtraction
 for trial = 1:size(rawSig,3)
     
@@ -187,48 +188,60 @@ for trial = 1:size(rawSig,3)
         for sts = 1:length(startInds{trial}{chan})
             win = startInds{trial}{chan}(sts):endInds{trial}{chan}(sts);
             extractedSig = rawSigTemp(win);
-            extractedSig = extractedSig - extractedSig(1);
+            extractedSig = extractedSig - mean(extractedSig(1:3));
             
             % find best artifact
             % get them to be the same length
             templatesSts = templates(1:length(extractedSig),:);
             
+            templatesStsShortened = templatesSts(1:20,:);
+            extractedSigShortened = extractedSig(1:20,:);
+            
             switch distanceMetricSigMatch
                 case 'correlation'
                     % correlation
-                    correlations = corr(extractedSig,templatesSts);
+                    correlations = corr(extractedSigShortened,templatesStsShortened);
                     [~,index] = max((correlations));
                     
                 case 'cosine'
-                    % - cosine similarity
-                    denominator = sqrt(sum(extractedSig.*extractedSig)).*sqrt(sum(templatesSts.*templatesSts));
-                    numerator = (extractedSig'*templatesSts);
+                    % cosine similarity
+                    denominator = sqrt(sum(extractedSigShortened.*extractedSigShortened)).*sqrt(sum(templatesStsShortened.*templatesStsShortened));
+                    numerator = (extractedSigShortened'*templatesStsShortened);
                     correlations = numerator./denominator;
                     [~,index] = max(abs(correlations));
                     
                 case 'eucl'
                     % distance
-                    v = templatesSts - repmat(extractedSig,1,size(templatesSts,2));
+                    v = templatesStsShortened - repmat(extractedSigShortened,1,size(templatesStsShortened,2));
                     distance = sum(v.*v);
                     [~,index] = min(distance);
             end
             
             templateSubtract = templatesSts(:,index);
             
-            %             k = 2;
-            %             all = templateArrayCell{chan};
-            %             [u,s,v] = svd(all);
-            %
-            %             c = u(:,1:k);
-            %             %c = template_subtract;
-            %             a = rawSigTemp(win);
-            %             d = (c'*c)\(c'*a);
-            %             clean = a - (c'*c)\(c'*a);
-            %
+%                         k = 2;
+%                         all = templateArrayCell{chan};
+%                         [u,s,v] = svd(all);
+%             
+%                         c = u(:,1:k);
+%                         %c = template_subtract;
+%                         a = rawSigTemp(win);
+%                         d = (c'*c)\(c'*a);
+%                         clean = a - (c'*c)\(c'*a);
+%             
             rawSigTemp(win) = rawSigTemp(win) - templateSubtract;
+            
+            if 1 && chan == 28 && (sts == 1 || sts == 2 || sts == 3)
+                figure
+                plot(extractedSig)
+                hold on
+                plot(templateSubtract)
+                plot(extractedSig-templateSubtract)
+                legend('extracted','template','subtracted');
+            end
         end
         
-        if plotIt && (trial == 10 || trial == 1000)
+        if 1 && chan == 28
             figure
             plot(rawSigTemp,'linewidth',2)
             hold on
@@ -236,13 +249,8 @@ for trial = 1:size(rawSig,3)
             
             vline(startInds{trial}{chan})
             vline(endInds{trial}{chan},'g')
+            xlim([1.221e4 1.236e4])
             
-            figure
-            plot(extractedSig)
-            hold on
-            plot(templateSubtract)
-            plot(extractedSig-templateSubtract)
-            legend('extracted','template','subtracted');
         end
         processedSig(:,chan,trial) = rawSigTemp;
         fprintf(['-------Template Processed - Channel ' num2str(chan) '--' 'Trial ' num2str(trial) '-----\n'])

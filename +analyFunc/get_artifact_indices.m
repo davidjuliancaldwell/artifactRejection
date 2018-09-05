@@ -109,11 +109,12 @@ end
 pctl = @(v,p) interp1(linspace(0.5/length(v), 1-0.5/length(v), length(v))', sort(v), p*0.01, 'spline');
 
 timeSampsExtend = 2*fs/1000;% time_ms
+
 for trial = 1:size(rawSig,3)
     
-    inds = find(abs(zscore(diffSig(:,chanMax,trial)))>2);
+    inds = find(abs(zscore(diffSig(:,chanMax,trial)))>1.5); % diddn't quite work with 2, try 1.5 DJC 9-4-2018 
     diffBtInds = [diff(inds)'];
-    [~,indsOnset] = find(abs(zscore(diffBtInds))>2);
+    [~,indsOnset] = find(abs(zscore(diffBtInds))>1.5);
     
     for chan = goodVec
         
@@ -139,8 +140,11 @@ for trial = 1:size(rawSig,3)
                 %
                 absZSig = abs(zscore(signal));
                 absZDiffSig = abs(zscore(diffSignal));
-                threshSig = pctl(absZSig,80); % 97.5 for DBS, was 80, try 75 for TOJ % was 65 6-25-2018
-                threshDiff = pctl(absZDiffSig,80); % 97.5 for DBS, was 80, try 75 for TOJ % was 6-25-2018 
+                threshSig = pctl(absZSig,85); % 97.5 for DBS, was 80, try 75 for TOJ % was 65 6-25-2018
+                threshDiff = pctl(absZDiffSig,85); % 97.5 for DBS, was 80, try 75 for TOJ % was 6-25-2018 
+                
+                % was 75 before 9-4-2018, but it missed one trial, so try
+                % 80
                 
                 % look past minimum start time
                 last = presamps+minDuration+find(absZSig(presamps+minDuration:end)>threshSig,1,'last'); % started with 0.2
