@@ -4,17 +4,17 @@ function [processedSig,startInds,endInds] = interpolate_artifact(rawSig,varargin
 % This function will perform an interpolation scheme for artifacts on a
 % trial by trial, channel by channel basis, implementing either a linear
 % interpolation scheme, or a pchip interpolation scheme
-% 
+%
 % Arguments:
 %   Required:
-%   rawSig - samples x channels x trials 
+%   rawSig - samples x channels x trials
 %
 %   Optional:
 %        pre - The number of ms before which the stimulation pulse onset as
-%              detected by a thresholding method should still be considered 
+%              detected by a thresholding method should still be considered
 %              as artifact
 %       post - The number of ms after which the stimulation pulse onset as
-%              detected by a thresholding method should still be 
+%              detected by a thresholding method should still be
 %              considered as artifact
 %  preInterp - The number of ms before the stimulation which to consider an
 %              interpolation scheme on. Does not apply to the linear case
@@ -26,15 +26,15 @@ function [processedSig,startInds,endInds] = interpolate_artifact(rawSig,varargin
 %
 % Returns:
 %   processedSig - Processed signal following interpolation scheme
-%      startInds - Cell array of the start indices each artifact for each 
+%      startInds - Cell array of the start indices each artifact for each
 %      channel and trial - startInds{trial}{channel}
-%       endsInds - Cell array of the end indices of each artifact for each 
+%       endsInds - Cell array of the end indices of each artifact for each
 %      channel and
 %
 %
 % Copyright (c) 2018 Updated by David Caldwell
 % University of Washington
-% djcald at uw . edu 
+% djcald at uw . edu
 % Permission is hereby granted, free of charge, to any person obtaining a copy
 % of this software and associated documentation files (the "Software"), to deal
 % in the Software without restriction, subject to the following conditions:
@@ -102,20 +102,22 @@ for trial = 1:size(rawSig,3)
     
     for chan = goodVec
         rawSigTemp = rawSig(:,chan,trial);
-        for sts = 1:length(startInds{trial})
-            win = startInds{trial}(sts):endInds{trial}(sts);
+        
+        for sts = 1:length(startInds{trial}{chan})
+            
+            win = startInds{trial}{chan}(sts):endInds{trial}{chan}(sts);
             switch type
                 case 'linear'
-                    rawSigTemp(win) = interp1([startInds{trial}(sts)-1 endInds{trial}(sts)+1],...
-                        rawSigTemp([startInds{trial}(sts)-1 endInds{trial}(sts)+1]), startInds{trial}(sts):endInds{trial}(sts));
+                    %%
+                    rawSigTemp(win) = interp1([startInds{trial}{chan}(sts)-1 endInds{trial}{chan}(sts)+1],...
+                        rawSigTemp([startInds{trial}{chan}(sts)-1 endInds{trial}{chan}(sts)+1]), startInds{trial}{chan}(sts):endInds{trial}{chan}(sts));
                 case 'pchip'
                     preInterpSamps = round(preInterp*fs/1e3);
                     postInterpSamps = round(postInterp*fs/1e3);
-                    rawSigTemp(win) = interp1([startInds{trial}(sts)-preInterpSamps:startInds{trial}(sts)-1 endInds{trial}(sts):endInds{trial}(sts)+postInterpSamps],...
-                        rawSigTemp([startInds{trial}(sts)-preInterpSamps:startInds{trial}(sts)-1 endInds{trial}(sts):endInds{trial}(sts)+postInterpSamps]),...
+                    rawSigTemp(win) = interp1([startInds{trial}{chan}(sts)-preInterpSamps:startInds{trial}{chan}(sts)-1 endInds{trial}{chan}(sts):endInds{trial}{chan}(sts)+postInterpSamps],...
+                        rawSigTemp([startInds{trial}{chan}(sts)-preInterpSamps:startInds{trial}{chan}(sts)-1 endInds{trial}{chan}(sts):endInds{trial}{chan}(sts)+postInterpSamps]),...
                         startInds{trial}(sts):endInds{trial}(sts),'pchip');
             end
-            
         end
         
         if plotIt && (trial == 10 || trial == 1000)
@@ -128,6 +130,8 @@ for trial = 1:size(rawSig,3)
         end
         
         processedSig(:,chan,trial) = rawSigTemp;
+        fprintf(['-------Interpolation - Channel ' num2str(chan) '--' 'Trial ' num2str(trial) '-----\n'])
+        
     end
 end
 

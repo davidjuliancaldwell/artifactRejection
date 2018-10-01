@@ -21,7 +21,7 @@ close all;clear all;clc
 % t_epoch - epoched time window
 
 
-dataChoice = 5;
+dataChoice = 1;
 
 switch dataChoice
     
@@ -31,27 +31,35 @@ switch dataChoice
         xlims = [-200 1000]; % these are the x limits to visualize in plots
         chanIntList = [12 21 28 19 18 36 44 43 30 33 41 34]; % these are the channels of interest to visualize in closer detail
         minDuration = 0.5; % minimum duration of artifact in ms
+        fsData = fs_data;
+        tEpoch=t_epoch;
+        dataInt = 4*dataInt;
+        
     case 2
         load('+data/2fd831_exampData_400ms.mat') % response timing data set
         trainDuration = [0 400]; % this is how long the stimulation train was
         xlims = [-200 1000]; % these are the x limits to visualize in plots
         chanIntList = [2 10 51 42]; % these are the channels of interest to visualize in closer detail
-                minDuration = 0.5; % minimum duration of artifact in ms
-
+        minDuration = 0.5; % minimum duration of artifact in ms
+        fsData = fs_data;
+        tEpoch=t_epoch;
+        dataInt = 4*dataInt;
+        
     case 3
         load('+data/3f2113_stim_12_52.mat') % stimulation spacing data set
         trainDuration = [0 5];
         xlims = [-10 100];
         chanIntList = [13 53 51 42 60 61 ]; % these are the channels of interest to visualize in closer detail
-                minDuration = 0.5; % minimum duration of artifact in ms
-
+        minDuration = 0.5; % minimum duration of artifact in ms
+        dataInt = 4*dataInt;
+        
     case 4
         load('+data/50ad9_paramSweep4.mat') % DBS data set
         xlims = [-200 600];
         chanIntList = [1:10];
         trainDuration = [0 500];
-                minDuration = 0.250; % minimum duration of artifact in ms
-
+        minDuration = 0.250; % minimum duration of artifact in ms
+        dataInt = 4*dataInt;
     case 5
         load('+data/ecb43e_RHI_async_trial14.mat') % rubber hand illusion data set
     case 6
@@ -59,16 +67,17 @@ switch dataChoice
         trainDuration = [0 200]; % this is how long the stimulation train was
         xlims = [-50 500]; % these are the x limits to visualize in plots
         chanIntList = [7 8 10 15 17 22 23 29 30 31 32]; % these are the channels of interest to visualize in closer detail
-                minDuration = 0.5; % minimum duration of artifact in ms
-
+        minDuration = 0.5; % minimum duration of artifact in ms
+        
     case 7
         load('+data/a1355e_examplePriming_noPrime_high.mat')
         trainDuration = [0 200]; % this is how long the stimulation train was
         xlims = [-50 500]; % these are the x limits to visualize in plots
         chanIntList = [7 8 10 15 17 22 23 29 30 31 32]; % these are the channels of interest to visualize in closer detail
-                minDuration = 0.5; % minimum duration of artifact in ms
-
+        minDuration = 0.5; % minimum duration of artifact in ms
+        
 end
+
 
 
 
@@ -159,7 +168,7 @@ vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fsData,'type',type,'tE
 
 if dataChoice == 6 || dataChoice == 7
     type = 'dictionary';
-
+    
     useFixedEnd = 0;
     %fixedDistance = 2;
     fixedDistance = 4; % in ms
@@ -186,12 +195,12 @@ if dataChoice == 6 || dataChoice == 7
     
 elseif dataChoice == 4
     type = 'dictionary';
-
+    
     useFixedEnd = 0;
     %fixedDistance = 2;
     fixedDistance = 4; % in ms
     plotIt = 0;
-   
+    
     %pre = 0.4096; % in ms
     %post = 0.4096; % in ms
     
@@ -203,22 +212,82 @@ elseif dataChoice == 4
     % options are 'eucl', 'cosine', 'corr', for either euclidean distance,
     % cosine similarity, or correlation for clustering and template matching.
     
-    distanceMetricDbscan = 'cosine';
+    distanceMetricDbscan = 'dtw';
     
-    distanceMetricSigMatch = 'eucl';
+    distanceMetricSigMatch = 'dtw';
     amntPreAverage = 3;
     normalize = 'preAverage';
     %normalize = 'firstSamp';
     
-    recoverExp = 0;    
-   
+    recoverExp = 0;
+    
+elseif dataChoice == 2
+    type = 'dictionary';
+    
+    useFixedEnd = 0;
+    %fixedDistance = 2;
+    fixedDistance = 4; % in ms
+    plotIt = 0;
+    
+    %pre = 0.4096; % in ms
+    %post = 0.4096; % in ms
+    
+    pre = 0.8; % started with 1
+    post = 0.6; % started with 0.2
+    % 2.8, 1, 0.5 was 3/19/2018
+    
+    % these are the metrics used if the dictionary method is selected. The
+    % options are 'eucl', 'cosine', 'corr', for either euclidean distance,
+    % cosine similarity, or correlation for clustering and template matching.
+    
+    distanceMetricDbscan = 'dtw';
+    
+    distanceMetricSigMatch = 'dtw';
+    amntPreAverage = 3;
+    normalize = 'preAverage';
+    %normalize = 'firstSamp';
+    
+    recoverExp = 0;
+    
+else
+    
+    type = 'dictionary';
+    
+    useFixedEnd = 0;
+    %fixedDistance = 2;
+    fixedDistance = 4; % in ms
+    plotIt = 0;
+    
+    %pre = 0.4096; % in ms
+    %post = 0.4096; % in ms
+    
+    pre = 0.8; % started with 1
+    post = 1; % started with 0.2
+    % 2.8, 1, 0.5 was 3/19/2018
+    
+    % these are the metrics used if the dictionary method is selected. The
+    % options are 'eucl', 'cosine', 'corr', for either euclidean distance,
+    % cosine similarity, or correlation for clustering and template matching.
+    
+    distanceMetricDbscan = 'cosine';
+    
+    distanceMetricSigMatch = 'cosine';
+    amntPreAverage = 3;
+    normalize = 'preAverage';
+    %normalize = 'firstSamp';
+    
+    recoverExp = 0;
     
 end
 
+bracketRange = [-6:6];
+
 [processedSig,templateDictCell,templateTrial,startInds,endInds] = analyFunc.template_subtract(dataInt,'type',type,...
-    'fs',fsData,'plotIt',plotIt,'pre',pre,'post',post,'stimChans',stimChans,'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,...,
+    'fs',fsData,'plotIt',plotIt,'pre',pre,'post',post,'stimChans',stimChans,...
+    'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,...,
     'distanceMetricDbscan',distanceMetricDbscan,'distanceMetricSigMatch',distanceMetricSigMatch,...
-    'recoverExp',recoverExp,'normalize',normalize,'amntPreAverage',amntPreAverage,'minDuration',minDuration);
+    'recoverExp',recoverExp,'normalize',normalize,'amntPreAverage',amntPreAverage,...
+    'minDuration',minDuration,'bracketRange',bracketRange);
 %
 % visualization
 % of note - more visualizations are created here, including what the
@@ -228,6 +297,6 @@ vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fsData,'type',type,'tE
     tEpoch,'xlims',xlims,'trainDuration',trainDuration,'stimChans',stimChans,...,
     'chanIntList',chanIntList,'templateTrial',templateTrial,'templateDictCell',templateDictCell,'modePlot','confInt')
 
-%%
-[processedSig_v2,templateDictCell,template] = analyFunc.template_subtract_iterative(processedSig,...,
-    'fs',fsData,'plotIt',0,'pre',pre,'post',post,'stimChans',stimChans,'startInds',startInds,'endInds',endInds);
+% %%
+% [processedSig_v2,templateDictCell,template] = analyFunc.template_subtract_iterative(processedSig,...,
+%     'fs',fsData,'plotIt',0,'pre',pre,'post',post,'stimChans',stimChans,'startInds',startInds,'endInds',endInds);

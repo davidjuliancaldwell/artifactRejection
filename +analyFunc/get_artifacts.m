@@ -1,4 +1,4 @@
-function [templateCell,lengthMax,maxAmps] = get_artifacts(rawSig,varargin)
+function [templateCell,lengthMax,maxAmps,maxLocation] = get_artifacts(rawSig,varargin)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 p = inputParser;
@@ -71,6 +71,14 @@ end
 % trial 
 
 maxAmps = squeeze(max(rawSig,[],1));
+
+% find maximum index for reducing dimensionality later 
+[~,maxChan] = max(maxAmps,[],1);
+maxChan = maxChan(1);
+[~,maxTrial] = max(maxAmps,[],2);
+maxTrial = maxTrial(maxChan);
+[~,maxLocation] = cellfun(@max,(templateCell{maxChan}{maxTrial}));
+maxLocation = median(maxLocation);
 
 % get the maximum length of any given artifact window for each channel
 lengthMax = max(lengthMaxVecTrial,[],1);

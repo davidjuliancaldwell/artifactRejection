@@ -4,7 +4,7 @@ function [processedSig,templateArrayCellOutput,templateTrial,startInds,endInds] 
 % a trial by trial, channel by channel basis. This function will build up
 % a dictionary of artifacts, best match the template, and
 %
-% raw_sig = samples x channels x trials
+% rawSig = samples x channels x trials
 % pre = the number of ms before which the stimulation pulse onset as
 % detected by a thresholding method should still be considered as artifact
 % post = the number of ms after which the stimulation pulse onset as
@@ -38,7 +38,7 @@ addParameter(p,'amntPreAverage',5,@isnumeric);
 addParameter(p,'normalize','firstSamp',@isstr);
 addParameter(p,'recoverExp',0,@(x) x==0 || x ==1);
 addParameter(p,'minDuration',0,@isnumeric);
-
+addParameter(p,'bracketRange',[-8:8],@isnumeric);
 
 p.parse(rawSig,varargin{:});
 
@@ -65,6 +65,8 @@ normalize = p.Results.normalize;
 recoverExp = p.Results.recoverExp;
 minDuration = p.Results.minDuration;
 
+bracketRange = p.Results.bracketRange; 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % define matrix of zeros
@@ -83,7 +85,7 @@ numChans = size(rawSig,2);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% extract artifacts
 
-[templateCell,lengthMax,maxAmps] = analyFunc.get_artifacts(rawSig,'goodVec',goodVec,...,
+[templateCell,lengthMax,maxAmps,maxLocation] = analyFunc.get_artifacts(rawSig,'goodVec',goodVec,...,
     'startInds',startInds,'endInds',endInds,'plotIt',plotIt,'normalize',normalize,'amntPreAverage',amntPreAverage);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -98,7 +100,8 @@ switch type
     case 'dictionary'
         [processedSig,templateArrayCellOutput] = analyFunc.template_dictionary(templateArrayCell,templateTrial,rawSig,fs,'plotIt',plotIt,...
             'distanceMetricDbscan',distanceMetricDbscan,'distanceMetricSigMatch',distanceMetricSigMatch,...
-            'goodVec',goodVec,'startInds',startInds,'endInds',endInds,'recoverExp',recoverExp,'maxAmps',maxAmps);
+            'goodVec',goodVec,'startInds',startInds,'endInds',endInds,'recoverExp',recoverExp,'maxAmps',maxAmps,'amntPreAverage',amntPreAverage,...
+            'maxLocation',maxLocation,'bracketRange',bracketRange);
         
     case 'average'
         [processedSig,templateArrayCellOutput] = analyFunc.template_average(templateArrayCell,rawSig,'plotIt',plotIt...,

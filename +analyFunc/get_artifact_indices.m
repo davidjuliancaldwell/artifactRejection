@@ -81,13 +81,9 @@ minDuration = p.Results.minDuration;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 presamps = round(pre/1e3 * fs); % pre time in sec
-
 postsamps = round(post/1e3 * fs); %
-
 minDuration = round(minDuration/1e3 * fs);
-
 fixedDistanceSamps = round(fixedDistance/1e3 * fs);
-
 defaultWinAverage = fixedDistanceSamps ; %end_inds{trial}(1)-start_inds{trial}(1)+1;
 
 % take diff of signal to find onset of stimulation train
@@ -97,8 +93,9 @@ diffSig = permute(cat(3,zeros(size(rawSig,2), size(rawSig,3)),permute(diff(rawSi
 % analysis
 [~,chanMax] = (max(max(diffSig(:,goodVec,:))));
 chanMax = chanMax(1);
+chanMax = goodVec(chanMax);
 lengthMax_vec = []; % length vector to build up the dictionary of templates later
-fprintf(['-------Templates-------- \n'])
+fprintf(['-------Getting artifact indices-------- \n'])
 
 if ~exist('chanInt','var')
     chanInt = chanMax;
@@ -112,13 +109,13 @@ timeSampsExtend = 2*fs/1000;% time_ms
 
 for trial = 1:size(rawSig,3)
     
-    inds = find(abs(zscore(diffSig(:,chanMax,trial)))>1.5); % diddn't quite work with 2, try 1.5 DJC 9-4-2018 
+    inds = find(abs(zscore(diffSig(:,chanMax,trial)))>1.5); % didn't quite work with 2, try 1.5 DJC 9-4-2018 
     diffBtInds = [diff(inds)'];
     [~,indsOnset] = find(abs(zscore(diffBtInds))>1.5);
     
     for chan = goodVec
         
-        startInds{trial}{chan} = [inds(1)-presamps; inds(indsOnset+1)-presamps];
+        startInds{trial}{chan} = [inds(1)-presamps; inds(indsOnset+1)-presamps]';
         
         if useFixedEnd
             endInds{trial}{chan} = startInds{trial}{chan}+fixedDistanceSamps;
@@ -140,10 +137,14 @@ for trial = 1:size(rawSig,3)
                 %
                 absZSig = abs(zscore(signal));
                 absZDiffSig = abs(zscore(diffSignal));
-                threshSig = pctl(absZSig,85); % 97.5 for DBS, was 80, try 75 for TOJ % was 65 6-25-2018
-                threshDiff = pctl(absZDiffSig,85); % 97.5 for DBS, was 80, try 75 for TOJ % was 6-25-2018 
+                threshSig = pctl(absZSig,80); % 97.5 for DBS, was 80, try 75 for TOJ % was 65 6-25-2018
+                threshDiff = pctl(absZDiffSig,80); % 97.5 for DBS, was 80, try 75 for TOJ % was 6-25-2018 
                 
-                % was 75 before 9-4-2018, but it missed one trial, so try
+                % for two pulses only
+%                           threshSig = pctl(absZSig,97.5); % 97.5 for DBS, was 80, try 75 for TOJ % was 65 6-25-2018
+%                 threshDiff = pctl(absZDiffSig,97.5); % 97.5 for DBS, was 80, try 75 for TOJ % was 6-25-2018 
+%                 
+%                 % was 75 before 9-4-2018, but it missed one trial, so try
                 % 80
                 
                 % look past minimum start time

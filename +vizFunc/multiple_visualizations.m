@@ -137,7 +137,7 @@ vizFunc.small_multiples_time_series(processedSig(:,:,:),tEpoch,'type1',stimChans
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % make a list of the channels of interest to visualize one at a time
-
+%%
 for ind = chanIntList
     
     exampChan = mean(squeeze(processedSig(:,ind,:)),2);
@@ -167,7 +167,7 @@ for ind = chanIntList
 end
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+%%
 % look at the FFT difference
 [f,P1] = helpFunc.fourier_transform_calc(fs,avgResponse);
 [fRaw,P1Raw] = helpFunc.fourier_transform_calc(fs,avgRaw);

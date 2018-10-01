@@ -146,10 +146,17 @@ amplitudes = max(P,[],1);
 maxDiff = zeros(1,size(P,2));
 maxDiff(n) = nan;
 maxDiff(vectorPts(vectorPts~=n)) = (amplitudes(vectorPts(vectorPts~=n)) - amplitudes(n)).^2;
-maxDiffThresh = 1e-6;
+maxDiffThresh = 1e-7;
 
 switch distanceMetric
-    
+    case 'dtw' % dynamic time warping
+        dtwMat = nan(1,Npts);
+        goodPts = vectorPts(vectorPts~=n);
+        for index = goodPts
+            dtwMat(index) = dtw(P(:,index),P(:,n));
+        end
+        [~,neighbours] = find(dtwMat<E);
+        
     case 'euclidean' % euclidean distance metric
         eucl = zeros(1,size(P,2));
         eucl(n) = nan;

@@ -75,6 +75,9 @@ addParameter(p,'endInds',[],@iscell);
 
 addParameter(p,'recoverExp',1,@(x) x==0 || x ==1);
 addParameter(p,'maxAmps',ones(size(rawSig,2),size(rawSig,3)),@isnumeric)
+addParameter(p,'maxLocation',15,@isnumeric);
+addParameter(p,'amntPreAverage',3,@isnumeric);
+addParameter(p,'bracketRange',[-8:8],@isnumeric);
 
 
 p.parse(templateArrayCell,templateTrial,rawSig,fs,varargin{:});
@@ -93,70 +96,76 @@ endInds = p.Results.endInds;
 
 recoverExp = p.Results.recoverExp;
 maxAmps = p.Results.maxAmps;
+amntPreAverage = p.Results.amntPreAverage;
+maxLocation = p.Results.maxLocation;
+bracketRange = p.Results.bracketRange; 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 templateArrayCellOutput = {};
 processedSig = zeros(size(rawSig));
-pctl = @(v,p) interp1(linspace(0.5/length(v), 1-0.5/length(v), length(v))', sort(v), p*0.01, 'spline');
-transform_vals = @(x,a,b,c,d) ((x-a)*(d-c)/(b-a)) + c;
+
 
 fprintf(['-------Dictionary-------- \n'])
 
-distanceDBscanMax = 0.95;
-maximumAmps = max(maxAmps(:));
-
-% before 8.17, was [0.85,0.97];
-% before 8.31.2018, was [0.92, 0.99];
-
-rangeDistanceDBscan = [0.97,0.99];
 
 for chan = goodVec
-    templateArrayExtracted = [];
     templateArray = templateArrayCell{chan};
     
     % extract max amplitude for a given channel
     maxAmpsChan = max(maxAmps(chan,:));
+        
+    templateArrayShortened = templateArray(maxLocation+bracketRange,:);
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    %     if strcmp(distanceMetricDbscan,'eucl')
-    %         if max(templateArray(:)) < 3e-4
-    %             distanceDBscan = 1e-3;
-    %         else
-    %             distanceDBscan = 1e-4;
-    %         end
-    %     else
-    %         if max(templateArray(:)) < 3e-4
-    %             %             distanceDBscan = 0.9;
-    %             %         else
-    %             %             distanceDBscan = 0.95;
-    %             %         end
-    %             %  if    pctl(abs(zscore(diff(templateArray(:)))),99) > 4
-    %             distanceDBscan = 0.95;
-    %         else
-    %             distanceDBscan = 0.9;
-    %         end
-    %     end
-    %
-    % try scaling - affine transformation
-    distanceDBscan = transform_vals(maxAmpsChan/maximumAmps,0,1,rangeDistanceDBscan(1),rangeDistanceDBscan(2));
+    % Assume our data is in the n x m matrix "X". We will initiate a new HDBSCAN instance
+    clusterer = HDBSCAN.HDBSCAN( templateArrayShortened');
     
+    % we can view our data matrix size
+    fprintf( 'Number of points: %i',clusterer.nPoints );
+    fprintf( 'Number of dimensions: %i',clusterer.nDims );
     
-    [c,ptsC,centres] = analyFunc.db_scan(templateArray,distanceDBscan,1,distanceMetricDbscan);
+    % (1) directly set the parameters
+    clusterer.minpts = 10;
+    clusterer.minclustsize = 10;
+    clusterer.outlierThresh = 0.95;
+    clusterer.metric = 'eucl';
+    clusterer.fit_model(); 			% trains a cluster hierarchy
+    clusterer.get_best_clusters(); 	% finds the optimal "flat" clustering scheme
+    clusterer.get_membership();		% assigns cluster labels to the points in X
     
-    vectorUniq = unique(ptsC);
-    if plotIt
-        figure
-        hold on
-        vectorUniq = unique(ptsC)';
-        for i = 1:length(vectorUniq)
-            plot(mean(templateArray(:,ptsC==i),2));
-        end
+    % (2) call run_hdbscan() with optional inputs. This is the prefered/easier method
+    %clusterer.run_hdbscan( 10,20,[],0.85 );
+    
+    % Let's visualize the condensed cluster tree (the tree without spurious clusters)
+    
+    labels = clusterer.labels;
+    vectorUniq = unique(labels);
+    templateArrayExtracted = [];
+    for i = vectorUniq'
+        meanTempArray = mean(templateArray(:,labels==i),2);
+        templateArrayExtracted = [templateArrayExtracted (meanTempArray )]; %no subtraction
     end
     
-    % build up array of templates
-    for i = 1:length(vectorUniq)
-        meanTempArray = mean(templateArray(:,ptsC==i),2);
-        templateArrayExtracted = [templateArrayExtracted (meanTempArray )]; %no subtraction
+    
+    if plotIt
+        figure
+        clusterer.plot_tree();
+        
+        % we can also visualize the actual clusters in a 2D or 3D space (depending on self.nDims)
+        figure
+        subplot(2,1,1)
+        clusterer.plot_clusters(); % plots a scatter of the points, color coded by the associated labels
+        %figure
+        subplot(2,1,2)
+        clusterer.plot_clusters( [1,4,5] ); % specifies the scatter to use the 1st, 4th, and 5th columns of X
+
+        figure
+        plot(templateArrayExtracted)
+    end
+       
+    if plotIt && chan == 28
+        plot(templateArrayExtracted)
     end
     
     % assign templates to channel
@@ -178,7 +187,7 @@ for trial = 1:size(rawSig,3)
         templates = templateArrayCellOutput{chan};
         
         % add on the trial one
-        templates = [templates mean(templateTrial{chan}{trial},2)];
+       % templates = [templates mean(templateTrial{chan}{trial},2)];
         
         % ensure no subtraction of exponential
         if recoverExp
@@ -188,15 +197,16 @@ for trial = 1:size(rawSig,3)
         for sts = 1:length(startInds{trial}{chan})
             win = startInds{trial}{chan}(sts):endInds{trial}{chan}(sts);
             extractedSig = rawSigTemp(win);
-            extractedSig = extractedSig - mean(extractedSig(1:3));
+            extractedSig = extractedSig - mean(extractedSig(1:amntPreAverage));
             
             % find best artifact
             % get them to be the same length
             templatesSts = templates(1:length(extractedSig),:);
             
-            templatesStsShortened = templatesSts(1:20,:);
-            extractedSigShortened = extractedSig(1:20,:);
             
+            templatesStsShortened = templatesSts(maxLocation+bracketRange,:);
+            extractedSigShortened = extractedSig(maxLocation+bracketRange,:);
+
             switch distanceMetricSigMatch
                 case 'correlation'
                     % correlation
@@ -215,42 +225,43 @@ for trial = 1:size(rawSig,3)
                     v = templatesStsShortened - repmat(extractedSigShortened,1,size(templatesStsShortened,2));
                     distance = sum(v.*v);
                     [~,index] = min(distance);
+                case 'dtw'
+                    % dynamic time warping
+                    sizeTemplates = size(templatesStsShortened,2);
+                    dtwMat = zeros(1,sizeTemplates);
+                    for index = 1:sizeTemplates
+                        dtwMat(index) = dtw(templatesStsShortened(:,index),extractedSigShortened);
+                    end
+                    [~,index] = min(dtwMat);
             end
             
             templateSubtract = templatesSts(:,index);
-            
-%                         k = 2;
-%                         all = templateArrayCell{chan};
-%                         [u,s,v] = svd(all);
-%             
-%                         c = u(:,1:k);
-%                         %c = template_subtract;
-%                         a = rawSigTemp(win);
-%                         d = (c'*c)\(c'*a);
-%                         clean = a - (c'*c)\(c'*a);
-%             
+
             rawSigTemp(win) = rawSigTemp(win) - templateSubtract;
-            
-            if 1 && chan == 28 && (sts == 1 || sts == 2 || sts == 3)
-                figure
-                plot(extractedSig)
-                hold on
-                plot(templateSubtract)
-                plot(extractedSig-templateSubtract)
-                legend('extracted','template','subtracted');
+            if plotIt
+                if 1 && chan == 28 && (sts == 1 || sts == 2 || sts == 3)
+                    figure
+                    plot(extractedSig)
+                    hold on
+                    plot(templateSubtract)
+                    plot(extractedSig-templateSubtract)
+                    legend('extracted','template','subtracted');
+                end
             end
         end
         
-        if 1 && chan == 28
-            figure
-            plot(rawSigTemp,'linewidth',2)
-            hold on
-            plot(rawSig(:,chan,trial),'linewidth',2)
-            
-            vline(startInds{trial}{chan})
-            vline(endInds{trial}{chan},'g')
-            xlim([1.221e4 1.236e4])
-            
+        if plotIt
+            if 1 && chan == 28
+                figure
+                plot(rawSigTemp,'linewidth',2)
+                hold on
+                plot(rawSig(:,chan,trial),'linewidth',2)
+                
+                vline(startInds{trial}{chan})
+                vline(endInds{trial}{chan},'g')
+                xlim([1.221e4 1.236e4])
+                
+            end
         end
         processedSig(:,chan,trial) = rawSigTemp;
         fprintf(['-------Template Processed - Channel ' num2str(chan) '--' 'Trial ' num2str(trial) '-----\n'])
