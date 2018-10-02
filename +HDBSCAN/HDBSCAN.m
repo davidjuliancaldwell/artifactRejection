@@ -595,7 +595,7 @@ classdef HDBSCAN < handle
             trained_check( self )
             
             % create the plot and change plot style
-            [~,h] = plot_cluster_tree( self.model.clusterTree );
+            [~,h] = HDBSCAN.plot_cluster_tree( self.model.clusterTree );
             nclusts = length( self.model.clusterTree.clusters );
             h.MarkerSize = 4;
             h.NodeColor = repmat( [0 0 0],nclusts,1 );

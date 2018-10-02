@@ -40,7 +40,7 @@ function [delta,S_hat] = OFCH( S,parent )
         % update our indicator vector
         if ind == 1
             % this parent node is stable, so set children to 0
-            allChildren = get_all_subnodes( clust,parent );
+            allChildren = HDBSCAN.get_all_subnodes( clust,parent );
             delta(allChildren) = false;
         else
             % children more stable, so set current clust to 0

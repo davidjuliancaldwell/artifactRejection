@@ -98,7 +98,7 @@ recoverExp = p.Results.recoverExp;
 maxAmps = p.Results.maxAmps;
 amntPreAverage = p.Results.amntPreAverage;
 maxLocation = p.Results.maxLocation;
-bracketRange = p.Results.bracketRange; 
+bracketRange = p.Results.bracketRange;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
@@ -114,7 +114,7 @@ for chan = goodVec
     
     % extract max amplitude for a given channel
     maxAmpsChan = max(maxAmps(chan,:));
-        
+    
     templateArrayShortened = templateArray(maxLocation+bracketRange,:);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
@@ -122,13 +122,13 @@ for chan = goodVec
     clusterer = HDBSCAN.HDBSCAN( templateArrayShortened');
     
     % we can view our data matrix size
-    fprintf( 'Number of points: %i',clusterer.nPoints );
-    fprintf( 'Number of dimensions: %i',clusterer.nDims );
+    fprintf( 'Number of points: %i\n',clusterer.nPoints );
+    fprintf( 'Number of dimensions: %i\n',clusterer.nDims );
     
     % (1) directly set the parameters
-    clusterer.minpts = 10;
-    clusterer.minclustsize = 10;
-    clusterer.outlierThresh = 0.95;
+    clusterer.minpts = 3;
+    clusterer.minclustsize = 5;
+    clusterer.outlierThresh = 0.90;
     clusterer.metric = 'eucl';
     clusterer.fit_model(); 			% trains a cluster hierarchy
     clusterer.get_best_clusters(); 	% finds the optimal "flat" clustering scheme
@@ -143,8 +143,10 @@ for chan = goodVec
     vectorUniq = unique(labels);
     templateArrayExtracted = [];
     for i = vectorUniq'
-        meanTempArray = mean(templateArray(:,labels==i),2);
-        templateArrayExtracted = [templateArrayExtracted (meanTempArray )]; %no subtraction
+        if i~=0
+            meanTempArray = mean(templateArray(:,labels==i),2);
+            templateArrayExtracted = [templateArrayExtracted (meanTempArray )]; %no subtraction
+        end
     end
     
     
@@ -154,19 +156,17 @@ for chan = goodVec
         
         % we can also visualize the actual clusters in a 2D or 3D space (depending on self.nDims)
         figure
-        subplot(2,1,1)
-        clusterer.plot_clusters(); % plots a scatter of the points, color coded by the associated labels
+        subplot(3,1,1)
+        clusterer.plot_clusters([6,7,8]); % plots a scatter of the points, color coded by the associated labels
         %figure
-        subplot(2,1,2)
-        clusterer.plot_clusters( [1,4,5] ); % specifies the scatter to use the 1st, 4th, and 5th columns of X
-
-        figure
+        subplot(3,1,2)
+        clusterer.plot_clusters( [9,10,11] ); % specifies the scatter to use the 1st, 4th, and 5th columns of X
+        
+        subplot(3,1,3)
+        
         plot(templateArrayExtracted)
     end
-       
-    if plotIt && chan == 28
-        plot(templateArrayExtracted)
-    end
+    
     
     % assign templates to channel
     templateArrayCellOutput{chan} = templateArrayExtracted;
@@ -187,7 +187,7 @@ for trial = 1:size(rawSig,3)
         templates = templateArrayCellOutput{chan};
         
         % add on the trial one
-       % templates = [templates mean(templateTrial{chan}{trial},2)];
+        % templates = [templates mean(templateTrial{chan}{trial},2)];
         
         % ensure no subtraction of exponential
         if recoverExp
@@ -206,7 +206,7 @@ for trial = 1:size(rawSig,3)
             
             templatesStsShortened = templatesSts(maxLocation+bracketRange,:);
             extractedSigShortened = extractedSig(maxLocation+bracketRange,:);
-
+            
             switch distanceMetricSigMatch
                 case 'correlation'
                     % correlation
@@ -236,7 +236,7 @@ for trial = 1:size(rawSig,3)
             end
             
             templateSubtract = templatesSts(:,index);
-
+            
             rawSigTemp(win) = rawSigTemp(win) - templateSubtract;
             if plotIt
                 if 1 && chan == 28 && (sts == 1 || sts == 2 || sts == 3)

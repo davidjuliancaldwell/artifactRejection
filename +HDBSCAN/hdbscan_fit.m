@@ -88,7 +88,7 @@ function model = hdbscan_fit( X,varargin )
     D = HDBSCAN.mutual_reachability( D,dCore );
     
     % (b) create the minimum spanning tree and add self loops
-    [nodes(:,1),nodes(:,2),weights] = mst_prim( D ); clear mr
+    [nodes(:,1),nodes(:,2),weights] = HDBSCAN.mst_prim( D ); clear mr
     if ~isa( weights(1),'double' ) || ~isa( weights(1),'logical' )
         weights = double( weights );
         nodes = double( nodes );

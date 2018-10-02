@@ -10,7 +10,7 @@ addParameter(p,'goodVec',[1:64],@isnumeric);
 addParameter(p,'startInds',[],@iscell);
 addParameter(p,'endInds',[],@iscell);
 addParameter(p,'normalize','firstSamp',@isstr);
-addParameter(p,'amntPreAverage',12,@isnumeric)
+addParameter(p,'amntPreAverage',3,@isnumeric)
 
 p.parse(rawSig,varargin{:});
 rawSig = p.Results.rawSig;

@@ -38,7 +38,7 @@ function score = GLOSH( clusters,parent,lastClust,lambdaNoise )
         end
         
         % perform depth-first search from this node to get children
-        children = get_all_subnodes( clust,parent );
+        children = HDBSCAN.get_all_subnodes( clust,parent );
 
         % get epsilon when this cluster or any subclusters completely
         % disappear (when all X(i) == 0 for this branch)
