@@ -647,8 +647,9 @@ classdef HDBSCAN < handle
             end
             
             % change appearance
-            title( 'Clustered data','color','w' );
-            set( h.Parent,'tickdir','out','box','off','color','k','xcolor','w','ycolor','w' );
+            title( ['Clustered data - dimensions ' num2str(dims(1)) ', ' num2str(dims(2)) ', ' num2str(dims(3))],'color','k' );
+            set( h.Parent,'tickdir','out','box','off','color','k','xcolor','k','ycolor','k' );
+            set(gca,'fontsize',18)
         end
 
     end % public methods

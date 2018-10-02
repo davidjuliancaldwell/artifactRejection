@@ -289,7 +289,7 @@ bracketRange = [-5:12];
     'distanceMetricDbscan',distanceMetricDbscan,'distanceMetricSigMatch',distanceMetricSigMatch,...
     'recoverExp',recoverExp,'normalize',normalize,'amntPreAverage',amntPreAverage,...
     'minDuration',minDuration,'bracketRange',bracketRange);
-%
+%%
 % visualization
 % of note - more visualizations are created here, including what the
 % templates look like on each channel, and what the discovered templates are
@@ -298,15 +298,15 @@ vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fsData,'type',type,'tE
     tEpoch,'xlims',xlims,'trainDuration',trainDuration,'stimChans',stimChans,...,
     'chanIntList',chanIntList,'templateTrial',templateTrial,'templateDictCell',templateDictCell,'modePlot','confInt')
 %
-       average = 1;
-        %chanIntList = 3;
-        trainDuration = [];
-        modePlot = 'avg';
-        xlims = [-200 1000];
-        ylims = [-300 300];
-        vizFunc.small_multiples_time_series(processedSig,tEpoch,'type1',stimChans,'type2',0,'xlims',xlims,'ylims',ylims,'modePlot',modePlot,'highlightRange',trainDuration)
-        
-        
-% %%
-% [processedSig_v2,templateDictCell,template] = analyFunc.template_subtract_iterative(processedSig,...,
-%     'fs',fsData,'plotIt',0,'pre',pre,'post',post,'stimChans',stimChans,'startInds',startInds,'endInds',endInds);
+average = 1;
+%chanIntList = 3;
+trainDuration = [];
+modePlot = 'avg';
+xlims = [-200 1000];
+ylims = [-300 300];
+vizFunc.small_multiples_time_series(processedSig,tEpoch,'type1',stimChans,'type2',0,'xlims',xlims,'ylims',ylims,'modePlot',modePlot,'highlightRange',trainDuration)
+
+
+%%
+ [processedSig_v2,templateDictCell,template] = analyFunc.template_subtract_iterative(processedSig,...,
+     'fs',fsData,'plotIt',0,'pre',pre,'post',post,'stimChans',stimChans,'startInds',startInds,'endInds',endInds);

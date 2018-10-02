@@ -156,15 +156,20 @@ for chan = goodVec
         
         % we can also visualize the actual clusters in a 2D or 3D space (depending on self.nDims)
         figure
-        subplot(3,1,1)
+        subplot(2,1,1)
         clusterer.plot_clusters([6,7,8]); % plots a scatter of the points, color coded by the associated labels
         %figure
-        subplot(3,1,2)
-        clusterer.plot_clusters( [9,10,11] ); % specifies the scatter to use the 1st, 4th, and 5th columns of X
-        
-        subplot(3,1,3)
-        
-        plot(templateArrayExtracted)
+        %         subplot(2,1,3)
+        %         clusterer.plot_clusters( [9,10,11] ); % specifies the scatter to use the 1st, 4th, and 5th columns of X
+        %
+        subplot(2,1,2)
+        t = 1e3*[0:size(templateArrayShortened,1)-1]/fs;
+        plot(t,templateArrayShortened)
+        hold on
+        plot(t,templateArrayExtracted(maxLocation+bracketRange,:),'k','linewidth',2)
+        ylabel('voltage (V)')
+        xlabel('time (ms)')
+        set(gca,'fontsize',18)
     end
     
     
@@ -187,7 +192,7 @@ for trial = 1:size(rawSig,3)
         templates = templateArrayCellOutput{chan};
         
         % add on the trial one
-        % templates = [templates mean(templateTrial{chan}{trial},2)];
+         templates = [templates mean(templateTrial{chan}{trial},2)];
         
         % ensure no subtraction of exponential
         if recoverExp
@@ -200,10 +205,30 @@ for trial = 1:size(rawSig,3)
             extractedSig = extractedSig - mean(extractedSig(1:amntPreAverage));
             
             % find best artifact
-            % get them to be the same length
             templatesSts = templates(1:length(extractedSig),:);
             
+            % make sure the bracket range does not exceed the first or last
+            % sample of the template array 
             
+            sizeTemplates = size(templatesSts);
+            bracketRangeMin = maxLocation+bracketRange(1);
+            bracketRangeMax = maxLocation+bracketRange(end);
+            
+            adjustTemplates = false; 
+            if (bracketRangeMin < 1)
+                bracketRangeMin = 1;
+                adjustTemplates = true;
+            end
+            
+            if (bracketRangeMax > sizeTemplates(1))
+                bracketRangeMax = sizeTemplates(2);
+                adjustTemplates = true;
+            end
+            
+            if adjustTemplates
+                bracketRange = [bracketRangeMin:bracketRangeMax];
+            end
+                
             templatesStsShortened = templatesSts(maxLocation+bracketRange,:);
             extractedSigShortened = extractedSig(maxLocation+bracketRange,:);
             
@@ -239,7 +264,7 @@ for trial = 1:size(rawSig,3)
             
             rawSigTemp(win) = rawSigTemp(win) - templateSubtract;
             if plotIt
-                if 1 && chan == 28 && (sts == 1 || sts == 2 || sts == 3)
+                if 1 && chan == 28 && (sts == 1 || sts == 2 || sts == 10)
                     figure
                     plot(extractedSig)
                     hold on
@@ -259,7 +284,7 @@ for trial = 1:size(rawSig,3)
                 
                 vline(startInds{trial}{chan})
                 vline(endInds{trial}{chan},'g')
-                xlim([1.221e4 1.236e4])
+               % xlim([1.221e4 1.236e4])
                 
             end
         end

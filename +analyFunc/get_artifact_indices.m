@@ -87,7 +87,21 @@ fixedDistanceSamps = round(fixedDistance/1e3 * fs);
 defaultWinAverage = fixedDistanceSamps ; %end_inds{trial}(1)-start_inds{trial}(1)+1;
 
 % take diff of signal to find onset of stimulation train
-diffSig = permute(cat(3,zeros(size(rawSig,2), size(rawSig,3)),permute(diff(rawSig),[2 3 1])),[3 1 2]);
+order = 3;
+framelen = 7;
+%diffSig = permute(cat(3,zeros(size(rawSig,2), size(rawSig,3)),permute(diff(rawSig),[2 3 1])),[3 1 2]);
+
+rawSigFilt = rawSig;
+
+    for ind2 = 1:size(rawSigFilt,2)
+        for ind3 = 1:size(rawSigFilt,3)
+            rawSigFilt(:,ind2,ind3) = savitskyGolay.sgolayfilt_complete(squeeze(rawSig(:,ind2,ind3)),order,framelen);
+            
+        end
+    end
+
+diffSig = permute(cat(3,zeros(size(rawSig,2), size(rawSig,3)),permute(diff(rawSigFilt),[2 3 1])),[3 1 2]);
+
 
 % find channel that has the max signal, and use this for subsequent
 % analysis
@@ -124,7 +138,7 @@ for trial = 1:size(rawSig,3)
             for idx = 1:length(startInds{trial}{chan})
                 
                 win = startInds{trial}{chan}(idx):startInds{trial}{chan}(idx)+defaultWinAverage; % get window that you know has the end of the stim pulse
-                signal = rawSig(win,chan,trial);
+                signal = rawSigFilt(win,chan,trial);
                 diffSignal = diffSig(win,chan,trial);
                 
                 %                 threshSig = 0.2;
@@ -137,8 +151,8 @@ for trial = 1:size(rawSig,3)
                 %
                 absZSig = abs(zscore(signal));
                 absZDiffSig = abs(zscore(diffSignal));
-                threshSig = pctl(absZSig,80); % 97.5 for DBS, was 80, try 75 for TOJ % was 65 6-25-2018
-                threshDiff = pctl(absZDiffSig,80); % 97.5 for DBS, was 80, try 75 for TOJ % was 6-25-2018 
+                threshSig = pctl(absZSig,90); % 97.5 for DBS, was 80, try 75 for TOJ % was 65 6-25-2018
+                threshDiff = pctl(absZDiffSig,90); % 97.5 for DBS, was 80, try 75 for TOJ % was 6-25-2018 
                 
                 % for two pulses only
 %                           threshSig = pctl(absZSig,97.5); % 97.5 for DBS, was 80, try 75 for TOJ % was 65 6-25-2018
