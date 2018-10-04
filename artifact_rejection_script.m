@@ -261,8 +261,8 @@ else
     %pre = 0.4096; % in ms
     %post = 0.4096; % in ms
     
-    pre = 0.8; % started with 1
-    post = 0.8; % started with 0.2
+    pre = 1.2; % started with 1
+    post = 1.2; % started with 0.2
     % 2.8, 1, 0.5 was 3/19/2018
     
     % these are the metrics used if the dictionary method is selected. The
@@ -289,7 +289,7 @@ bracketRange = [-5:12];
     'distanceMetricDbscan',distanceMetricDbscan,'distanceMetricSigMatch',distanceMetricSigMatch,...
     'recoverExp',recoverExp,'normalize',normalize,'amntPreAverage',amntPreAverage,...
     'minDuration',minDuration,'bracketRange',bracketRange);
-%%
+%
 % visualization
 % of note - more visualizations are created here, including what the
 % templates look like on each channel, and what the discovered templates are
@@ -303,9 +303,21 @@ average = 1;
 trainDuration = [];
 modePlot = 'avg';
 xlims = [-200 1000];
-ylims = [-300 300];
+ylims = [-600 600];
 vizFunc.small_multiples_time_series(processedSig,tEpoch,'type1',stimChans,'type2',0,'xlims',xlims,'ylims',ylims,'modePlot',modePlot,'highlightRange',trainDuration)
 
+
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+[processedSig2,startInds2,endInds2] = analyFunc.interpolate_artifact(processedSig,'fs',fsData,'plotIt',0,'type',type,...,
+    'stimchans',stimChans,'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,'pre',pre,'post',post);
+%%
+[processedSig2,templateDictCell2,templateTrial2,startInds2,endInds2] = analyFunc.template_subtract(dataInt,'type',type,...
+    'fs',fsData,'plotIt',plotIt,'pre',pre,'post',post,'stimChans',stimChans,...
+    'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,...,
+    'distanceMetricDbscan',distanceMetricDbscan,'distanceMetricSigMatch',distanceMetricSigMatch,...
+    'recoverExp',recoverExp,'normalize',normalize,'amntPreAverage',amntPreAverage,...
+    'minDuration',minDuration,'bracketRange',bracketRange);
 
 %%
  [processedSig_v2,templateDictCell,template] = analyFunc.template_subtract_iterative(processedSig,...,

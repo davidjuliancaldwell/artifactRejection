@@ -91,6 +91,8 @@ order = 3;
 framelen = 7;
 %diffSig = permute(cat(3,zeros(size(rawSig,2), size(rawSig,3)),permute(diff(rawSig),[2 3 1])),[3 1 2]);
 
+fprintf(['-------Smoothing data with Savitsky-Golay Filter-------- \n'])
+
 rawSigFilt = rawSig;
 
     for ind2 = 1:size(rawSigFilt,2)
@@ -101,6 +103,8 @@ rawSigFilt = rawSig;
     end
 
 diffSig = permute(cat(3,zeros(size(rawSig,2), size(rawSig,3)),permute(diff(rawSigFilt),[2 3 1])),[3 1 2]);
+
+fprintf(['-------Done smoothing and differentiating-------- \n'])
 
 
 % find channel that has the max signal, and use this for subsequent

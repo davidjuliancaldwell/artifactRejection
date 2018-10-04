@@ -79,7 +79,6 @@ addParameter(p,'maxLocation',15,@isnumeric);
 addParameter(p,'amntPreAverage',3,@isnumeric);
 addParameter(p,'bracketRange',[-8:8],@isnumeric);
 
-
 p.parse(templateArrayCell,templateTrial,rawSig,fs,varargin{:});
 
 templateArrayCell = p.Results.templateArrayCell;
@@ -129,7 +128,7 @@ for chan = goodVec
     clusterer.minpts = 3;
     clusterer.minclustsize = 5;
     clusterer.outlierThresh = 0.90;
-    clusterer.metric = 'eucl';
+    clusterer.metric = distanceMetricDbscan;
     clusterer.fit_model(); 			% trains a cluster hierarchy
     clusterer.get_best_clusters(); 	% finds the optimal "flat" clustering scheme
     clusterer.get_membership();		% assigns cluster labels to the points in X
@@ -211,17 +210,18 @@ for trial = 1:size(rawSig,3)
             % sample of the template array 
             
             sizeTemplates = size(templatesSts);
+            bracketRange =  p.Results.bracketRange;
             bracketRangeMin = maxLocation+bracketRange(1);
             bracketRangeMax = maxLocation+bracketRange(end);
             
             adjustTemplates = false; 
             if (bracketRangeMin < 1)
-                bracketRangeMin = 1;
+                bracketRangeMin = 0;
                 adjustTemplates = true;
             end
             
-            if (bracketRangeMax > sizeTemplates(1))
-                bracketRangeMax = sizeTemplates(2);
+            if (bracketRangeMax >= sizeTemplates(1))
+                bracketRangeMax = sizeTemplates(1) - maxLocation;
                 adjustTemplates = true;
             end
             
