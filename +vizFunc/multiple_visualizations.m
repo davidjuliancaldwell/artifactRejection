@@ -89,7 +89,7 @@ modePlot = p.Results.modePlot;
 %
 numChans = size(rawSig,2);
 [goods,goodVec] = helpFunc.good_channel_extract('bads',bads,'stimchans',stimChans,'numChans',numChans);
-p = numSubplots(numChans);
+p = vizFunc.numSubplots(numChans);
 
 if (strcmp(type,'dictionary') || strcmp(type,'trial') || strcmp(type,'average')) && (~isempty(templateDictCell) || ~isempty(templateTrial))
     

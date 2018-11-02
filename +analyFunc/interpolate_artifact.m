@@ -116,7 +116,7 @@ for trial = 1:size(rawSig,3)
                     postInterpSamps = round(postInterp*fs/1e3);
                     rawSigTemp(win) = interp1([startInds{trial}{chan}(sts)-preInterpSamps:startInds{trial}{chan}(sts)-1 endInds{trial}{chan}(sts):endInds{trial}{chan}(sts)+postInterpSamps],...
                         rawSigTemp([startInds{trial}{chan}(sts)-preInterpSamps:startInds{trial}{chan}(sts)-1 endInds{trial}{chan}(sts):endInds{trial}{chan}(sts)+postInterpSamps]),...
-                        startInds{trial}(sts):endInds{trial}(sts),'pchip');
+                        startInds{trial}{chan}(sts):endInds{trial}{chan}(sts),'pchip');
             end
         end
         
