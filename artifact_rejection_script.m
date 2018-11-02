@@ -25,16 +25,23 @@ dataChoice = 1;
 
 switch dataChoice
     
+%     case 1
+%         load('+data/693ffd_exampData_800ms.mat') % response timing data set
+%         trainDuration = [0 800]; % this is how long the stimulation train was
+%         xlims = [-200 1000]; % these are the x limits to visualize in plots
+%         chanIntList = [4 12 21 28 19 18 36 44 43 30 33 41 34]; % these are the channels of interest to visualize in closer detail
+%         minDuration = 0.5; % minimum duration of artifact in ms
+%         fsData = fs_data;
+%         tEpoch=t_epoch;
+%         dataInt = 4*dataInt;
+        
     case 1
-        load('+data/693ffd_exampData_800ms.mat') % response timing data set
+               load('+data/693ffd_exampData_400ms.mat') % response timing data set
         trainDuration = [0 800]; % this is how long the stimulation train was
         xlims = [-200 1000]; % these are the x limits to visualize in plots
         chanIntList = [4 12 21 28 19 18 36 44 43 30 33 41 34]; % these are the channels of interest to visualize in closer detail
-        minDuration = 0.5; % minimum duration of artifact in ms
-        fsData = fs_data;
-        tEpoch=t_epoch;
-        dataInt = 4*dataInt;
-        
+        minDuration = 0.5; % minimum duration of artifact in ms     
+          
     case 2
         load('+data/2fd831_exampData_400ms.mat') % response timing data set
         trainDuration = [0 400]; % this is how long the stimulation train was
@@ -281,7 +288,7 @@ else
     
 end
 
-bracketRange = [-5:12];
+bracketRange = [-8:8];
 
 [processedSig,templateDictCell,templateTrial,startInds,endInds] = analyFunc.template_subtract(dataInt,'type',type,...
     'fs',fsData,'plotIt',plotIt,'pre',pre,'post',post,'stimChans',stimChans,...

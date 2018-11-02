@@ -82,6 +82,9 @@ numChans = size(rawSig,2);
 [startInds,endInds] = analyFunc.get_artifact_indices(rawSig,'pre',pre,'post',post,'plotIt',...,
     plotIt,'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,'fs',fs,'goodVec',goodVec,'minDuration',minDuration);
 
+
+      %       corrected_signal = artifact_correction(squeeze(processedSig(:,:,1)), index, stimulation_mode, stimulation_length, sampling_frequency, default, varargin)
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% extract artifacts
 
