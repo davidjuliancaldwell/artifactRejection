@@ -13,7 +13,7 @@ addParameter(p,'type1',[],@isnumeric);
 addParameter(p,'type2',[],@isnumeric);
 addParameter(p,'newFig',1,@(x) x==0 || x ==1)
 addParameter(p,'xlims',[-200 1000],@isnumeric);
-addParameter(p,'ylims',[-200 200],@isnumeric);
+addParameter(p,'ylims',[-800 800],@isnumeric);
 addParameter(p,'highlightRange',[],@isnumeric);
 addParameter(p,'modePlot','avg',@isstr)
 
@@ -116,9 +116,9 @@ for idx=1:size(signal,2)
 end
 
 obj = vizFunc.scalebar;
-obj.XLen = 100;              %X-Length, 10.
+obj.XLen = 200;              %X-Length, 10.
 obj.XUnit = 'ms';            %X-Unit, 'm'.
-obj.YLen = 200;
+obj.YLen = 300;
 obj.YUnit = '\muV';
 
 obj.Position = [20,-130];

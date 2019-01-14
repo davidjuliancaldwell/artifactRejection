@@ -125,8 +125,8 @@ for chan = goodVec
     fprintf( 'Number of dimensions: %i\n',clusterer.nDims );
     
     % (1) directly set the parameters
-    clusterer.minpts = 3;
-    clusterer.minclustsize = 5;
+    clusterer.minpts = 2;
+    clusterer.minclustsize = 3;
     clusterer.outlierThresh = 0.90;
     clusterer.metric = distanceMetricDbscan;
     clusterer.fit_model(); 			% trains a cluster hierarchy
@@ -263,6 +263,8 @@ for trial = 1:size(rawSig,3)
             templateSubtract = templatesSts(:,index);
             
             rawSigTemp(win) = rawSigTemp(win) - templateSubtract;
+            
+            
             if plotIt
                 if 1 && chan == 28 && (sts == 1 || sts == 2 || sts == 10)
                     figure
@@ -275,15 +277,21 @@ for trial = 1:size(rawSig,3)
             end
         end
         
+                    t = 1e3*[0:length(rawSigTemp)-1]/fs;
+
         if plotIt
             if 1 && chan == 28
                 figure
-                plot(rawSigTemp,'linewidth',2)
+                plot(t,1e6*rawSigTemp,'linewidth',2)
                 hold on
-                plot(rawSig(:,chan,trial),'linewidth',2)
+                plot(t,1e6*rawSig(:,chan,trial),'linewidth',2)
                 
-                vline(startInds{trial}{chan})
-                vline(endInds{trial}{chan},'g')
+                vline(1e3*startInds{trial}{chan}/fs)
+                vline(1e3*endInds{trial}{chan}/fs,'g')
+                set(gca,'fontsize',14);
+                xlabel('time (ms)')
+                ylabel(['Voltage (\muV)'])
+                     legend('processed','raw');
                % xlim([1.221e4 1.236e4])
                 
             end

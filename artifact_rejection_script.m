@@ -21,7 +21,7 @@ close all;clear all;clc
 % t_epoch - epoched time window
 
 
-dataChoice = 1;
+dataChoice = 4;
 
 switch dataChoice
     
@@ -185,14 +185,14 @@ if dataChoice == 6 || dataChoice == 7
     %post = 0.4096; % in ms
     
     pre = 0.8; % started with 1
-    post = 0.6; % started with 0.2
+    post = 1; % started with 0.2
     % 2.8, 1, 0.5 was 3/19/2018
     
     % these are the metrics used if the dictionary method is selected. The
     % options are 'eucl', 'cosine', 'corr', for either euclidean distance,
     % cosine similarity, or correlation for clustering and template matching.
     
-    distanceMetricDbscan = 'cosine';
+    distanceMetricDbscan = 'eucl';
     distanceMetricSigMatch = 'eucl';
     amntPreAverage = 3;
     normalize = 'preAverage';
@@ -212,21 +212,21 @@ elseif dataChoice == 4
     %post = 0.4096; % in ms
     
     pre = 0.4; % started with 1
-    post = 0.2; % started with 0.2
+    post = 3; % started with 0.2
     % 2.8, 1, 0.5 was 3/19/2018
     
     % these are the metrics used if the dictionary method is selected. The
     % options are 'eucl', 'cosine', 'corr', for either euclidean distance,
     % cosine similarity, or correlation for clustering and template matching.
     
-    distanceMetricDbscan = 'dtw';
+    distanceMetricDbscan = 'eucl';
     
-    distanceMetricSigMatch = 'dtw';
+    distanceMetricSigMatch = 'eucl';
     amntPreAverage = 3;
     normalize = 'preAverage';
     %normalize = 'firstSamp';
     
-    recoverExp = 0;
+    recoverExp = 1;
     
 elseif dataChoice == 2
     type = 'dictionary';
@@ -284,11 +284,11 @@ else
     normalize = 'preAverage';
     %normalize = 'firstSamp';
     
-    recoverExp = 0;
     
 end
 
 bracketRange = [-8:8];
+    recoverExp = 0;
 
 [processedSig,templateDictCell,templateTrial,startInds,endInds] = analyFunc.template_subtract(dataInt,'type',type,...
     'fs',fsData,'plotIt',plotIt,'pre',pre,'post',post,'stimChans',stimChans,...
