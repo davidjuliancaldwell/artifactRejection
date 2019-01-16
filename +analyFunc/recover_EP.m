@@ -21,8 +21,8 @@ for ind = 1:size(template,2)
     
     absZSig = abs(zscore(templateInd));
     absZDiffSig = abs(zscore(diff(templateInd)));
-    threshSig = pctl(absZSig,55);
-    threshDiff = pctl(absZDiffSig,65);
+    threshSig = pctl(absZSig,95);
+    threshDiff = pctl(absZDiffSig,95);
     
     last = find(absZSig>threshSig,1,'last'); % started with 0.2
     last2 = find(absZDiffSig>threshDiff,1,'last')+1; % started with 5e-3

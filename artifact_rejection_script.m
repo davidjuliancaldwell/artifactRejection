@@ -25,23 +25,23 @@ dataChoice = 4;
 
 switch dataChoice
     
-%     case 1
-%         load('+data/693ffd_exampData_800ms.mat') % response timing data set
-%         trainDuration = [0 800]; % this is how long the stimulation train was
-%         xlims = [-200 1000]; % these are the x limits to visualize in plots
-%         chanIntList = [4 12 21 28 19 18 36 44 43 30 33 41 34]; % these are the channels of interest to visualize in closer detail
-%         minDuration = 0.5; % minimum duration of artifact in ms
-%         fsData = fs_data;
-%         tEpoch=t_epoch;
-%         dataInt = 4*dataInt;
-        
+    %     case 1
+    %         load('+data/693ffd_exampData_800ms.mat') % response timing data set
+    %         trainDuration = [0 800]; % this is how long the stimulation train was
+    %         xlims = [-200 1000]; % these are the x limits to visualize in plots
+    %         chanIntList = [4 12 21 28 19 18 36 44 43 30 33 41 34]; % these are the channels of interest to visualize in closer detail
+    %         minDuration = 0.5; % minimum duration of artifact in ms
+    %         fsData = fs_data;
+    %         tEpoch=t_epoch;
+    %         dataInt = 4*dataInt;
+    
     case 1
-               load('+data/693ffd_exampData_400ms.mat') % response timing data set
+        load('+data/693ffd_exampData_400ms.mat') % response timing data set
         trainDuration = [0 800]; % this is how long the stimulation train was
         xlims = [-200 1000]; % these are the x limits to visualize in plots
         chanIntList = [4 12 21 28 19 18 36 44 43 30 33 41 34]; % these are the channels of interest to visualize in closer detail
-        minDuration = 0.5; % minimum duration of artifact in ms     
-          
+        minDuration = 0.5; % minimum duration of artifact in ms
+        
     case 2
         load('+data/2fd831_exampData_400ms.mat') % response timing data set
         trainDuration = [0 400]; % this is how long the stimulation train was
@@ -62,6 +62,8 @@ switch dataChoice
         
     case 4
         load('+data/50ad9_paramSweep4.mat') % DBS data set
+        fsData = fs_data;
+        tEpoch = t_epoch;
         xlims = [-200 600];
         chanIntList = [1:10];
         trainDuration = [0 500];
@@ -85,74 +87,6 @@ switch dataChoice
         
 end
 
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% linear interpolation with simple linear interpolation scheme
-
-% process the signal
-
-% the type variable here determines whether to use a linear interpolation
-% scheme or a polynomial spline interpolation scheme
-type = 'linear';
-
-% this determines whether or not to march a set amount of time after
-% stimulation onset, or to detect the end of each pulse dynamically
-useFixedEnd = 0;
-
-% this is how far to look before the algorithm detects each stimulation
-% pulse onset to allow for maximal artifact rejection
-pre = 0.6; % in ms
-
-
-% this is how far to look after the algorithm detects each stimulation
-% pulse onset to allow for maximal artifact rejection
-post = 0.4096; % in ms
-
-% This is the maximal duration of time allowed for the artifact rejection
-% for each pulse, and if using "useFixedEnd", it simply considers this time
-% window. Otherwise, the algorithm detects the individual offset of each
-% stimulation pulse.
-fixedDistance = 1.2; % in ms % 2.2 for the first 2 cases, 4 for the 3rd,
-
-% perform the processing
-[processedSig,startInds,endInds] = analyFunc.interpolate_artifact(dataInt,'fs',fsData,'plotIt',0,'type',type,...,
-    'stimchans',stimChans,'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,'pre',pre,'post',post);
-
-% visualization
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% multiple visualizations are created with this call, including time domain
-% and spectral analyses
-
-vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fsData,'type',type,'tEpoch',...
-    tEpoch,'xlims',xlims,'trainDuration',trainDuration,'stimChans',stimChans,...,
-    'chanIntList',chanIntList,'modePlot','confInt')
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% linear interpolation with polynomial piecewise interpolation
-
-% using piecewise polynomial interpolation here
-type = 'pchip';
-useFixedEnd = 0;
-%pre = 0.4096; % in ms
-pre = 0.6;
-post = 0.4096; % in ms1
-fixedDistance = 2; % in ms
-
-[processedSig,startInds,endInds] = analyFunc.interpolate_artifact(dataInt,'fs',fsData,'plotIt',0,'type',type,...,
-    'stimchans',stimChans,'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,'pre',pre,'post',post);
-
-% visualization
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fsData,'type',type,'tEpoch',...
-    tEpoch,'xlims',xlims,'trainDuration',trainDuration,'stimChans',stimChans,...,
-    'chanIntList',chanIntList,'modePlot','confInt')
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% template subtraction
 % this is a section illustrating the template subtraction method
@@ -288,7 +222,7 @@ else
 end
 
 bracketRange = [-8:8];
-    recoverExp = 0;
+recoverExp = 0;
 
 [processedSig,templateDictCell,templateTrial,startInds,endInds] = analyFunc.template_subtract(dataInt,'type',type,...
     'fs',fsData,'plotIt',plotIt,'pre',pre,'post',post,'stimChans',stimChans,...
@@ -325,7 +259,74 @@ vizFunc.small_multiples_time_series(processedSig,tEpoch,'type1',stimChans,'type2
 %     'distanceMetricDbscan',distanceMetricDbscan,'distanceMetricSigMatch',distanceMetricSigMatch,...
 %     'recoverExp',recoverExp,'normalize',normalize,'amntPreAverage',amntPreAverage,...
 %     'minDuration',minDuration,'bracketRange',bracketRange);
-% 
+%
 % %%
 %  [processedSig_v2,templateDictCell,template] = analyFunc.template_subtract_iterative(processedSig,...,
 %      'fs',fsData,'plotIt',0,'pre',pre,'post',post,'stimChans',stimChans,'startInds',startInds,'endInds',endInds);
+
+return
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% linear interpolation with simple linear interpolation scheme
+
+% process the signal
+
+% the type variable here determines whether to use a linear interpolation
+% scheme or a polynomial spline interpolation scheme
+type = 'linear';
+
+% this determines whether or not to march a set amount of time after
+% stimulation onset, or to detect the end of each pulse dynamically
+useFixedEnd = 0;
+
+% this is how far to look before the algorithm detects each stimulation
+% pulse onset to allow for maximal artifact rejection
+pre = 0.6; % in ms
+
+
+% this is how far to look after the algorithm detects each stimulation
+% pulse onset to allow for maximal artifact rejection
+post = 0.4096; % in ms
+
+% This is the maximal duration of time allowed for the artifact rejection
+% for each pulse, and if using "useFixedEnd", it simply considers this time
+% window. Otherwise, the algorithm detects the individual offset of each
+% stimulation pulse.
+fixedDistance = 1.2; % in ms % 2.2 for the first 2 cases, 4 for the 3rd,
+
+% perform the processing
+[processedSig,startInds,endInds] = analyFunc.interpolate_artifact(dataInt,'fs',fsData,'plotIt',0,'type',type,...,
+    'stimchans',stimChans,'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,'pre',pre,'post',post);
+
+% visualization
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% multiple visualizations are created with this call, including time domain
+% and spectral analyses
+
+vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fsData,'type',type,'tEpoch',...
+    tEpoch,'xlims',xlims,'trainDuration',trainDuration,'stimChans',stimChans,...,
+    'chanIntList',chanIntList,'modePlot','confInt')
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% linear interpolation with polynomial piecewise interpolation
+
+% using piecewise polynomial interpolation here
+type = 'pchip';
+useFixedEnd = 0;
+%pre = 0.4096; % in ms
+pre = 0.6;
+post = 0.4096; % in ms1
+fixedDistance = 2; % in ms
+
+[processedSig,startInds,endInds] = analyFunc.interpolate_artifact(dataInt,'fs',fsData,'plotIt',0,'type',type,...,
+    'stimchans',stimChans,'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,'pre',pre,'post',post);
+
+% visualization
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fsData,'type',type,'tEpoch',...
+    tEpoch,'xlims',xlims,'trainDuration',trainDuration,'stimChans',stimChans,...,
+    'chanIntList',chanIntList,'modePlot','confInt')
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
