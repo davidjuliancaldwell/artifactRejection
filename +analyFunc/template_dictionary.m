@@ -191,7 +191,7 @@ for trial = 1:size(rawSig,3)
         templates = templateArrayCellOutput{chan};
         
         % add on the trial one
-         templates = [templates mean(templateTrial{chan}{trial},2)];
+        templates = [templates mean(templateTrial{chan}{trial},2)];
         
         % ensure no subtraction of exponential
         if recoverExp
@@ -207,14 +207,14 @@ for trial = 1:size(rawSig,3)
             templatesSts = templates(1:length(extractedSig),:);
             
             % make sure the bracket range does not exceed the first or last
-            % sample of the template array 
+            % sample of the template array
             
             sizeTemplates = size(templatesSts);
             bracketRange =  p.Results.bracketRange;
             bracketRangeMin = maxLocation+bracketRange(1);
             bracketRangeMax = maxLocation+bracketRange(end);
             
-            adjustTemplates = false; 
+            adjustTemplates = false;
             if (bracketRangeMin < 1)
                 bracketRangeMin = 0;
                 adjustTemplates = true;
@@ -228,7 +228,7 @@ for trial = 1:size(rawSig,3)
             if adjustTemplates
                 bracketRange = [bracketRangeMin:bracketRangeMax];
             end
-                
+            
             templatesStsShortened = templatesSts(maxLocation+bracketRange,:);
             extractedSigShortened = extractedSig(maxLocation+bracketRange,:);
             
@@ -277,22 +277,25 @@ for trial = 1:size(rawSig,3)
             end
         end
         
-                    t = 1e3*[0:length(rawSigTemp)-1]/fs;
-
+        t = 1e3*[0:length(rawSigTemp)-1]/fs;
+        
         if plotIt
-            if 1 && chan == 28
+            if plotIt && (trial == 10 || trial == 1000)
                 figure
-                plot(t,1e6*rawSigTemp,'linewidth',2)
+                t = [0:length(rawSigTemp)-1]/fs;
+                plot(1e3*t',1e6*rawSigTemp,'linewidth',2,'color','r')
                 hold on
-                plot(t,1e6*rawSig(:,chan,trial),'linewidth',2)
+                plot(1e3*t,1e6*rawSig(:,chan,trial),'linewidth',2,'color','k')
+                for indexPlot = 1:length(startInds{trial}{chan})
+                    tempBox = vizFunc.highlight(gca, [1e3*startInds{trial}{chan}(indexPlot)/fs 1e3*endInds{trial}{chan}(indexPlot)/fs], [1e6*min(rawSig(:,chan,trial)) 1e6*max(rawSig(:,chan,trial))], [.5 .5 .5]);
+                end
                 
-                vline(1e3*startInds{trial}{chan}/fs)
-                vline(1e3*endInds{trial}{chan}/fs,'g')
-                set(gca,'fontsize',14);
-                xlabel('time (ms)')
-                ylabel(['Voltage (\muV)'])
-                     legend('processed','raw');
-               % xlim([1.221e4 1.236e4])
+                legend({'linear interpolation','raw signal','artifact window'})
+                set(gca,'fontsize',18)
+                title('Raw vs. Processed Sig')
+                xlabel('Time (ms)')
+                ylabel('Voltage (\muV)')
+                
                 
             end
         end

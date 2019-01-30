@@ -95,7 +95,7 @@ fprintf(['-------Interpolation-------- \n'])
 fprintf(['-------' type '-------- \n'])
 
 [startInds,endInds] = analyFunc.get_artifact_indices(rawSig,'pre',pre,'post',post,'plotIt',...,
-    plotIt,'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,'fs',fs,'goodVec',goodVec);
+    0,'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,'fs',fs,'goodVec',goodVec);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -123,16 +123,19 @@ for trial = 1:size(rawSig,3)
         
         if plotIt && (trial == 10 || trial == 1000)
             figure
-            t = 
-            plot(rawSigTemp,'linewidth',2,'k')
+            t = [0:length(rawSigTemp)-1]/fs;
+            plot(1e3*t',1e6*rawSigTemp,'linewidth',2,'color','r')
             hold on
-            plot(rawSig(:,chan,trial),'linewidth',2,'r')
-            for indexPlot = length(startInds)
-               tempBox = highlight(gca, [0 t(ct)*1e3], [], [.5 .5 .5])
-
+            plot(1e3*t,1e6*rawSig(:,chan,trial),'linewidth',2,'color','k')
+            for indexPlot = 1:length(startInds{trial}{chan})
+               tempBox = vizFunc.highlight(gca, [1e3*startInds{trial}{chan}(indexPlot)/fs 1e3*endInds{trial}{chan}(indexPlot)/fs], [1e6*min(rawSig(:,chan,trial)) 1e6*max(rawSig(:,chan,trial))], [.5 .5 .5]);
             end
      
             legend({'linear interpolation','raw signal','artifact window'})
+            set(gca,'fontsize',18)
+            title('Raw vs. Processed Sig')
+            xlabel('Time (ms)')
+            ylabel('Voltage (\muV)')
         end
         
         processedSig(:,chan,trial) = rawSigTemp;

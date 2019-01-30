@@ -250,7 +250,6 @@ xlims = [-200 1000];
 ylims = [-600 600];
 vizFunc.small_multiples_time_series(processedSig,tEpoch,'type1',stimChans,'type2',0,'xlims',xlims,'ylims',ylims,'modePlot',modePlot,'highlightRange',trainDuration)
 
-
 % %%
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % [processedSig2,startInds2,endInds2] = analyFunc.interpolate_artifact(processedSig,'fs',fsData,'plotIt',0,'type',type,...,
