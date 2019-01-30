@@ -72,7 +72,8 @@ useFixedEnd = p.Results.useFixedEnd;
 pre = p.Results.pre;
 post = p.Results.post;
 preInterp = p.Results.preInterp;
-postInterp = p.Results.postInterp;
+postInterp = p.Results.postInterp;close all
+
 stimChans = p.Results.stimChans;
 bads = p.Results.bads;
 fixedDistance = p.Results.fixedDistance;
@@ -122,11 +123,16 @@ for trial = 1:size(rawSig,3)
         
         if plotIt && (trial == 10 || trial == 1000)
             figure
-            plot(rawSigTemp,'linewidth',2)
+            t = 
+            plot(rawSigTemp,'linewidth',2,'k')
             hold on
-            plot(rawSig(:,chan,trial),'linewidth',2)
-            vline(startInds{trial})
-            vline(endInds{trial},'g')
+            plot(rawSig(:,chan,trial),'linewidth',2,'r')
+            for indexPlot = length(startInds)
+               tempBox = highlight(gca, [0 t(ct)*1e3], [], [.5 .5 .5])
+
+            end
+     
+            legend({'linear interpolation','raw signal','artifact window'})
         end
         
         processedSig(:,chan,trial) = rawSigTemp;

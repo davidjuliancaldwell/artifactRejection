@@ -1,8 +1,5 @@
-% David Caldwell - This is a script to demonstrate different stimulation artifact
+% David J. Caldwell - This is a script to demonstrate different stimulation artifact
 % approaches to extract neural signals of interest.
-
-% clear the workspace
-close all;clear all;clc
 
 % load in the data file of interest
 
@@ -19,9 +16,12 @@ close all;clear all;clc
 % the functions.
 %
 % t_epoch - epoched time window
-
-
-dataChoice = 4;
+%%
+% clear the workspace
+close all;clear all;clc
+%%
+% choose data file of interest
+dataChoice = 1;
 
 switch dataChoice
     
@@ -41,6 +41,7 @@ switch dataChoice
         xlims = [-200 1000]; % these are the x limits to visualize in plots
         chanIntList = [4 12 21 28 19 18 36 44 43 30 33 41 34]; % these are the channels of interest to visualize in closer detail
         minDuration = 0.5; % minimum duration of artifact in ms
+        dataInt = 4*dataInt;
         
     case 2
         load('+data/2fd831_exampData_400ms.mat') % response timing data set
@@ -77,6 +78,7 @@ switch dataChoice
         xlims = [-50 500]; % these are the x limits to visualize in plots
         chanIntList = [7 8 10 15 17 22 23 29 30 31 32]; % these are the channels of interest to visualize in closer detail
         minDuration = 0.5; % minimum duration of artifact in ms
+        dataInt = 4*dataInt;
         
     case 7
         load('+data/a1355e_examplePriming_noPrime_high.mat')
@@ -84,6 +86,7 @@ switch dataChoice
         xlims = [-50 500]; % these are the x limits to visualize in plots
         chanIntList = [7 8 10 15 17 22 23 29 30 31 32]; % these are the channels of interest to visualize in closer detail
         minDuration = 0.5; % minimum duration of artifact in ms
+        dataInt = 4*dataInt
         
 end
 
@@ -222,7 +225,7 @@ else
 end
 
 bracketRange = [-8:8];
-recoverExp = 0;
+recoverExp = 1;
 
 [processedSig,templateDictCell,templateTrial,startInds,endInds] = analyFunc.template_subtract(dataInt,'type',type,...
     'fs',fsData,'plotIt',plotIt,'pre',pre,'post',post,'stimChans',stimChans,...
@@ -319,10 +322,10 @@ pre = 0.6;
 post = 0.4096; % in ms1
 fixedDistance = 2; % in ms
 
-[processedSig,startInds,endInds] = analyFunc.interpolate_artifact(dataInt,'fs',fsData,'plotIt',0,'type',type,...,
+[processedSig,startInds,endInds] = analyFunc.interpolate_artifact(dataInt,'fs',fsData,'plotIt',1,'type',type,...,
     'stimchans',stimChans,'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,'pre',pre,'post',post);
 
-% visualization
+%% visualization
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fsData,'type',type,'tEpoch',...
