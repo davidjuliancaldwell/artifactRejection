@@ -199,8 +199,8 @@ for chan = goodVec
         for ii = 1:32
             vizFunc.smplot(32,1,ii,'axis','off')
             plot(t,templateArrayShortened(:,randi([1,size(templateArrayShortened,2)])),'color',[0.5 0.5 0.5],'linewidth',2)
-                   set(gca,'XTick',[], 'YTick', [],'YLabel',[], 'Xlabel',[],'Visible','off')
-
+            set(gca,'XTick',[], 'YTick', [],'YLabel',[], 'Xlabel',[],'Visible','off')
+            
         end
     end
     
@@ -312,7 +312,7 @@ for trial = 1:size(rawSig,3)
         
         t = 1e3*[0:length(rawSigTemp)-1]/fs;
         
-        if plotIt && (trial == 10 || trial == 1000) && chan == 28
+        if plotIt && (trial == 10 || trial == 15 || trial == 20) && chan == 28
             figure
             t = [0:length(rawSigTemp)-1]/fs;
             plot(1e3*t',1e6*rawSigTemp,'linewidth',2,'color','r')
@@ -322,7 +322,7 @@ for trial = 1:size(rawSig,3)
                 tempBox = vizFunc.highlight(gca, [1e3*startInds{trial}{chan}(indexPlot)/fs 1e3*endInds{trial}{chan}(indexPlot)/fs], [1e6*min(rawSig(:,chan,trial)) 1e6*max(rawSig(:,chan,trial))], [.5 .5 .5]);
             end
             
-            legend({'linear interpolation','raw signal','artifact window'})
+            legend({'processed signal','raw signal','artifact window'})
             set(gca,'fontsize',18)
             title('Raw vs. Processed Sig')
             xlabel('Time (ms)')

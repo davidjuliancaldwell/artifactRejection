@@ -127,7 +127,7 @@ if average
     colorbar();
 
     h3 = subplot(3,1,2);
-    plot(1e3*tEpoch,1e6*nanmean(squeeze(processedSig(:,chanInt,:)),2),'k')
+    plot(1e3*tEpoch,1e6*nanmean(squeeze(processedSig(:,chanInt,:)),2),'color',[0.5 0.5 0.5])
     xlabel('time (ms)');
     ylabel('microvolts')
     title(['Processed Channel ' ]);
@@ -139,7 +139,7 @@ if average
     set(gca,'fontsize',14)
     
     h4 = subplot(3,1,3);
-    plot(1e3*tEpoch,1e6*nanmean(squeeze(dataInt(:,chanInt,:)),2),'k')
+    plot(1e3*tEpoch,1e6*nanmean(squeeze(dataInt(:,chanInt,:)),2),'color',[0.5 0.5 0.5])
     xlabel('time (ms)');
     ylabel('microvolts')
     title(['Raw Channel ' num2str(chanInt)]);
