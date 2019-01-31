@@ -97,7 +97,7 @@ else
             semilogy(f,nullSig,'Color',CT(3,:),'LineWidth',2)
             title([num2str(idx)],'Color',CT(3,:))
         elseif ismember(idx,type2)
-            semilogy(ft,P1(:,idx),'Color',CT(2,:),'LineWidth',2)
+            semilogy(f,P1(:,idx),'Color',CT(2,:),'LineWidth',2)
             title([num2str(idx)],'Color',CT(2,:))
         else
             semilogy(f,P1(:,idx),'Color',CT(1,:),'LineWidth',2)

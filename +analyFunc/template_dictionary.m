@@ -148,27 +148,60 @@ for chan = goodVec
         end
     end
     
-    
-    if plotIt
-        figure
-        clusterer.plot_tree();
+    plotIt = 1;
+    if plotIt && chan == 28
+        CT = cbrewerHelper.cbrewer('qual', 'Pastel1', 8);
         
-        % we can also visualize the actual clusters in a 2D or 3D space (depending on self.nDims)
+        repeats = max( 1,ceil( max( clusterer.labels )/8 ) );
+        colors = [CT(1,:);repmat( CT(2:end,:),repeats,1 )];
+        
         figure
         subplot(2,1,1)
-        clusterer.plot_clusters([6,7,8]); % plots a scatter of the points, color coded by the associated labels
-        %figure
-        %         subplot(2,1,3)
-        %         clusterer.plot_clusters( [9,10,11] ); % specifies the scatter to use the 1st, 4th, and 5th columns of X
-        %
+        h = scatter(clusterer.data(:,6),clusterer.data(:,7),'.');
+        set( h.Parent,'tickdir','out','box','off' );
+        h.CData = clusterer.labels;
+        colormap(colors);
+        
+        set(gca,'fontsize',18)
+        
         subplot(2,1,2)
+        labelsInt = unique(clusterer.labels);
+        labelsInt = labelsInt(labelsInt~=0);
         t = 1e3*[0:size(templateArrayShortened,1)-1]/fs;
-        plot(t,templateArrayShortened)
+        plot(t,templateArrayShortened,'color',[0.5 0.5 0.5])
         hold on
-        plot(t,templateArrayExtracted(maxLocation+bracketRange,:),'k','linewidth',2)
+        h2 = plot(t,templateArrayExtracted(maxLocation+bracketRange,:),'linewidth',2);
+        set(h2, {'color'}, num2cell(colors(labelsInt,:),2));
+        
+        colormap( colors );
+        
         ylabel('voltage (V)')
         xlabel('time (ms)')
         set(gca,'fontsize',18)
+        title('Dictionary of templates from raw traces')
+        
+        index = 1;
+        for labelsIndiv = labelsInt'
+            figure
+            t = 1e3*[0:size(templateArrayShortened,1)-1]/fs;
+            plot(t,templateArrayShortened(:,clusterer.labels==labelsIndiv),'color',[0.5 0.5 0.5])
+            hold on
+            h2 = plot(t,templateArrayExtracted(maxLocation+bracketRange,index),'linewidth',2);
+            set(h2, {'color'}, num2cell(colors(labelsIndiv,:),2));
+            ylabel('voltage (V)')
+            xlabel('time (ms)')
+            set(gca,'fontsize',18)
+            title('Dictionary of templates from raw traces')
+            index = index + 1;
+        end
+        
+        figure
+        for ii = 1:32
+            vizFunc.smplot(32,1,ii,'axis','off')
+            plot(t,templateArrayShortened(:,randi([1,size(templateArrayShortened,2)])),'color',[0.5 0.5 0.5],'linewidth',2)
+                   set(gca,'XTick',[], 'YTick', [],'YLabel',[], 'Xlabel',[],'Visible','off')
+
+        end
     end
     
     
@@ -279,26 +312,25 @@ for trial = 1:size(rawSig,3)
         
         t = 1e3*[0:length(rawSigTemp)-1]/fs;
         
-        if plotIt
-            if plotIt && (trial == 10 || trial == 1000)
-                figure
-                t = [0:length(rawSigTemp)-1]/fs;
-                plot(1e3*t',1e6*rawSigTemp,'linewidth',2,'color','r')
-                hold on
-                plot(1e3*t,1e6*rawSig(:,chan,trial),'linewidth',2,'color','k')
-                for indexPlot = 1:length(startInds{trial}{chan})
-                    tempBox = vizFunc.highlight(gca, [1e3*startInds{trial}{chan}(indexPlot)/fs 1e3*endInds{trial}{chan}(indexPlot)/fs], [1e6*min(rawSig(:,chan,trial)) 1e6*max(rawSig(:,chan,trial))], [.5 .5 .5]);
-                end
-                
-                legend({'linear interpolation','raw signal','artifact window'})
-                set(gca,'fontsize',18)
-                title('Raw vs. Processed Sig')
-                xlabel('Time (ms)')
-                ylabel('Voltage (\muV)')
-                
-                
+        if plotIt && (trial == 10 || trial == 1000) && chan == 28
+            figure
+            t = [0:length(rawSigTemp)-1]/fs;
+            plot(1e3*t',1e6*rawSigTemp,'linewidth',2,'color','r')
+            hold on
+            plot(1e3*t,1e6*rawSig(:,chan,trial),'linewidth',2,'color','k')
+            for indexPlot = 1:length(startInds{trial}{chan})
+                tempBox = vizFunc.highlight(gca, [1e3*startInds{trial}{chan}(indexPlot)/fs 1e3*endInds{trial}{chan}(indexPlot)/fs], [1e6*min(rawSig(:,chan,trial)) 1e6*max(rawSig(:,chan,trial))], [.5 .5 .5]);
             end
+            
+            legend({'linear interpolation','raw signal','artifact window'})
+            set(gca,'fontsize',18)
+            title('Raw vs. Processed Sig')
+            xlabel('Time (ms)')
+            ylabel('Voltage (\muV)')
+            
+            
         end
+        
         processedSig(:,chan,trial) = rawSigTemp;
         fprintf(['-------Template Processed - Channel ' num2str(chan) '--' 'Trial ' num2str(trial) '-----\n'])
     end

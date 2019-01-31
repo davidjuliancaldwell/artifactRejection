@@ -121,7 +121,7 @@ for trial = 1:size(rawSig,3)
             end
         end
         
-        if plotIt && (trial == 10 || trial == 1000)
+        if plotIt && (trial == 10 || trial == 1000) && chan == 28
             figure
             t = [0:length(rawSigTemp)-1]/fs;
             plot(1e3*t',1e6*rawSigTemp,'linewidth',2,'color','r')
