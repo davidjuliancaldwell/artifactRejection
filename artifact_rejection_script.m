@@ -21,7 +21,7 @@
 close all;clear all;clc
 %%
 % choose data file of interest
-dataChoice = 1;
+dataChoice = 6;
 
 switch dataChoice
     
@@ -42,7 +42,7 @@ switch dataChoice
         chanIntList = [4 12 21 28 19 18 36 44 43 30 33 41 34]; % these are the channels of interest to visualize in closer detail
         chanIntList = 28;
         minDuration = 0.5; % minimum duration of artifact in ms
-       % dataInt = 4*dataInt;
+        % dataInt = 4*dataInt;
         
     case 2
         load('+data/2fd831_exampData_400ms.mat') % response timing data set
@@ -79,7 +79,10 @@ switch dataChoice
         xlims = [-50 500]; % these are the x limits to visualize in plots
         chanIntList = [7 8 10 15 17 22 23 29 30 31 32]; % these are the channels of interest to visualize in closer detail
         minDuration = 0.5; % minimum duration of artifact in ms
-     %   dataInt = 4*dataInt;
+        fsData = fs_data;
+        tEpoch = t_epoch;
+        
+        %   dataInt = 4*dataInt;
         
     case 7
         load('+data/a1355e_examplePriming_noPrime_high.mat')
@@ -87,7 +90,10 @@ switch dataChoice
         xlims = [-50 500]; % these are the x limits to visualize in plots
         chanIntList = [7 8 10 15 17 22 23 29 30 31 32]; % these are the channels of interest to visualize in closer detail
         minDuration = 0.5; % minimum duration of artifact in ms
-       % dataInt = 4*dataInt
+        fsData = fs_data;
+        tEpoch = t_epoch;
+        
+        % dataInt = 4*dataInt
         
 end
 
@@ -149,8 +155,8 @@ elseif dataChoice == 4
     %pre = 0.4096; % in ms
     %post = 0.4096; % in ms
     
-    pre = 0.4; % started with 1
-    post = 3; % started with 0.2
+    pre = 0.8; % started with 1
+    post = 1; % started with 0.2
     % 2.8, 1, 0.5 was 3/19/2018
     
     % these are the metrics used if the dictionary method is selected. The
@@ -194,6 +200,35 @@ elseif dataChoice == 2
     
     recoverExp = 0;
     
+elseif dataChoice == 1
+    type = 'dictionary';
+    
+    useFixedEnd = 0;
+    %fixedDistance = 2;
+    fixedDistance = 4; % in ms
+    plotIt = 0;
+    
+    %pre = 0.4096; % in ms
+    %post = 0.4096; % in ms
+    
+    pre = 0.8; % started with 1
+    post = 1; % started with 0.2
+    % 2.8, 1, 0.5 was 3/19/2018
+    
+    % these are the metrics used if the dictionary method is selected. The
+    % options are 'eucl', 'cosine', 'corr', for either euclidean distance,
+    % cosine similarity, or correlation for clustering and template matching.
+    
+    
+    distanceMetricDbscan = 'eucl';
+    
+    distanceMetricSigMatch = 'eucl';
+    amntPreAverage = 3;
+    normalize = 'preAverage';
+    %normalize = 'firstSamp';
+    
+    recoverExp = 0;
+    
 else
     
     type = 'dictionary';
@@ -222,11 +257,11 @@ else
     normalize = 'preAverage';
     %normalize = 'firstSamp';
     
+    recoverExp = 0;
     
 end
 
 bracketRange = [-8:8];
-recoverExp = 0;
 
 [processedSig,templateDictCell,templateTrial,startInds,endInds] = analyFunc.template_subtract(dataInt,'type',type,...
     'fs',fsData,'plotIt',plotIt,'pre',pre,'post',post,'stimChans',stimChans,...
@@ -321,11 +356,11 @@ useFixedEnd = 0;
 pre = 0.6;
 post = 0.4096; % in ms1
 
- 
-    pre = 0.8; % started with 1
-    post = 1; % started with 0.2
-    % 2.8, 1, 0.5 was 3/19/2018
-    
+
+pre = 0.8; % started with 1
+post = 1; % started with 0.2
+% 2.8, 1, 0.5 was 3/19/2018
+
 fixedDistance = 2; % in ms
 
 [processedSig,startInds,endInds] = analyFunc.interpolate_artifact(dataInt,'fs',fsData,'plotIt',1,'type',type,...,
@@ -339,7 +374,7 @@ vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fsData,'type',type,'tE
     'chanIntList',chanIntList,'modePlot','confInt')
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% additional processing
+%% additional processing
 
 
 rerefMode = 'mean';
@@ -351,7 +386,7 @@ switch dataChoice
     case 6
         badChannels = stimChans;
     case 7
-        badChannels = stimChans;   
+        badChannels = stimChans;
 end
 reref = 0;
 if reref

@@ -301,17 +301,21 @@ for trial = 1:size(rawSig,3)
             if plotIt
                 if 1 && chan == 28 && (sts == 1 || sts == 2 || sts == 10)
                     figure
-                    plot(extractedSig)
+                    t = [0:length(extractedSig)-1]/fs;
+                    
+                    plot(1e3*t,extractedSig,'linewidth',2,'color',[0.5 0.5 0.5])
                     hold on
-                    plot(templateSubtract)
-                    plot(extractedSig-templateSubtract)
-                    legend('extracted','template','subtracted');
+                    plot(1e3*t,templateSubtract,'linewidth',2,'color','k')
+                    plot(1e3*t,extractedSig-templateSubtract,'linewidth',2,'color','r')
+                    legend('raw signal','template selected','processed signal');
+                    set(gca,'fontsize',18)
+                    title('Raw signal, template, and recovered signal')
+                    ylabel('Voltage (V)')
+                    xlabel('Time (ms)')
                 end
             end
         end
-        
-        t = 1e3*[0:length(rawSigTemp)-1]/fs;
-        
+                
         if plotIt && (trial == 10 || trial == 15 || trial == 20) && chan == 28
             figure
             t = [0:length(rawSigTemp)-1]/fs;

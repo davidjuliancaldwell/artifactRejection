@@ -158,6 +158,9 @@ for trial = 1:size(rawSig,3)
                 threshSig = pctl(absZSig,90); % 97.5 for DBS, was 80, try 75 for TOJ % was 65 6-25-2018
                 threshDiff = pctl(absZDiffSig,90); % 97.5 for DBS, was 80, try 75 for TOJ % was 6-25-2018 
                 
+                         threshSig = pctl(absZSig,75); % 97.5 for DBS, was 80, try 75 for TOJ % was 65 6-25-2018
+                threshDiff = pctl(absZDiffSig,75); % 97.5 for DBS, was 80, try 75 for TOJ % was 6-25-2018 
+                
                 % for two pulses only
 %                           threshSig = pctl(absZSig,97.5); % 97.5 for DBS, was 80, try 75 for TOJ % was 65 6-25-2018
 %                 threshDiff = pctl(absZDiffSig,97.5); % 97.5 for DBS, was 80, try 75 for TOJ % was 6-25-2018 

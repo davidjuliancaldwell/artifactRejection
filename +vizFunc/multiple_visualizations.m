@@ -144,22 +144,23 @@ for ind = chanIntList
     
     figure
     ax1 = subplot(2,1,1);
-    plot(1e3*tEpoch,1e6*exampChan,'linewidth',2);
+    plot(1e3*tEpoch,1e6*exampChan,'linewidth',2,'color',[0.5 0.5 0.5]);
     xlim(xlims)
     ylim(ylims)
-    
+    set(gca,'fontsize',18)
     title(['Processed Signal - Channel ' num2str(ind)])
     clear exampChan
     
     
     ax2 = subplot(2,1,2);
     exampChan = mean(squeeze(rawSig(:,ind,:)),2);
-    plot(1e3*tEpoch,1e6*exampChan,'linewidth',2);
+    plot(1e3*tEpoch,1e6*exampChan,'linewidth',2,'color',[0.5 0.5 0.5]);
     xlim(xlims)
     ylim(ylims)
     xlabel('time (ms)')
     ylabel('Voltage (\muV)')
     title(['Raw Signal Average - Channel ' num2str(ind)])
+    set(gca,'fontsize',18)
     
     linkaxes([ax1,ax2],'xy')
     

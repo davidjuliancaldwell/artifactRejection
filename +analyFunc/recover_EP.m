@@ -21,11 +21,11 @@ for ind = 1:size(template,2)
     
     absZSig = abs(zscore(templateInd));
     absZDiffSig = abs(zscore(diff(templateInd)));
-    threshSig = pctl(absZSig,95);
-    threshDiff = pctl(absZDiffSig,95);
+    threshSig = pctl(absZSig,95); % started with 95, then tried 90
+    threshDiff = pctl(absZDiffSig,95); % started with 95, then tried 90 to better address early part 
     
-    last = find(absZSig>threshSig,1,'last'); % started with 0.2
-    last2 = find(absZDiffSig>threshDiff,1,'last')+1; % started with 5e-3
+    last = find(absZSig>threshSig,1,'last'); 
+    last2 = find(absZDiffSig>threshDiff,1,'last')+1; 
     
     
     %     last = find(abs(zscore(templateInd))>0.005,1,'last');
