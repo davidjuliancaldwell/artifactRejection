@@ -79,6 +79,9 @@ addParameter(p,'maxLocation',15,@isnumeric);
 addParameter(p,'amntPreAverage',3,@isnumeric);
 addParameter(p,'bracketRange',[-8:8],@isnumeric);
 
+addParameter(p,'expThreshVoltageCut',95,@isnumeric);
+addParameter(p,'expThreshDiffCut',95,@isnumeric);
+
 p.parse(templateArrayCell,templateTrial,rawSig,fs,varargin{:});
 
 templateArrayCell = p.Results.templateArrayCell;
@@ -99,11 +102,12 @@ amntPreAverage = p.Results.amntPreAverage;
 maxLocation = p.Results.maxLocation;
 bracketRange = p.Results.bracketRange;
 
+expThreshVoltageCut = p.Results.expThreshVoltageCut;
+expThreshDiffCut = p.Results.expThreshDiffCut;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 templateArrayCellOutput = {};
 processedSig = zeros(size(rawSig));
-
 
 fprintf(['-------Dictionary-------- \n'])
 
@@ -228,7 +232,7 @@ for trial = 1:size(rawSig,3)
         
         % ensure no subtraction of exponential
         if recoverExp
-            templates = analyFunc.recover_EP(templates,fs);
+            templates = analyFunc.recover_EP(templates,fs,'threshDiffCut',expThreshDiffCut,'threshVoltageCut',expThreshVoltageCut);
         end
         
         for sts = 1:length(startInds{trial}{chan})
@@ -293,11 +297,9 @@ for trial = 1:size(rawSig,3)
                     [~,index] = min(dtwMat);
             end
             
-            templateSubtract = templatesSts(:,index);
-            
+            templateSubtract = templatesSts(:,index);          
             rawSigTemp(win) = rawSigTemp(win) - templateSubtract;
-            
-            
+                 
             if plotIt
                 if 1 && chan == 28 && (sts == 1 || sts == 2 || sts == 10)
                     figure

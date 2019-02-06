@@ -7,6 +7,9 @@ function D = compute_pairwise_dist( X,varargin )
 %
 % Both X and the optional matrix Y must have points along the rows, and
 % dimensions of points along columns.
+%
+% Dynamic time warping is an additional distance metric
+
 
 if ~isempty(varargin{2})
     metric = varargin{2};
@@ -14,7 +17,7 @@ else
     metric = 'eucl';
 end
 
-if strcmp(metric,'eucl') 
+if strcmp(metric,'eucl')
     
     if isempty(varargin{1})
         d = sum( X.^2,2 );
@@ -31,7 +34,7 @@ if strcmp(metric,'eucl')
     
 elseif strcmp(metric,'dtw')
     
-        if isempty(varargin{1})
+    if isempty(varargin{1})
         % dynamic time warping
         sX = size(X,1);
         D = zeros(sX,sX);

@@ -66,6 +66,9 @@ addParameter(p,'goodVec',[1:64],@isnumeric);
 addParameter(p,'chanInt',1,@isnumeric);
 addParameter(p,'minDuration',0,@isnumeric);
 
+addParameter(p,'threshVoltageCut',75,@isnumeric);
+addParameter(p,'threshDiffCut',75,@isnumeric);
+
 p.parse(rawSig,varargin{:});
 
 rawSig = p.Results.rawSig;
@@ -78,6 +81,8 @@ fs = p.Results.fs;
 goodVec = p.Results.goodVec;
 chanInt = p.Results.chanInt;
 minDuration = p.Results.minDuration;
+threshVoltageCut = p.Results.threshVoltageCut;
+threshDiffCut = p.Results.threshDiffCut;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 presamps = round(pre/1e3 * fs); % pre time in sec
@@ -95,12 +100,12 @@ fprintf(['-------Smoothing data with Savitsky-Golay Filter-------- \n'])
 
 rawSigFilt = rawSig;
 
-    for ind2 = 1:size(rawSigFilt,2)
-        for ind3 = 1:size(rawSigFilt,3)
-            rawSigFilt(:,ind2,ind3) = savitskyGolay.sgolayfilt_complete(squeeze(rawSig(:,ind2,ind3)),order,framelen);
-            
-        end
+for ind2 = 1:size(rawSigFilt,2)
+    for ind3 = 1:size(rawSigFilt,3)
+        rawSigFilt(:,ind2,ind3) = savitskyGolay.sgolayfilt_complete(squeeze(rawSig(:,ind2,ind3)),order,framelen);
+        
     end
+end
 
 diffSig = permute(cat(3,zeros(size(rawSig,2), size(rawSig,3)),permute(diff(rawSigFilt),[2 3 1])),[3 1 2]);
 
@@ -127,7 +132,7 @@ timeSampsExtend = 2*fs/1000;% time_ms
 
 for trial = 1:size(rawSig,3)
     
-    inds = find(abs(zscore(diffSig(:,chanMax,trial)))>1.5); % didn't quite work with 2, try 1.5 DJC 9-4-2018 
+    inds = find(abs(zscore(diffSig(:,chanMax,trial)))>1.5); % didn't quite work with 2, try 1.5 DJC 9-4-2018
     diffBtInds = [diff(inds)'];
     [~,indsOnset] = find(abs(zscore(diffBtInds))>1.5);
     
@@ -156,16 +161,20 @@ for trial = 1:size(rawSig,3)
                 absZSig = abs(zscore(signal));
                 absZDiffSig = abs(zscore(diffSignal));
                 threshSig = pctl(absZSig,90); % 97.5 for DBS, was 80, try 75 for TOJ % was 65 6-25-2018
-                threshDiff = pctl(absZDiffSig,90); % 97.5 for DBS, was 80, try 75 for TOJ % was 6-25-2018 
+                threshDiff = pctl(absZDiffSig,90); % 97.5 for DBS, was 80, try 75 for TOJ % was 6-25-2018
                 
-                         threshSig = pctl(absZSig,75); % 97.5 for DBS, was 80, try 75 for TOJ % was 65 6-25-2018
-                threshDiff = pctl(absZDiffSig,75); % 97.5 for DBS, was 80, try 75 for TOJ % was 6-25-2018 
+                threshSig = pctl(absZSig,75); % 97.5 for DBS, was 80, try 75 for TOJ % was 65 6-25-2018
+                threshDiff = pctl(absZDiffSig,75); % 97.5 for DBS, was 80, try 75 for TOJ % was 6-25-2018
+                
+                    threshSig = pctl(absZSig,threshVoltageCut); % 97.5 for DBS, was 80, try 75 for TOJ % was 65 6-25-2018
+                threshDiff = pctl(absZDiffSig,threshDiffCut); % 97.5 for DBS, was 80, try 75 for TOJ % was 6-25-2018
+                
                 
                 % for two pulses only
-%                           threshSig = pctl(absZSig,97.5); % 97.5 for DBS, was 80, try 75 for TOJ % was 65 6-25-2018
-%                 threshDiff = pctl(absZDiffSig,97.5); % 97.5 for DBS, was 80, try 75 for TOJ % was 6-25-2018 
-%                 
-%                 % was 75 before 9-4-2018, but it missed one trial, so try
+                %                           threshSig = pctl(absZSig,97.5); % 97.5 for DBS, was 80, try 75 for TOJ % was 65 6-25-2018
+                %                 threshDiff = pctl(absZDiffSig,97.5); % 97.5 for DBS, was 80, try 75 for TOJ % was 6-25-2018
+                %
+                %                 % was 75 before 9-4-2018, but it missed one trial, so try
                 % 80
                 
                 % look past minimum start time
@@ -174,23 +183,23 @@ for trial = 1:size(rawSig,3)
                 ct = max(last, last2);
                 %ctMin = min(last,last2);
                 
-%                 if ~isempty(ct) && length(win) - ct > timeSampsExtend  % look for exponential decay and adjust if needed
-%                     
-%                     try
-%                         x = [ct:length(win)]';
-%                         y = signal(x);
-%                         [f2,gof,output] = fit(x,y,'exp2');
-%                         func_fit = @(x) f2.a*exp(f2.b*x) + f2.c*exp(f2.d*x);
-%                         
-%                         if gof.adjrsquare>0.95
-%                             ct = length(win);
-%                         end
-%                         
-%                     catch
-% 
-%                     end
-% 
-%                 end
+                %                 if ~isempty(ct) && length(win) - ct > timeSampsExtend  % look for exponential decay and adjust if needed
+                %
+                %                     try
+                %                         x = [ct:length(win)]';
+                %                         y = signal(x);
+                %                         [f2,gof,output] = fit(x,y,'exp2');
+                %                         func_fit = @(x) f2.a*exp(f2.b*x) + f2.c*exp(f2.d*x);
+                %
+                %                         if gof.adjrsquare>0.95
+                %                             ct = length(win);
+                %                         end
+                %
+                %                     catch
+                %
+                %                     end
+                %
+                %                 end
                 
                 if isempty(ct)
                     ct = last;

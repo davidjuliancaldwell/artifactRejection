@@ -1,6 +1,6 @@
 ### Processing of Electrical Stimulation Related Human Electrophysiologic Data
 
-This is the readme file for the processing of stimulation related data in human electocorticography datasets. The data is written in MATLAB, and should require no special packages for use. This is distributed as a MATLAB package, so simply download the package, and place it on the path. Only the root path is necessary, e.g. addpath '/path/to/artifactRejection', as all required functions are within the project. [MATLAB](https://www.mathworks.com/help/matlab/matlab_oop/scoping-classes-with-packages.html "MATLAB Packages") packages operate like namespaces (see link).
+This is the readme file for the processing of stimulation related data in human electocorticography and deep brain stimulation datasets. The code is written in MATLAB. This is distributed as a MATLAB package, so simply download the package, and place it on the path. Only the root path is necessary, e.g. addpath '/path/to/artifactRejection', as all required functions are within the project. [MATLAB](https://www.mathworks.com/help/matlab/matlab_oop/scoping-classes-with-packages.html "MATLAB Packages") packages operate like namespaces (see link).
 
 To use example data and to have all of the code required to perform the processing, clone the github repository, and download the data in the google drive link below. To run the code on the example data, place the data linked below in a folder named **+data** .
 
@@ -23,11 +23,11 @@ The **+helpFunc** folder contains helper processing functions that are called by
 
 The **+vizFunc** folder contains helper processing functions that prove useful in visualizing the data here, and with modifications may prove useful to other researchers. These include visualizing all epochs of data across different channels in the time domain, subselecting channels of interest, visualizing the power in different frequency bins,
 
-
+Note: For the recover_EP.m function, the MATLAB curve fitting toolbox is required.
 
 Direct questions and comments to David Caldwell, at djcald@uw.edu
 
-Authors: David J Caldwell, Jeneva A Cronin, Rajesh PN Rao, Kurt Weaver, Andrew Ko, Jeffrey G. Ojemann, Nathan J. Kutz, Bingni W. Brunton
+Authors: David J Caldwell, Jeneva A Cronin, Rajesh PN Rao, Kurt E. Weaver, Andrew L. Ko, Jeffrey G. Ojemann, Nathan J. Kutz, Bingni W. Brunton
 
 ___
 

@@ -21,7 +21,7 @@
 close all;clear all;clc
 %%
 % choose data file of interest
-dataChoice = 6;
+dataChoice = 4;
 
 switch dataChoice
     
@@ -73,6 +73,10 @@ switch dataChoice
         dataInt = 4*dataInt;
     case 5
         load('+data/ecb43e_RHI_async_trial14.mat') % rubber hand illusion data set
+        minDuration = 0.5; % minimum duration of artifact in ms
+        fsData = fs_data;
+        tEpoch = t_epoch;
+        
     case 6
         load('+data/a1355e_examplePriming_Prime_high.mat')
         trainDuration = [0 200]; % this is how long the stimulation train was
@@ -144,6 +148,12 @@ if dataChoice == 6 || dataChoice == 7
     
     recoverExp = 0;
     
+    threshVoltageCut = 75;
+    threshDiffCut = 75;
+    expThreshVoltageCut = 95;
+    expThreshDiffCut = 95;
+    bracketRange = [-8:8];
+    
 elseif dataChoice == 4
     type = 'dictionary';
     
@@ -172,6 +182,13 @@ elseif dataChoice == 4
     
     recoverExp = 1;
     
+    threshVoltageCut = 60;
+    threshDiffCut = 60;
+    expThreshVoltageCut = 95;
+    expThreshDiffCut = 95;
+    bracketRange = [-8:8];
+    
+    
 elseif dataChoice == 2
     type = 'dictionary';
     
@@ -199,6 +216,11 @@ elseif dataChoice == 2
     %normalize = 'firstSamp';
     
     recoverExp = 0;
+    threshVoltageCut = 75;
+    threshDiffCut = 75;
+    expThreshVoltageCut = 95;
+    expThreshDiffCut = 95;
+    bracketRange = [-8:8];
     
 elseif dataChoice == 1
     type = 'dictionary';
@@ -228,6 +250,11 @@ elseif dataChoice == 1
     %normalize = 'firstSamp';
     
     recoverExp = 0;
+    threshVoltageCut = 75;
+    threshDiffCut = 75;
+    expThreshVoltageCut = 95;
+    expThreshDiffCut = 95;
+    bracketRange = [-8:8];
     
 else
     
@@ -256,19 +283,23 @@ else
     amntPreAverage = 3;
     normalize = 'preAverage';
     %normalize = 'firstSamp';
-    
     recoverExp = 0;
+    threshVoltageCut = 75;
+    threshDiffCut = 75;
+    expThreshVoltageCut = 95;
+    expThreshDiffCut = 95;
+    bracketRange = [-8:8];
     
 end
 
-bracketRange = [-8:8];
 
 [processedSig,templateDictCell,templateTrial,startInds,endInds] = analyFunc.template_subtract(dataInt,'type',type,...
     'fs',fsData,'plotIt',plotIt,'pre',pre,'post',post,'stimChans',stimChans,...
     'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,...,
     'distanceMetricDbscan',distanceMetricDbscan,'distanceMetricSigMatch',distanceMetricSigMatch,...
     'recoverExp',recoverExp,'normalize',normalize,'amntPreAverage',amntPreAverage,...
-    'minDuration',minDuration,'bracketRange',bracketRange);
+    'minDuration',minDuration,'bracketRange',bracketRange,'threshVoltageCut',threshVoltageCut,...
+    'threshDiffCut',threshDiffCut,'expThreshVoltageCut',expThreshVoltageCut,'expThreshDiffCut',expThreshDiffCut);
 %
 % visualization
 % of note - more visualizations are created here, including what the
@@ -320,7 +351,6 @@ useFixedEnd = 0;
 % pulse onset to allow for maximal artifact rejection
 pre = 0.6; % in ms
 
-
 % this is how far to look after the algorithm detects each stimulation
 % pulse onset to allow for maximal artifact rejection
 post = 0.4096; % in ms
@@ -344,7 +374,6 @@ fixedDistance = 1.2; % in ms % 2.2 for the first 2 cases, 4 for the 3rd,
 vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fsData,'type',type,'tEpoch',...
     tEpoch,'xlims',xlims,'trainDuration',trainDuration,'stimChans',stimChans,...,
     'chanIntList',chanIntList,'modePlot','confInt')
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% linear interpolation with polynomial piecewise interpolation
@@ -375,7 +404,6 @@ vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fsData,'type',type,'tE
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% additional processing
-
 
 rerefMode = 'mean';
 switch dataChoice

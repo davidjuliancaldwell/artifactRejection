@@ -40,6 +40,13 @@ addParameter(p,'recoverExp',0,@(x) x==0 || x ==1);
 addParameter(p,'minDuration',0,@isnumeric);
 addParameter(p,'bracketRange',[-8:8],@isnumeric);
 
+addParameter(p,'threshVoltageCut',75,@isnumeric);
+addParameter(p,'threshDiffCut',75,@isnumeric);
+
+addParameter(p,'expThreshVoltageCut',75,@isnumeric);
+addParameter(p,'expThreshDiffCut',75,@isnumeric);
+
+
 p.parse(rawSig,varargin{:});
 
 rawSig = p.Results.rawSig;
@@ -67,6 +74,11 @@ minDuration = p.Results.minDuration;
 
 bracketRange = p.Results.bracketRange; 
 
+threshVoltageCut = p.Results.threshVoltageCut;
+threshDiffCut = p.Results.threshDiffCut;
+
+expThreshVoltageCut = p.Results.expThreshVoltageCut;
+expThreshDiffCut = p.Results.expThreshDiffCut;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % define matrix of zeros
@@ -80,8 +92,8 @@ numChans = size(rawSig,2);
 %% get beginnings and ends of artifacts
 
 [startInds,endInds] = analyFunc.get_artifact_indices(rawSig,'pre',pre,'post',post,'plotIt',...,
-    plotIt,'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,'fs',fs,'goodVec',goodVec,'minDuration',minDuration);
-
+    plotIt,'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,'fs',fs,'goodVec',goodVec,...
+    'minDuration',minDuration,'threshVoltageCut',threshVoltageCut,'threshDiffCut',threshDiffCut);
 
       %       corrected_signal = artifact_correction(squeeze(processedSig(:,:,1)), index, stimulation_mode, stimulation_length, sampling_frequency, default, varargin)
 
@@ -103,8 +115,9 @@ switch type
     case 'dictionary'
         [processedSig,templateArrayCellOutput] = analyFunc.template_dictionary(templateArrayCell,templateTrial,rawSig,fs,'plotIt',plotIt,...
             'distanceMetricDbscan',distanceMetricDbscan,'distanceMetricSigMatch',distanceMetricSigMatch,...
-            'goodVec',goodVec,'startInds',startInds,'endInds',endInds,'recoverExp',recoverExp,'maxAmps',maxAmps,'amntPreAverage',amntPreAverage,...
-            'maxLocation',maxLocation,'bracketRange',bracketRange);
+            'goodVec',goodVec,'startInds',startInds,'endInds',endInds,'recoverExp',recoverExp,'maxAmps',maxAmps,...
+            'amntPreAverage',amntPreAverage,'maxLocation',maxLocation,'bracketRange',bracketRange,...
+            'expThreshDiffCut',expThreshDiffCut,'expThreshVoltageCut',expThreshVoltageCut);
         
     case 'average'
         [processedSig,templateArrayCellOutput] = analyFunc.template_average(templateArrayCell,rawSig,'plotIt',plotIt...,

@@ -492,7 +492,7 @@ classdef HDBSCAN < handle
             map(badClusts) = [];
             
             % now find the core points and core lambda for the clusters
-            [self.corePoints,self.coreLambda] = get_core_points( parents,bestClusts,lambdaMax );
+            [self.corePoints,self.coreLambda] = HDBSCAN.get_core_points( parents,bestClusts,lambdaMax );
 
             % store the updated parameters
             for i = 1:numel( map )
@@ -554,7 +554,7 @@ classdef HDBSCAN < handle
             D = zeros( n,nID ); 
             for i = 1:nID
                 points = self.data( self.corePoints{i},: );
-                d = compute_pairwise_dist( newPoints,points,self.metric );
+                d = HDBSCAN.compute_pairwise_dist( newPoints,points,self.metric );
                 D(:,i) = min( d,[],2 );
             end
             
