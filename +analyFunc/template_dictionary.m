@@ -227,9 +227,9 @@ for chan = goodVec
             index = index + 1;
         end
         
-        templateListVec{chan} = templateArrayShortened;
         
     end
+    templateListVec{chan} = templateArrayShortened;
     
     % assign templates to channel
     templateArrayCellOutput{chan} = templateArrayExtracted;
@@ -244,8 +244,15 @@ fprintf(['-------Finished clustering artifacts-------- \n'])
 % now do the template subtraction
 for trial = 1:size(rawSig,3)
     
+    if trial > 1
+        firstLoopTrial = 0;
+    else
+        firstLoopTrial = 1;
+    end
+    
     for chan = goodVec
         
+        firstLoopChan = 1;
         rawSigTemp = rawSig(:,chan,trial);
         templates = templateArrayCellOutput{chan};
         
@@ -256,6 +263,8 @@ for trial = 1:size(rawSig,3)
         if recoverExp
             templates = analyFunc.recover_EP(templates,fs,'threshDiffCut',expThreshDiffCut,'threshVoltageCut',expThreshVoltageCut);
         end
+        
+        
         
         for sts = 1:length(startInds{trial}{chan})
             win = startInds{trial}{chan}(sts):endInds{trial}{chan}(sts);
@@ -320,55 +329,96 @@ for trial = 1:size(rawSig,3)
             end
             
             templateSubtract = templatesSts(:,index);
-            % which template won out
-            if isempty(templateSubtractCell{chan}
+            % which template best matched
+            if firstLoopChan && firstLoopTrial
                 templateSubtractCell{chan} = index;
             else
                 templateSubtractCell{chan} = [templateSubtractCell{chan}; index];
             end
-            rawSigTemp(win) = rawSigTemp(win) - templateSubtract;
             
-            if plotIt
-                if 1 && chan == 28 && (sts == 1 || sts == 2 || sts == 10)
-                    figure
-                    t = [0:length(extractedSig)-1]/fs;
-                    
-                    plot(1e3*t,1e3*extractedSig,'linewidth',2,'color','k')
-                    hold on
-                    plot(1e3*t,1e3*templateSubtract,'linewidth',2,'color',[0.5 0.5 0.5])
-                    plot(1e3*t,1e3*extractedSig-templateSubtract,'linewidth',2,'color',[204 85 0]/255)
-                    legend('Raw Signal','Template Selected','Recovered Signal');
-                    set(gca,'fontsize',18)
-                    title('Raw signal, Template, and Recovered signal')
-                    ylabel('Voltage (mV)')
-                    xlabel('Time (ms)')
-                end
-            end
+            firstLoopChan = 0;
+            
+            rawSigTemp(win) = rawSigTemp(win) - templateSubtract;
+            %
+            %             if plotIt
+            %                 if 1 && chan == 28 && (sts == 1 || sts == 2 || sts == 10)
+            %                     figure
+            %                     t = [0:length(extractedSig)-1]/fs;
+            %
+            %                     plot(1e3*t,1e3*extractedSig,'linewidth',2,'color','k')
+            %                     hold on
+            %                     plot(1e3*t,1e3*templateSubtract,'linewidth',2,'color',[0.5 0.5 0.5])
+            %                     plot(1e3*t,1e3*extractedSig-templateSubtract,'linewidth',2,'color',[204 85 0]/255)
+            %                     legend('Raw Signal','Template Selected','Recovered Signal');
+            %                     set(gca,'fontsize',18)
+            %                     title('Raw signal, Template, and Recovered signal')
+            %                     ylabel('Voltage (mV)')
+            %                     xlabel('Time (ms)')
+            %                 end
+            %             end
         end
         
         if plotIt && (trial == 10 || trial == 15 || trial == 20) && chan == 28
             figure
-            t = [0:length(rawSigTemp)-1]/fs;
-            plot(1e3*t',1e3*rawSigTemp,'linewidth',2,'color',[204 85 0]/255)
             hold on
-            plot(1e3*t,1e3*rawSig(:,chan,trial),'linewidth',2,'color','k')
             for indexPlot = 1:length(startInds{trial}{chan})
-                tempBox = vizFunc.highlight(gca, [1e3*startInds{trial}{chan}(indexPlot)/fs 1e3*endInds{trial}{chan}(indexPlot)/fs], [1e3*min(rawSig(:,chan,trial))-10 1e3*max(rawSig(:,chan,trial))+10], [.5 .5 .5]);
+                tempBox = vizFunc.highlight(gca, [1e3*startInds{trial}{chan}(indexPlot)/fs 1e3*endInds{trial}{chan}(indexPlot)/fs], [1e3*min(rawSig(:,chan,trial))-10 1e3*max(rawSig(:,chan,trial))+10], [.7 .7 .7]);
             end
+            t = [0:length(rawSigTemp)-1]/fs;
+            plot1 = plot(1e3*t,1e3*rawSig(:,chan,trial),'linewidth',2,'color','k');
+            plot2 = plot(1e3*t',1e3*rawSigTemp,'linewidth',2,'color',[204 85 0]/255);
             
-            legend({'Recovered Signal','Raw Signal','Artifact Windows'})
+            ylim([-1e3*max(abs(rawSig(:,chan,trial))) 1e3*max(abs(rawSig(:,chan,trial)))])
+            legend([tempBox,plot1,plot2],{'Artifact Windows','Raw Signal','Recovered Signal'})
             set(gca,'fontsize',18)
             title('Raw vs. Recovered Sig')
             xlabel('Time (ms)')
             ylabel('Voltage (mV)')
+            
+            figure
+            hold on
+            for indexPlot = 1:length(startInds{trial}{chan})
+                tempBox = vizFunc.highlight(gca, [1e3*startInds{trial}{chan}(indexPlot)/fs 1e3*endInds{trial}{chan}(indexPlot)/fs], [1e3*min(rawSig(:,chan,trial))-10 1e3*max(rawSig(:,chan,trial))+10], [.7 .7 .7]);
+            end
+            t = [0:length(rawSigTemp)-1]/fs;
+            plot1 = plot(1e3*t,1e3*rawSig(:,chan,trial),'linewidth',2,'color','k');
+            plot2 = plot(1e3*t',1e3*rawSigTemp,'linewidth',2,'color',[204 85 0]/255);
+            xlim([1000 1020])
+            ylim([-1e3*max(abs(rawSig(:,chan,trial))) 1e3*max(abs(rawSig(:,chan,trial)))])
+            legend([tempBox,plot1,plot2],{'Artifact Windows','Raw Signal','Recovered Signal'})
+            set(gca,'fontsize',18)
+            title('Raw vs. Recovered Sig')
+            xlabel('Time (ms)')
+            ylabel('Voltage (mV)')
+            
+            figure
+            subplot(2,1,1)
+            ylabel('Voltage (mV)')
+            plot(1e3*t,1e3*rawSig(:,chan,trial),'linewidth',2,'color','k');
+            title('Raw Signal')
+            xlim([1000 1020])
+            ylim([-0.5 0.5])
+            ylabel('Voltage (mV)')
+            set(gca,'fontsize',18)
+            
+            
+            subplot(2,1,2)
+            xlabel('Time (ms)')
+            plot(1e3*t',1e3*rawSigTemp,'linewidth',2,'color',[204 85 0]/255);
+            title('Recovered Signal')
+            xlabel('Time (ms)')
+            xlim([1000 1020])
+            ylim([-0.5 0.5])
+            
+            set(gca,'fontsize',18)
+            
         end
         
         processedSig(:,chan,trial) = rawSigTemp;
         fprintf(['-------Template Processed - Channel ' num2str(chan) '--' 'Trial ' num2str(trial) '-----\n'])
     end
-    
 end
-
+%%
 % plot trials belong to particular clusters
 
 if plotIt && chan == 28
@@ -376,53 +426,119 @@ if plotIt && chan == 28
     templateArrayShortened = templateListVec{chan};
     t = 1e3*[0:size(templateArrayShortened,1)-1]/fs;
     figure
-    numIndices = 50;
+    numIndices = 35;
     indices = randi(size(templateArrayShortened,2),numIndices,1);
     for ii = 1:numIndices
-        vizFunc.smplot(32,1,ii,'axis','off')
-        plot(t,templateArrayShortened(:,indices(ii)),'color','k','linewidth',2)
+        vizFunc.smplot(numIndices,1,ii,'axis','off','right',0.02,'bottom',0.02,'left',0.02,'top',0.02)
+        plot(t, templateArrayShortened(:,indices(ii)),'color','k','linewidth',2)
         set(gca,'XTick',[], 'YTick', [],'YLabel',[], 'Xlabel',[],'Visible','off')
     end
     
     obj = vizFunc.scalebar;
-    obj.XLen = 200;              %X-Length, 10.
+    obj.XLen = 0.25;              %X-Length, 10.
     obj.XUnit = 'ms';            %X-Unit, 'm'.
-    obj.YLen = 3;
+    obj.YLen = 0.02;
     obj.YUnit = 'mV';
-    
-    obj.Position = [20,-130];
-    obj.hTextX_Pos = [5,-50]; %move only the LABEL position
-    obj.hTextY_Pos =  [-45,-40];
+    set(gca,'fontsize',18)
+    %     obj.Position = [1,-1];
+    %     obj.hTextX_Pos = [1,-2]; %move only the LABEL position
+    %     obj.hTextY_Pos =  [0.5,-1];
     obj.hLineY(2).LineWidth = 5;
     obj.hLineY(1).LineWidth = 5;
     obj.hLineX(2).LineWidth = 5;
     obj.hLineX(1).LineWidth = 5;
-    obj.Border = 'LL';          %'LL'(default), 'LR', 'UL', 'UR'
+    %     obj.Border = 'LL';          %'LL'(default), 'LR', 'UL', 'UR'
     
+    templates = templateSubtractCell{chan};
+    templatesChoiceTimeSeries = templates(indices);
+    figure
+    
+    CT = cbrewerHelper.cbrewer('qual', 'Dark2', 8);
+    
+    repeats = max( 1,ceil( max( clusterer.labels )/8 ) );
+    colors = [CT(1,:);repmat( CT(2:end,:),repeats,1 )];
+    
+    
+    for ii = 1:numIndices
+        colorInt = colors(templatesChoiceTimeSeries(ii),:);
+        vizFunc.smplot(numIndices,1,ii,'axis','off','right',0.02,'bottom',0.02,'left',0.02,'top',0.02)
+        plot(t, templateArrayShortened(:,indices(ii)),'color',colorInt,'linewidth',2)
+        set(gca,'XTick',[], 'YTick', [],'YLabel',[], 'Xlabel',[],'Visible','off')
+    end
+    
+    obj = vizFunc.scalebar;
+    obj.XLen = 0.25;              %X-Length, 10.
+    obj.XUnit = 'ms';            %X-Unit, 'm'.
+    obj.YLen = 0.02;
+    obj.YUnit = 'mV';
+    set(gca,'fontsize',18)
+    %     obj.Position = [1,-1];
+    %     obj.hTextX_Pos = [1,-2]; %move only the LABEL position
+    %     obj.hTextY_Pos =  [0.5,-1];
+    obj.hLineY(2).LineWidth = 5;
+    obj.hLineY(1).LineWidth = 5;
+    obj.hLineX(2).LineWidth = 5;
+    obj.hLineX(1).LineWidth = 5;
+    %     obj.Border = 'LL';          %'LL'(default), 'LR', 'UL', 'UR'
+    %%
     CTdiv = cbrewerHelper.cbrewer('div', 'BrBG', 50);
     numIndicesISC = 100;
     indicesISC = randi(size(templateArrayShortened,2),numIndicesISC,1);
+    templateArrayInt = templateArrayShortened(:,indicesISC);
+    
+    
     figure
-    imagesc(1e3*templateArrayShortened(:,indicesISC)')
-    xlabel('Time (ms)')
+    imagesc(1e3*templateArrayInt')
+    xlabel('Sample')
     ylabel('Trial #')
     set(gca,'fontsize',18)
     colormap(CTdiv)
-    caxis([-max(abs(1e3*templateArrayShortened(:))) max(abs(1e3*templateArrayShortened(:)))])
+    caxis([-max(abs(1e3*templateArrayInt(:))) max(abs(1e3*templateArrayInt(:)))])
     c = colorbar();
     c.Label.String = 'Voltage (mV)';
+    title('Subselection of Trials before Template Matching')
     
-    
-    templates = templateArrayCellOutput{chan};
+    %%
+    templates = templateSubtractCell{chan};
+    templatesChoice = templates(indicesISC);
     figure
-    imagesc(1e3*templateArrayShortened(:,indicesISC)')
+    counter = 1;
+    for templateInterest = unique(templatesChoice)'
+        indicesSelect = find(templatesChoice == templateInterest);
+        subplot(length(unique(templatesChoice)),1,counter)
+        imagesc(1e3*templateArrayInt(:,indicesSelect)')
+        if counter == 1
+            title('Sorted Subselection of Trials')
+        end
+        counter = counter + 1;
+        colormap(CTdiv)
+        caxis([-max(abs(1e3*templateArrayShortened(:))) max(abs(1e3*templateArrayShortened(:)))])
+        set(gca,'fontsize',16)
+    end
     xlabel('Time (ms)')
     ylabel('Trial #')
     set(gca,'fontsize',18)
-    colormap(CTdiv)
     caxis([-max(abs(1e3*templateArrayShortened(:))) max(abs(1e3*templateArrayShortened(:)))])
-    c = colorbar();
-    c.Label.String = 'Voltage (mV)';
+    % c = colorbar();
+    %c.Label.String = 'Voltage (mV)';
+    %%
+    templateArrayExtracted = templateArrayCellOutput{chan};
+    templateArrayShortened = templateArrayExtracted(maxLocation+bracketRange,:);
+    figure
+    counter = 1;
+    uniqueVec = unique(templatesChoice)';
+    t = 1e3*(0:size(templateArrayShortened,1)-1)/fs;
+    for templateInterest = uniqueVec(1:end-1)
+        colorInt = colors(templatesChoiceTimeSeries(counter),:);
+        subplot(length(uniqueVec),1,counter)
+        plot(t,1e3*templateArrayShortened(:,templateInterest),'color',colorInt,'linewidth',2)
+        counter = counter + 1;
+        set(gca,'fontsize',18)
+    end
+    xlabel('Time (ms')
+    ylabel('Voltage (ms)')
+    
+    
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
