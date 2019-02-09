@@ -241,7 +241,6 @@ elseif dataChoice == 1
     
     
     distanceMetricDbscan = 'eucl';
-    
     distanceMetricSigMatch = 'eucl';
     amntPreAverage = 3;
     normalize = 'preAverage';
@@ -252,7 +251,7 @@ elseif dataChoice == 1
     threshDiffCut = 75;
     expThreshVoltageCut = 95;
     expThreshDiffCut = 95;
-    bracketRange = [-8:8];
+    bracketRange = [-5:5];
     
 else
     
@@ -273,10 +272,7 @@ else
     % these are the metrics used if the dictionary method is selected. The
     % options are 'eucl', 'cosine', 'corr', for either euclidean distance,
     % cosine similarity, or correlation for clustering and template matching.
-    
-    
     distanceMetricDbscan = 'eucl';
-    
     distanceMetricSigMatch = 'eucl';
     amntPreAverage = 3;
     normalize = 'preAverage';
@@ -312,7 +308,7 @@ average = 1;
 trainDuration = [0 400];
 modePlot = 'avg';
 xlims = [-200 1000];
-ylims = [-6 6];
+ylims = [-0.6 0.6];
 vizFunc.small_multiples_time_series(processedSig,tEpoch,'type1',stimChans,'type2',0,'xlims',xlims,'ylims',ylims,'modePlot',modePlot,'highlightRange',trainDuration)
 
 % %%

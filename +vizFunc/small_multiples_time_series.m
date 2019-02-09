@@ -13,7 +13,7 @@ addParameter(p,'type1',[],@isnumeric);
 addParameter(p,'type2',[],@isnumeric);
 addParameter(p,'newFig',1,@(x) x==0 || x ==1)
 addParameter(p,'xlims',[-200 1000],@isnumeric);
-addParameter(p,'ylims',[-800 800],@isnumeric);
+addParameter(p,'ylims',[-0.8 0.8],@isnumeric);
 addParameter(p,'highlightRange',[],@isnumeric);
 addParameter(p,'modePlot','avg',@isstr)
 
@@ -97,8 +97,7 @@ for idx=1:size(signal,2)
                 title([num2str(idx)],'color',CT(1,:))
             end
     end
-    
-    
+   
     axis off
     axis tight
     %xlim([-10 200])
@@ -118,7 +117,7 @@ end
 obj = vizFunc.scalebar;
 obj.XLen = 200;              %X-Length, 10.
 obj.XUnit = 'ms';            %X-Unit, 'm'.
-obj.YLen = 3;
+obj.YLen = 0.2;
 obj.YUnit = 'mV';
 
 obj.Position = [20,-130];

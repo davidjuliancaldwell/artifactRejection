@@ -166,7 +166,7 @@ for trial = 1:size(rawSig,3)
                 threshSig = pctl(absZSig,75); % 97.5 for DBS, was 80, try 75 for TOJ % was 65 6-25-2018
                 threshDiff = pctl(absZDiffSig,75); % 97.5 for DBS, was 80, try 75 for TOJ % was 6-25-2018
                 
-                    threshSig = pctl(absZSig,threshVoltageCut); % 97.5 for DBS, was 80, try 75 for TOJ % was 65 6-25-2018
+                threshSig = pctl(absZSig,threshVoltageCut); % 97.5 for DBS, was 80, try 75 for TOJ % was 65 6-25-2018
                 threshDiff = pctl(absZDiffSig,threshDiffCut); % 97.5 for DBS, was 80, try 75 for TOJ % was 6-25-2018
                 
                 
@@ -217,25 +217,53 @@ for trial = 1:size(rawSig,3)
         end
         
         if plotIt
+            %%
+            tDiff = 1e3*(0:length(diffSig(:,chanInt,trial))-1)/fs;
+            tRaw = 1e3*(0:length(rawSig(:,chanInt,trial))-1)/fs;
             figure
-            plot(abs(zscore(diffSig(:,chanInt,trial))))
-            vline(startInds{trial}{chanInt})
-            vline(endInds{trial}{chanInt},'g')
+            p1 =   subplot(2,1,2);
+            plot(tDiff,abs(zscore(diffSig(:,chanInt,trial))),'linewidth',2,'color','k');
+            h1 = vline(1e3*startInds{trial}{chanInt}/fs);
+            h2 = vline(1e3*endInds{trial}{chanInt}/fs,'b:');
+            ylabel('Voltage (mV)')
+            xlabel('Time (ms)')
+            title('Absolute Value Z-Scored Differentiated Smoothed Signal')
+            set(gca,'fontsize',18)
+            legend([h1(1) h2(1)],{'beginning','end'});
+            
+            p2 =   subplot(2,1,2);
+            plot(tRaw,abs(zscore(rawSig(:,chanInt,trial))),'linewidth',2,'color','k');
+            vline(1e3*startInds{trial}{chanInt}/fs)
+            vline(1e3*endInds{trial}{chanInt}/fs,'b:')
+            ylabel('Voltage (mV)')
+            xlabel('Time (ms)')
+            title('Absolute Value Z-Scored Raw Signal')
+            set(gca,'fontsize',18)
+            
+            linkaxes([p1 p2],'xy')
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             
             figure
-            plot(abs(zscore(rawSig(:,chanInt,trial))))
-            vline(startInds{trial}{chanInt})
-            vline(endInds{trial}{chanInt},'g')
+            p3=    subplot(2,1,2);
+            plot(tDiff,diffSig(:,chanInt,trial),'linewidth',2,'color','k');
+            h1 = vline(1e3*startInds{trial}{chanInt}/fs);
+            h2 = vline(1e3*endInds{trial}{chanInt}/fs,'b:');
+            ylabel('Voltage (mV)')
+            xlabel('Time (ms)')
+            title('Differentiated Smoothed Signal')
+            set(gca,'fontsize',18)
+            legend([h1(1) h2(1)],{'beginning','end'});
             
-            figure
-            plot(diffSig(:,chanInt,trial))
-            vline(startInds{trial}{chanInt})
-            vline(endInds{trial}{chanInt},'g')
+            p4 =   subplot(2,1,1);
+            plot(tRaw,rawSig(:,chanInt,trial),'linewidth',2,'color','k');
+            vline(1e3*startInds{trial}{chanInt}/fs)
+            vline(1e3*endInds{trial}{chanInt}/fs,'b:')
+            ylabel('Voltage (mV)')
+            xlabel('Time (ms)')
+            title('Raw Signal')
+            set(gca,'fontsize',18)
+            linkaxes([p3 p4],'xy')
             
-            figure
-            plot(rawSig(:,chanInt,trial))
-            vline(startInds{trial}{chanInt})
-            vline(endInds{trial}{chanInt},'g')
         end
         
         

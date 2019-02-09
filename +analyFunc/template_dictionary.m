@@ -125,6 +125,8 @@ for chan = goodVec
     % this way there is less clustering around non-discriminative data
     % points.
     templateArrayShortened = templateArray(maxLocation+bracketRange,:);
+    [~,maxSub] = max(templateArrayShortened,[],1);
+    maxSub = round(median(maxSub));
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     % data is in "templateArrayShorted". We will initiate a new HDBSCAN instance
@@ -136,10 +138,10 @@ for chan = goodVec
     
     try
         % (1) directly set the parameters
-        clusterer.minpts = 2;
+        clusterer.minpts = 5;
         clusterer.minclustsize = 3;
-        clusterer.outlierThresh = 0.90;
-        
+        % clusterer.outlierThresh = 0.90;
+        clusterer.outlierThresh = 0.95;
         clusterer.metric = distanceMetricDbscan;
         clusterer.fit_model(); 			% trains a cluster hierarchy
     catch
@@ -147,6 +149,7 @@ for chan = goodVec
         clusterer.minpts = 3;
         clusterer.minclustsize = 3;
         clusterer.outlierThresh = 0.90;
+        clusterer.outlierThresh = 0.95;
         
         clusterer.metric = distanceMetricDbscan;
         clusterer.fit_model(); 			% trains a cluster hierarchy
@@ -170,28 +173,32 @@ for chan = goodVec
     end
     
     if plotIt && chan == 28
-        CT = cbrewerHelper.cbrewer('qual', 'Dark2', 8);
+        %%
+        CT = cbrewerHelper.cbrewer('qual', 'Dark2', length(unique(clusterer.labels)));
         
-        repeats = max( 1,ceil( max( clusterer.labels )/8 ) );
-        colors = [CT(1,:);repmat( CT(2:end,:),repeats,1 )];
-        
+        % repeats = max( 1,ceil( max( clusterer.labels )/8 ) );
+        %  colors = [CT(1,:);repmat( CT(2:end,:),repeats,1 )];
+        colors = CT;
         figure
-        h = scatter(1e3*clusterer.data(:,maxLocation),1e3*clusterer.data(:,maxLocation-1),'.');
+        h = scatter(1e3*clusterer.data(:,maxSub),1e3*clusterer.data(:,maxSub-1),'.');
         ylabel('time point 1 : voltage (mV)')
         xlabel('time point 2 : voltage (mV)')
         set( h.Parent,'tickdir','out','box','off' );
-        h.CData = clusterer.labels;
+        
+        tempLabels = clusterer.labels;
+        tempLabels(tempLabels == 0) = max(unique(tempLabels))+1;
+        h.CData = tempLabels;
         colormap(colors);
         
         set(gca,'fontsize',18)
         
         figure
         subplot(2,1,1)
-        h = scatter(1e3*clusterer.data(:,maxLocation),1e3*clusterer.data(:,maxLocation-1),'.');
+        h = scatter(1e3*clusterer.data(:,maxSub),1e3*clusterer.data(:,maxSub-1),'.');
         ylabel('time point 1 : voltage (mV)')
         xlabel('time point 2 : voltage (mV)')
         set( h.Parent,'tickdir','out','box','off' );
-        h.CData = clusterer.labels;
+        h.CData = tempLabels;
         colormap(colors);
         
         set(gca,'fontsize',18)
@@ -257,14 +264,12 @@ for trial = 1:size(rawSig,3)
         templates = templateArrayCellOutput{chan};
         
         % add on the trial one
-        templates = [templates mean(templateTrial{chan}{trial},2)];
-        
+        %  templates = [templates mean(templateTrial{chan}{trial},2)];
+        templates = templates;
         % ensure no subtraction of exponential
         if recoverExp
             templates = analyFunc.recover_EP(templates,fs,'threshDiffCut',expThreshDiffCut,'threshVoltageCut',expThreshVoltageCut);
         end
-        
-        
         
         for sts = 1:length(startInds{trial}{chan})
             win = startInds{trial}{chan}(sts):endInds{trial}{chan}(sts);
@@ -454,10 +459,8 @@ if plotIt && chan == 28
     figure
     
     CT = cbrewerHelper.cbrewer('qual', 'Dark2', 8);
-    
     repeats = max( 1,ceil( max( clusterer.labels )/8 ) );
     colors = [CT(1,:);repmat( CT(2:end,:),repeats,1 )];
-    
     
     for ii = 1:numIndices
         colorInt = colors(templatesChoiceTimeSeries(ii),:);
@@ -485,7 +488,6 @@ if plotIt && chan == 28
     numIndicesISC = 100;
     indicesISC = randi(size(templateArrayShortened,2),numIndicesISC,1);
     templateArrayInt = templateArrayShortened(:,indicesISC);
-    
     
     figure
     imagesc(1e3*templateArrayInt')
