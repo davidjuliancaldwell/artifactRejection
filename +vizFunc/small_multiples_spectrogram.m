@@ -40,8 +40,8 @@ totalFig.Position = [   10.4097    3.4722   13.2708   10.4514];
 p = numSubplots(size(signal,3));
 %min_c = squeeze(min(min(min(signal))));
 %max_c = squeeze(max(max(max(signal))));
-minC = -6;
-maxC = 6;
+minC = -3;
+maxC = 3;
 %cmap=flipud(cbrewer('div', 'RdBu', 13));
 load('america');
 cmap = cm;
@@ -53,16 +53,16 @@ for idx=1:size(signal,3)
     smplot(p(1),p(2),idx,'axis','on')
     
     if ismember(idx,type1)
-        surf(1e3*t,f,zeros(size(signal(:,:,idx))),'edgecolor','none');
+        surf(1e3*t,f,zeros(size(signal(:,:,idx))),'edgecolor','k');
         title([num2str(idx)],'Color',CT(3,:))
         
     elseif ismember(idx,type2)
-        surf(1e3*t,f,signal(:,:,idx),'edgecolor','none');
+        surf(1e3*t,f,signal(:,:,idx),'edgecolor','k');
         title([num2str(idx)],'Color',CT(2,:))
     else
-        surf(1e3*t,f,signal(:,:,idx),'edgecolor','none');
+        surf(1e3*t,f,signal(:,:,idx),'edgecolor','k');
         
-        title([num2str(idx)],'color',CT(1,:))
+        title([num2str(idx)],'color','k')
     end
     view(0,90);
     axis tight;
@@ -74,7 +74,7 @@ for idx=1:size(signal,3)
     axis tight
     hold on
     plot3([0,0],[0 300],[1000,1000],'k','linewidth',2)
-    ylim([1 200])
+    ylim([1 300])
     xlim(xlimits)
     
     %  vline(0,'k')

@@ -55,7 +55,7 @@ addRequired(p,'rawSig',validData);
 addParameter(p,'type','linear',@isstr);
 
 addParameter(p,'xlims',[-100 1000],@isnumeric);
-addParameter(p,'ylims',[-500 500],@isnumeric);
+addParameter(p,'ylims',[-6 6],@isnumeric);
 addParameter(p,'trainDuration',[0 400],@isnumeric);
 addParameter(p,'tEpoch',0.2,@isnumeric);
 addParameter(p,'stimChans',[],@isnumeric);
@@ -101,12 +101,12 @@ if (strcmp(type,'dictionary') || strcmp(type,'trial') || strcmp(type,'average'))
             for i = 1:size(templateTrial{j},2)
                 timeVec = 1e3*[0:size(templateTrial{j}{:,i},1)-1]/fs;
                 
-                vizFunc.plot_error(timeVec,templateTrial{j}{:,i},'CI',rand(1,3));
+                vizFunc.plot_error(timeVec,1e3*templateTrial{j}{:,i},'CI',rand(1,3));
             end
             title(['Channel ' num2str(j)])
         end
-        xlabel('time (ms')
-        ylabel('Voltage (V)')
+        xlabel('Time (ms')
+        ylabel('Voltage (mV)')
     end
     
     % plot the average template dictionary if using a dictionary method
@@ -120,12 +120,12 @@ if (strcmp(type,'dictionary') || strcmp(type,'trial') || strcmp(type,'average'))
             for i = 1:size(templateDictCell{j},2)
                 timeVec = 1e3*[0:size(templateDictCell{j},1)-1]/fs;
                 
-                plot(timeVec,templateDictCell{j}(:,i),'linewidth',2);
+                plot(timeVec,1e3*templateDictCell{j}(:,i),'linewidth',2);
             end
             title(['Channel ' num2str(j)])
         end
-        xlabel('time (ms')
-        ylabel('Voltage (V)')
+        xlabel('Time (ms')
+        ylabel('Voltage (mV)')
     end
 end
 
@@ -144,22 +144,22 @@ for ind = chanIntList
     
     figure
     ax1 = subplot(2,1,1);
-    plot(1e3*tEpoch,1e6*exampChan,'linewidth',2,'color',[0.5 0.5 0.5]);
+    plot(1e3*tEpoch,1e3*exampChan,'linewidth',2,'color',[204 85 0]/255);
     xlim(xlims)
     ylim(ylims)
     set(gca,'fontsize',18)
-    title(['Processed Signal - Channel ' num2str(ind)])
+    title(['Recovered Signal - Channel ' num2str(ind)])
     clear exampChan
     
     
     ax2 = subplot(2,1,2);
     exampChan = mean(squeeze(rawSig(:,ind,:)),2);
-    plot(1e3*tEpoch,1e6*exampChan,'linewidth',2,'color',[0.5 0.5 0.5]);
+    plot(1e3*tEpoch,1e3*exampChan,'linewidth',2,'color','k');
     xlim(xlims)
     ylim(ylims)
-    xlabel('time (ms)')
-    ylabel('Voltage (\muV)')
-    title(['Raw Signal Average - Channel ' num2str(ind)])
+    xlabel('Time (ms)')
+    ylabel('Voltage (mV)')
+    title(['Raw Signal - Channel ' num2str(ind)])
     set(gca,'fontsize',18)
     
     linkaxes([ax1,ax2],'xy')

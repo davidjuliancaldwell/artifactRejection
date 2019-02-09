@@ -21,7 +21,7 @@
 close all;clear all;clc
 %%
 % choose data file of interest
-dataChoice = 4;
+dataChoice = 1;
 
 switch dataChoice
     
@@ -201,9 +201,7 @@ elseif dataChoice == 2
     %post = 0.4096; % in ms
     
     pre = 0.8; % started with 1
-    post = 0.6; % started with 0.2
-    % 2.8, 1, 0.5 was 3/19/2018
-    
+    post = 1; % started with 0.2
     % these are the metrics used if the dictionary method is selected. The
     % options are 'eucl', 'cosine', 'corr', for either euclidean distance,
     % cosine similarity, or correlation for clustering and template matching.
@@ -311,10 +309,10 @@ vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fsData,'type',type,'tE
 %
 average = 1;
 %chanIntList = 3;
-trainDuration = [];
+trainDuration = [0 400];
 modePlot = 'avg';
 xlims = [-200 1000];
-ylims = [-600 600];
+ylims = [-6 6];
 vizFunc.small_multiples_time_series(processedSig,tEpoch,'type1',stimChans,'type2',0,'xlims',xlims,'ylims',ylims,'modePlot',modePlot,'highlightRange',trainDuration)
 
 % %%
@@ -450,4 +448,7 @@ for chanInt = chanIntList
     vizFunc.visualize_wavelet_channel(normalizedData,tMorlet,fMorlet,processedSig,...
         tEpoch,dataInt,chanInt,individual,average)
 end
+
+vizFunc.small_multiples_spectrogram(normalizedData,tMorlet,fMorlet,'type1',stimChans,'type2',0,'xlims',xlims);
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -108,9 +108,12 @@ expThreshDiffCut = p.Results.expThreshDiffCut;
 %%
 templateArrayCellOutput = {};
 processedSig = zeros(size(rawSig));
+templateSubtractCell = {};
+templateListVec = {};
 
 fprintf(['-------Dictionary-------- \n'])
 
+plotIt = 1;
 
 for chan = goodVec
     templateArray = templateArrayCell{chan};
@@ -118,27 +121,41 @@ for chan = goodVec
     % extract max amplitude for a given channel
     maxAmpsChan = max(maxAmps(chan,:));
     
+    % shorten data to be centered around the peak +/- the bracketRange. In
+    % this way there is less clustering around non-discriminative data
+    % points.
     templateArrayShortened = templateArray(maxLocation+bracketRange,:);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    % Assume our data is in the n x m matrix "X". We will initiate a new HDBSCAN instance
+    % data is in "templateArrayShorted". We will initiate a new HDBSCAN instance
     clusterer = HDBSCAN.HDBSCAN( templateArrayShortened');
     
     % we can view our data matrix size
     fprintf( 'Number of points: %i\n',clusterer.nPoints );
     fprintf( 'Number of dimensions: %i\n',clusterer.nDims );
     
-    % (1) directly set the parameters
-    clusterer.minpts = 2;
-    clusterer.minclustsize = 3;
-    clusterer.outlierThresh = 0.90;
-    clusterer.metric = distanceMetricDbscan;
-    clusterer.fit_model(); 			% trains a cluster hierarchy
+    try
+        % (1) directly set the parameters
+        clusterer.minpts = 2;
+        clusterer.minclustsize = 3;
+        clusterer.outlierThresh = 0.90;
+        
+        clusterer.metric = distanceMetricDbscan;
+        clusterer.fit_model(); 			% trains a cluster hierarchy
+    catch
+        % (1) directly set the parameters
+        clusterer.minpts = 3;
+        clusterer.minclustsize = 3;
+        clusterer.outlierThresh = 0.90;
+        
+        clusterer.metric = distanceMetricDbscan;
+        clusterer.fit_model(); 			% trains a cluster hierarchy
+    end
     clusterer.get_best_clusters(); 	% finds the optimal "flat" clustering scheme
     clusterer.get_membership();		% assigns cluster labels to the points in X
     
     % (2) call run_hdbscan() with optional inputs. This is the prefered/easier method
-    %clusterer.run_hdbscan( 10,20,[],0.85 );
+    %  clusterer.run_hdbscan( 10,20,[],0.85 );
     
     % Let's visualize the condensed cluster tree (the tree without spurious clusters)
     
@@ -152,16 +169,27 @@ for chan = goodVec
         end
     end
     
-    plotIt = 1;
     if plotIt && chan == 28
-        CT = cbrewerHelper.cbrewer('qual', 'Pastel1', 8);
+        CT = cbrewerHelper.cbrewer('qual', 'Dark2', 8);
         
         repeats = max( 1,ceil( max( clusterer.labels )/8 ) );
         colors = [CT(1,:);repmat( CT(2:end,:),repeats,1 )];
         
         figure
+        h = scatter(1e3*clusterer.data(:,maxLocation),1e3*clusterer.data(:,maxLocation-1),'.');
+        ylabel('time point 1 : voltage (mV)')
+        xlabel('time point 2 : voltage (mV)')
+        set( h.Parent,'tickdir','out','box','off' );
+        h.CData = clusterer.labels;
+        colormap(colors);
+        
+        set(gca,'fontsize',18)
+        
+        figure
         subplot(2,1,1)
-        h = scatter(clusterer.data(:,6),clusterer.data(:,7),'.');
+        h = scatter(1e3*clusterer.data(:,maxLocation),1e3*clusterer.data(:,maxLocation-1),'.');
+        ylabel('time point 1 : voltage (mV)')
+        xlabel('time point 2 : voltage (mV)')
         set( h.Parent,'tickdir','out','box','off' );
         h.CData = clusterer.labels;
         colormap(colors);
@@ -172,42 +200,36 @@ for chan = goodVec
         labelsInt = unique(clusterer.labels);
         labelsInt = labelsInt(labelsInt~=0);
         t = 1e3*[0:size(templateArrayShortened,1)-1]/fs;
-        plot(t,templateArrayShortened,'color',[0.5 0.5 0.5])
+        plot(t,1e3*templateArrayShortened,'color',[0.5 0.5 0.5])
         hold on
-        h2 = plot(t,templateArrayExtracted(maxLocation+bracketRange,:),'linewidth',2);
+        h2 = plot(t,1e3*templateArrayExtracted(maxLocation+bracketRange,:),'linewidth',2);
         set(h2, {'color'}, num2cell(colors(labelsInt,:),2));
         
         colormap( colors );
         
-        ylabel('voltage (V)')
-        xlabel('time (ms)')
+        ylabel('Voltage (mV)')
+        xlabel('Time (ms)')
         set(gca,'fontsize',18)
-        title('Dictionary of templates from raw traces')
+        title('Dictionary of Templates from Raw Traces')
         
         index = 1;
         for labelsIndiv = labelsInt'
             figure
             t = 1e3*[0:size(templateArrayShortened,1)-1]/fs;
-            plot(t,templateArrayShortened(:,clusterer.labels==labelsIndiv),'color',[0.5 0.5 0.5])
+            plot(t,1e3*templateArrayShortened(:,clusterer.labels==labelsIndiv),'color',[0.5 0.5 0.5])
             hold on
-            h2 = plot(t,templateArrayExtracted(maxLocation+bracketRange,index),'linewidth',2);
+            h2 = plot(t,1e3*templateArrayExtracted(maxLocation+bracketRange,index),'linewidth',2);
             set(h2, {'color'}, num2cell(colors(labelsIndiv,:),2));
-            ylabel('voltage (V)')
-            xlabel('time (ms)')
+            ylabel('Voltage (mV)')
+            xlabel('Time (ms)')
             set(gca,'fontsize',18)
-            title('Dictionary of templates from raw traces')
+            title('Dictionary of Templates from Raw Traces')
             index = index + 1;
         end
         
-        figure
-        for ii = 1:32
-            vizFunc.smplot(32,1,ii,'axis','off')
-            plot(t,templateArrayShortened(:,randi([1,size(templateArrayShortened,2)])),'color',[0.5 0.5 0.5],'linewidth',2)
-            set(gca,'XTick',[], 'YTick', [],'YLabel',[], 'Xlabel',[],'Visible','off')
-            
-        end
+        templateListVec{chan} = templateArrayShortened;
+        
     end
-    
     
     % assign templates to channel
     templateArrayCellOutput{chan} = templateArrayExtracted;
@@ -297,50 +319,110 @@ for trial = 1:size(rawSig,3)
                     [~,index] = min(dtwMat);
             end
             
-            templateSubtract = templatesSts(:,index);          
+            templateSubtract = templatesSts(:,index);
+            % which template won out
+            if isempty(templateSubtractCell{chan}
+                templateSubtractCell{chan} = index;
+            else
+                templateSubtractCell{chan} = [templateSubtractCell{chan}; index];
+            end
             rawSigTemp(win) = rawSigTemp(win) - templateSubtract;
-                 
+            
             if plotIt
                 if 1 && chan == 28 && (sts == 1 || sts == 2 || sts == 10)
                     figure
                     t = [0:length(extractedSig)-1]/fs;
                     
-                    plot(1e3*t,extractedSig,'linewidth',2,'color',[0.5 0.5 0.5])
+                    plot(1e3*t,1e3*extractedSig,'linewidth',2,'color','k')
                     hold on
-                    plot(1e3*t,templateSubtract,'linewidth',2,'color','k')
-                    plot(1e3*t,extractedSig-templateSubtract,'linewidth',2,'color','r')
-                    legend('raw signal','template selected','processed signal');
+                    plot(1e3*t,1e3*templateSubtract,'linewidth',2,'color',[0.5 0.5 0.5])
+                    plot(1e3*t,1e3*extractedSig-templateSubtract,'linewidth',2,'color',[204 85 0]/255)
+                    legend('Raw Signal','Template Selected','Recovered Signal');
                     set(gca,'fontsize',18)
-                    title('Raw signal, template, and recovered signal')
-                    ylabel('Voltage (V)')
+                    title('Raw signal, Template, and Recovered signal')
+                    ylabel('Voltage (mV)')
                     xlabel('Time (ms)')
                 end
             end
         end
-                
+        
         if plotIt && (trial == 10 || trial == 15 || trial == 20) && chan == 28
             figure
             t = [0:length(rawSigTemp)-1]/fs;
-            plot(1e3*t',1e6*rawSigTemp,'linewidth',2,'color','r')
+            plot(1e3*t',1e3*rawSigTemp,'linewidth',2,'color',[204 85 0]/255)
             hold on
-            plot(1e3*t,1e6*rawSig(:,chan,trial),'linewidth',2,'color','k')
+            plot(1e3*t,1e3*rawSig(:,chan,trial),'linewidth',2,'color','k')
             for indexPlot = 1:length(startInds{trial}{chan})
-                tempBox = vizFunc.highlight(gca, [1e3*startInds{trial}{chan}(indexPlot)/fs 1e3*endInds{trial}{chan}(indexPlot)/fs], [1e6*min(rawSig(:,chan,trial)) 1e6*max(rawSig(:,chan,trial))], [.5 .5 .5]);
+                tempBox = vizFunc.highlight(gca, [1e3*startInds{trial}{chan}(indexPlot)/fs 1e3*endInds{trial}{chan}(indexPlot)/fs], [1e3*min(rawSig(:,chan,trial))-10 1e3*max(rawSig(:,chan,trial))+10], [.5 .5 .5]);
             end
             
-            legend({'processed signal','raw signal','artifact window'})
+            legend({'Recovered Signal','Raw Signal','Artifact Windows'})
             set(gca,'fontsize',18)
-            title('Raw vs. Processed Sig')
+            title('Raw vs. Recovered Sig')
             xlabel('Time (ms)')
-            ylabel('Voltage (\muV)')
-            
-            
+            ylabel('Voltage (mV)')
         end
         
         processedSig(:,chan,trial) = rawSigTemp;
         fprintf(['-------Template Processed - Channel ' num2str(chan) '--' 'Trial ' num2str(trial) '-----\n'])
     end
     
+end
+
+% plot trials belong to particular clusters
+
+if plotIt && chan == 28
+    
+    templateArrayShortened = templateListVec{chan};
+    t = 1e3*[0:size(templateArrayShortened,1)-1]/fs;
+    figure
+    numIndices = 50;
+    indices = randi(size(templateArrayShortened,2),numIndices,1);
+    for ii = 1:numIndices
+        vizFunc.smplot(32,1,ii,'axis','off')
+        plot(t,templateArrayShortened(:,indices(ii)),'color','k','linewidth',2)
+        set(gca,'XTick',[], 'YTick', [],'YLabel',[], 'Xlabel',[],'Visible','off')
+    end
+    
+    obj = vizFunc.scalebar;
+    obj.XLen = 200;              %X-Length, 10.
+    obj.XUnit = 'ms';            %X-Unit, 'm'.
+    obj.YLen = 3;
+    obj.YUnit = 'mV';
+    
+    obj.Position = [20,-130];
+    obj.hTextX_Pos = [5,-50]; %move only the LABEL position
+    obj.hTextY_Pos =  [-45,-40];
+    obj.hLineY(2).LineWidth = 5;
+    obj.hLineY(1).LineWidth = 5;
+    obj.hLineX(2).LineWidth = 5;
+    obj.hLineX(1).LineWidth = 5;
+    obj.Border = 'LL';          %'LL'(default), 'LR', 'UL', 'UR'
+    
+    CTdiv = cbrewerHelper.cbrewer('div', 'BrBG', 50);
+    numIndicesISC = 100;
+    indicesISC = randi(size(templateArrayShortened,2),numIndicesISC,1);
+    figure
+    imagesc(1e3*templateArrayShortened(:,indicesISC)')
+    xlabel('Time (ms)')
+    ylabel('Trial #')
+    set(gca,'fontsize',18)
+    colormap(CTdiv)
+    caxis([-max(abs(1e3*templateArrayShortened(:))) max(abs(1e3*templateArrayShortened(:)))])
+    c = colorbar();
+    c.Label.String = 'Voltage (mV)';
+    
+    
+    templates = templateArrayCellOutput{chan};
+    figure
+    imagesc(1e3*templateArrayShortened(:,indicesISC)')
+    xlabel('Time (ms)')
+    ylabel('Trial #')
+    set(gca,'fontsize',18)
+    colormap(CTdiv)
+    caxis([-max(abs(1e3*templateArrayShortened(:))) max(abs(1e3*templateArrayShortened(:)))])
+    c = colorbar();
+    c.Label.String = 'Voltage (mV)';
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

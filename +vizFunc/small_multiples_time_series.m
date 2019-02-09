@@ -66,10 +66,10 @@ for idx=1:size(signal,2)
                 plot(1e3*t,nullSig,'Color',CT(3,:),'LineWidth',2)
                 title([num2str(idx)],'Color',CT(3,:))
             elseif ismember(idx,type2)
-                plot(1e3*t,1e6*signal(:,idx),'Color',CT(2,:),'LineWidth',2)
+                plot(1e3*t,1e3*signal(:,idx),'Color',CT(2,:),'LineWidth',2)
                 title([num2str(idx)],'Color',CT(2,:))
             else
-                plot(1e3*t,1e6*signal(:,idx),'Color',CT(1,:),'LineWidth',2)
+                plot(1e3*t,1e3*signal(:,idx),'Color',CT(1,:),'LineWidth',2)
                 title([num2str(idx)],'color',CT(1,:))
             end
             
@@ -78,10 +78,10 @@ for idx=1:size(signal,2)
                 plot(1e3*t,nullSig,'Color',CT(3,:),'LineWidth',2)
                 title([num2str(idx)],'Color',CT(3,:))
             elseif ismember(idx,type2)
-                plot(1e3*t,1e6*squeeze(signal(:,idx)),'Color',CT(2,:),'LineWidth',2)
+                plot(1e3*t,1e3*squeeze(signal(:,idx)),'Color',CT(2,:),'LineWidth',2)
                 title([num2str(idx)],'Color',CT(2,:))
             else
-                plot(1e3*t,1e6*squeeze(signal(:,idx)),'Color',CT(1,:),'LineWidth',2)
+                plot(1e3*t,1e3*squeeze(signal(:,idx)),'Color',CT(1,:),'LineWidth',2)
                 title([num2str(idx)],'color',CT(1,:))
             end
             
@@ -90,10 +90,10 @@ for idx=1:size(signal,2)
                 plot(1e3*t,nullSig,'Color',CT(3,:),'LineWidth',2)
                 title([num2str(idx)],'Color',CT(3,:))
             elseif ismember(idx,type2)
-                vizFunc.plot_error(1e3*t',1e6*squeeze(signal(:,idx,:)),'CI',CT(2,:));
+                vizFunc.plot_error(1e3*t',1e3*squeeze(signal(:,idx,:)),'CI',CT(2,:));
                 title([num2str(idx)],'Color',CT(2,:))
             else
-                vizFunc.plot_error(1e3*t'',1e6*squeeze(signal(:,idx,:)),'CI',CT(1,:));
+                vizFunc.plot_error(1e3*t'',1e3*squeeze(signal(:,idx,:)),'CI',CT(1,:));
                 title([num2str(idx)],'color',CT(1,:))
             end
     end
@@ -118,8 +118,8 @@ end
 obj = vizFunc.scalebar;
 obj.XLen = 200;              %X-Length, 10.
 obj.XUnit = 'ms';            %X-Unit, 'm'.
-obj.YLen = 300;
-obj.YUnit = '\muV';
+obj.YLen = 3;
+obj.YUnit = 'mV';
 
 obj.Position = [20,-130];
 obj.hTextX_Pos = [5,-50]; %move only the LABEL position

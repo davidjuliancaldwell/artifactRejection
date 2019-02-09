@@ -11,7 +11,7 @@ if individual
         totalFig = figure;
         totalFig.Units = 'inches';
         totalFig.Position = [12.1806 3.4931 6.0833 7.8056];
-        subplot(3,1,1);
+        subplot(3,1,3);
         s = surf(1e3*tMorlet,fMorlet,powerout(:,:,chanInt,i),'edgecolor','none');
         xlimsVec = [-200 1000];
         ylimsVec = [1 300];
@@ -39,31 +39,31 @@ if individual
         
         view(0,90);
         axis tight;
-        xlabel('time (ms)');
-        ylabel('frequency (Hz)');
-        title(['Wavelet decomposition Channel ' num2str(chanInt) ' Trial ' num2str(i)]);
+        xlabel('Time (ms)');
+        ylabel('Frequency (Hz)');
+        title(['Wavelet Decomposition Channel ' num2str(chanInt) ' Trial ' num2str(i)]);
         xlim(xlimsVec);
         ylim(ylimsVec);
         set(gca,'fontsize',14)
         colormap(CT);
-        vizFunc.set_colormap_threshold(gcf, [-0.5 0.5], [-6 6], [1 1 1])
-
+        vizFunc.set_colormap_threshold(gcf, [-0.5 0.5], [-3 3], [1 1 1])
+        
         h1 = subplot(3,1,2);
-        plot(1e3*tEpoch,1e6*processedSig(:,chanInt,i))
-        xlabel('time (ms)');
-        ylabel('microvolts')
-        title(['Processed Channel ' num2str(chanInt) ' Trial ' num2str(i)]);
-        ylims = [-(max(abs(1e6*processedSig(:,chanInt,i))) + 10) (max(abs(1e6*processedSig(:,chanInt,i))) + 10)];
+        plot(1e3*tEpoch,1e3*processedSig(:,chanInt,i),'color',[204 85 0]/255)
+        xlabel('Time (ms)');
+        ylabel('Voltage (mV)')
+        title(['Recovered Signal Channel ' num2str(chanInt) ' Trial ' num2str(i)]);
+        ylims = [-(max(abs(1e3*processedSig(:,chanInt,i))) + 10) (max(abs(1e3*processedSig(:,chanInt,i))) + 10)];
         ylim(ylims);
         ylim_h1 = ylims;
         xlim([-200 1000]);
         set(gca,'fontsize',14)
         
-        h2 = subplot(3,1,3);
-        plot(1e3*tEpoch,1e6*dataInt(:,chanInt,i))
-        xlabel('time (ms)');
-        ylabel('microvolts')
-        title(['Raw Channel ' num2str(chanInt) ' Trial ' num2str(i)]);
+        h2 = subplot(3,1,1);
+        plot(1e3*tEpoch,1e3*dataInt(:,chanInt,i),'color','k')
+        xlabel('Time (ms)');
+        ylabel('Voltage (mV)')
+        title(['Raw Signal Channel ' num2str(chanInt) ' Trial ' num2str(i)]);
         ylim(ylim_h1);
         xlim([-200 1000]);
         set(gca,'fontsize',14);
@@ -81,7 +81,7 @@ if average
     totalFig2 = figure;
     totalFig2.Units = 'inches';
     totalFig2.Position = [12.1806 3.4931 6.0833 7.8056];
-    subplot(3,1,1);
+    subplot(3,1,3);
     s = surf(1e3*tMorlet,fMorlet,poweroutAvg,'edgecolor','none');
     hold on
     xlimsVec = [-200 1000];
@@ -116,33 +116,33 @@ if average
     view(0,90);
     
     axis tight;
-    xlabel('time (ms)');
-    ylabel('frequency (Hz)');
-    title(['Wavelet decomposition Channel ' num2str(chanInt)]);
+    xlabel('Time (ms)');
+    ylabel('Frequency (Hz)');
+    title(['Wavelet Decomposition Channel ' num2str(chanInt)]);
     xlim(xlimsVec);
     ylim(ylimsVec);
     set(gca,'fontsize',14)
     colormap(CT);
-    vizFunc.set_colormap_threshold(gcf, [-0.5 0.5 ], [-6 6], [1 1 1])
+    vizFunc.set_colormap_threshold(gcf, [-0.5 0.5 ], [-3 3], [1 1 1])
     colorbar();
-
+    
     h3 = subplot(3,1,2);
-    plot(1e3*tEpoch,1e6*nanmean(squeeze(processedSig(:,chanInt,:)),2),'color',[0.5 0.5 0.5])
-    xlabel('time (ms)');
-    ylabel('microvolts')
-    title(['Processed Channel ' ]);
-    ylims = [-(max(abs(1e6*nanmean(squeeze(processedSig(:,chanInt,:)),2))) + 10) (max(abs(1e6*nanmean(squeeze(processedSig(:,chanInt,:)),2))) + 10)];
+    plot(1e3*tEpoch,1e3*nanmean(squeeze(processedSig(:,chanInt,:)),2),'color',[204 85 0]/255)
+    xlabel('Time (ms)');
+    ylabel('Voltage (mV)')
+    title(['Recovered Signal Channel ' ]);
+    ylims = [-(max(abs(1e3*nanmean(squeeze(processedSig(:,chanInt,:)),2))) + 10) (max(abs(1e3*nanmean(squeeze(processedSig(:,chanInt,:)),2))) + 10)];
     ylim(ylims);
     ylim_h1 = ylims;
     xlim([-200 1000]);
     
     set(gca,'fontsize',14)
     
-    h4 = subplot(3,1,3);
-    plot(1e3*tEpoch,1e6*nanmean(squeeze(dataInt(:,chanInt,:)),2),'color',[0.5 0.5 0.5])
-    xlabel('time (ms)');
-    ylabel('microvolts')
-    title(['Raw Channel ' num2str(chanInt)]);
+    h4 = subplot(3,1,1);
+    plot(1e3*tEpoch,1e3*nanmean(squeeze(dataInt(:,chanInt,:)),2),'color','k')
+    xlabel('Time (ms)');
+    ylabel('Voltage (mV)')
+    title(['Recovered Signal Channel ' num2str(chanInt)]);
     ylim(ylim_h1);
     xlim([-200 1000]);
     set(gca,'fontsize',14);
