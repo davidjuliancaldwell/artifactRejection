@@ -116,6 +116,8 @@ fprintf(['-------Dictionary-------- \n'])
 plotIt = 1;
 
 for chan = goodVec
+    fprintf(['-------Artifact Channel ' num2str(chan) ' -------- \n'])
+    
     templateArray = templateArrayCell{chan};
     
     % extract max amplitude for a given channel
@@ -138,10 +140,9 @@ for chan = goodVec
     
     try
         % (1) directly set the parameters
-        clusterer.minpts = 5;
+        clusterer.minpts = 2;
         clusterer.minclustsize = 3;
-        % clusterer.outlierThresh = 0.90;
-        clusterer.outlierThresh = 0.95;
+        clusterer.outlierThresh = 0.90;
         clusterer.metric = distanceMetricDbscan;
         clusterer.fit_model(); 			% trains a cluster hierarchy
     catch
@@ -149,8 +150,6 @@ for chan = goodVec
         clusterer.minpts = 3;
         clusterer.minclustsize = 3;
         clusterer.outlierThresh = 0.90;
-        clusterer.outlierThresh = 0.95;
-        
         clusterer.metric = distanceMetricDbscan;
         clusterer.fit_model(); 			% trains a cluster hierarchy
     end
@@ -172,12 +171,13 @@ for chan = goodVec
         end
     end
     
-    if plotIt && chan == 28
+ %   if plotIt
+   if plotIt && chan == 28
         %%
         CT = cbrewerHelper.cbrewer('qual', 'Dark2', length(unique(clusterer.labels)));
         
-        % repeats = max( 1,ceil( max( clusterer.labels )/8 ) );
-        %  colors = [CT(1,:);repmat( CT(2:end,:),repeats,1 )];
+        repeats = max( 1,ceil( max( clusterer.labels )/8 ) );
+        colors = [CT(1,:);repmat( CT(2:end,:),repeats,1 )];
         colors = CT;
         figure
         h = scatter(1e3*clusterer.data(:,maxSub),1e3*clusterer.data(:,maxSub-1),'.');
@@ -240,7 +240,6 @@ for chan = goodVec
     
     % assign templates to channel
     templateArrayCellOutput{chan} = templateArrayExtracted;
-    fprintf(['-------Artifact Channel ' num2str(chan) ' -------- \n'])
     
 end
 
@@ -264,7 +263,7 @@ for trial = 1:size(rawSig,3)
         templates = templateArrayCellOutput{chan};
         
         % add on the trial one
-        %  templates = [templates mean(templateTrial{chan}{trial},2)];
+        templates = [templates mean(templateTrial{chan}{trial},2)];
         templates = templates;
         % ensure no subtraction of exponential
         if recoverExp
@@ -342,6 +341,10 @@ for trial = 1:size(rawSig,3)
             end
             
             firstLoopChan = 0;
+            
+            % scaling
+            scaling = max(abs(rawSigTemp(win)))/max(abs(templateSubtract));
+            templateSubtract = templateSubtract*scaling;
             
             rawSigTemp(win) = rawSigTemp(win) - templateSubtract;
             %

@@ -251,7 +251,7 @@ elseif dataChoice == 1
     threshDiffCut = 75;
     expThreshVoltageCut = 95;
     expThreshDiffCut = 95;
-    bracketRange = [-5:5];
+    bracketRange = [-8:8];
     
 else
     
