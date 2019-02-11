@@ -174,31 +174,29 @@ for chan = goodVec
  %   if plotIt
    if plotIt && chan == 28
         %%
-        CT = cbrewerHelper.cbrewer('qual', 'Dark2', length(unique(clusterer.labels)));
-        
-        repeats = max( 1,ceil( max( clusterer.labels )/8 ) );
-        colors = [CT(1,:);repmat( CT(2:end,:),repeats,1 )];
+        CT = cbrewerHelper.cbrewer('qual', 'Dark2', length(unique(tempLabels)));
         colors = CT;
         figure
-        h = scatter(1e3*clusterer.data(:,maxSub),1e3*clusterer.data(:,maxSub-1),'.');
+        h = scatter(1e3*clusterer.data(:,maxSub),1e3*clusterer.data(:,maxSub+1),'.');
         ylabel('time point 1 : voltage (mV)')
         xlabel('time point 2 : voltage (mV)')
         set( h.Parent,'tickdir','out','box','off' );
         
         tempLabels = clusterer.labels;
         tempLabels(tempLabels == 0) = max(unique(tempLabels))+1;
-        h.CData = tempLabels;
+        [C,ia,ic] = unique(tempLabels);
+        h.CData = ic;
         colormap(colors);
         
         set(gca,'fontsize',18)
         
         figure
         subplot(2,1,1)
-        h = scatter(1e3*clusterer.data(:,maxSub),1e3*clusterer.data(:,maxSub-1),'.');
+        h = scatter(1e3*clusterer.data(:,maxSub),1e3*clusterer.data(:,maxSub+1),'.');
         ylabel('time point 1 : voltage (mV)')
         xlabel('time point 2 : voltage (mV)')
         set( h.Parent,'tickdir','out','box','off' );
-        h.CData = tempLabels;
+        h.CData = ic;
         colormap(colors);
         
         set(gca,'fontsize',18)
@@ -206,11 +204,12 @@ for chan = goodVec
         subplot(2,1,2)
         labelsInt = unique(clusterer.labels);
         labelsInt = labelsInt(labelsInt~=0);
+        
         t = 1e3*[0:size(templateArrayShortened,1)-1]/fs;
-        plot(t,1e3*templateArrayShortened,'color',[0.5 0.5 0.5])
+        plot(t,1e3*templateArrayShortened,'color',[0.75 0.75 0.75])
         hold on
         h2 = plot(t,1e3*templateArrayExtracted(maxLocation+bracketRange,:),'linewidth',2);
-        set(h2, {'color'}, num2cell(colors(labelsInt,:),2));
+        set(h2, {'color'}, num2cell(colors(1:length(C)-1,:),2));
         
         colormap( colors );
         
@@ -220,10 +219,10 @@ for chan = goodVec
         title('Dictionary of Templates from Raw Traces')
         
         index = 1;
-        for labelsIndiv = labelsInt'
+        for labelsIndiv = 1:length(C)-1
             figure
             t = 1e3*[0:size(templateArrayShortened,1)-1]/fs;
-            plot(t,1e3*templateArrayShortened(:,clusterer.labels==labelsIndiv),'color',[0.5 0.5 0.5])
+            plot(t,1e3*templateArrayShortened(:,ic==labelsIndiv),'color',[0.75 0.75 0.75])
             hold on
             h2 = plot(t,1e3*templateArrayExtracted(maxLocation+bracketRange,index),'linewidth',2);
             set(h2, {'color'}, num2cell(colors(labelsIndiv,:),2));
