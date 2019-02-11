@@ -10,11 +10,14 @@ if individual
     for i = 1:size(powerout,4)
         totalFig = figure;
         totalFig.Units = 'inches';
-        totalFig.Position = [12.1806 3.4931 6.0833 7.8056];
+        totalFig.Position = [7.1667 1.8438 6.0833 7.8125];
         subplot(3,1,3);
         s = surf(1e3*tMorlet,fMorlet,powerout(:,:,chanInt,i),'edgecolor','none');
-        xlimsVec = [-200 1000];
-        ylimsVec = [1 300];
+        % Extract X,Y and Z data from surface plot
+        x=s.XData;
+        y=s.YData;
+        z=s.ZData;
+        
         %%Create vectors out of surface's XData and YData
         x=x(1,:);
         y=y(1,:);
@@ -80,12 +83,12 @@ if average
     
     totalFig2 = figure;
     totalFig2.Units = 'inches';
-    totalFig2.Position = [12.1806 3.4931 6.0833 7.8056];
+    totalFig2.Position = [7.1667 1.8438 6.0833 7.8125];
     subplot(3,1,3);
     s = surf(1e3*tMorlet,fMorlet,poweroutAvg,'edgecolor','none');
     hold on
     xlimsVec = [-200 1000];
-    ylimsVec = [1 300];
+    ylimsVec = [5 300];
     % Extract X,Y and Z data from surface plot
     x=s.XData;
     y=s.YData;

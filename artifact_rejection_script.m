@@ -40,7 +40,7 @@ switch dataChoice
         trainDuration = [0 800]; % this is how long the stimulation train was
         xlims = [-200 1000]; % these are the x limits to visualize in plots
         chanIntList = [4 12 21 28 19 18 36 44 43 30 33 41 34]; % these are the channels of interest to visualize in closer detail
-        chanIntList = 28;
+        chanIntList = [21 28];
         minDuration = 0.5; % minimum duration of artifact in ms
         % dataInt = 4*dataInt;
         
@@ -219,7 +219,7 @@ elseif dataChoice == 2
     expThreshVoltageCut = 95;
     expThreshDiffCut = 95;
     bracketRange = [-8:8];
-    
+
 elseif dataChoice == 1
     type = 'dictionary';
     
@@ -252,7 +252,8 @@ elseif dataChoice == 1
     expThreshVoltageCut = 95;
     expThreshDiffCut = 95;
     bracketRange = [-8:8];
-    
+            bracketRange = [-6:6];
+
 else
     
     type = 'dictionary';
@@ -444,7 +445,7 @@ for chanInt = chanIntList
     vizFunc.visualize_wavelet_channel(normalizedData,tMorlet,fMorlet,processedSig,...
         tEpoch,dataInt,chanInt,individual,average)
 end
-
-vizFunc.small_multiples_spectrogram(normalizedData,tMorlet,fMorlet,'type1',stimChans,'type2',0,'xlims',xlims);
+ylimsSpect = [5 300];
+vizFunc.small_multiples_spectrogram(normalizedData,tMorlet,fMorlet,'type1',stimChans,'type2',0,'xlims',xlims,'ylims',ylimsSpect);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

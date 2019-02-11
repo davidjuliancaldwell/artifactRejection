@@ -142,14 +142,14 @@ for chan = goodVec
         % (1) directly set the parameters
         clusterer.minpts = 2;
         clusterer.minclustsize = 3;
-        clusterer.outlierThresh = 0.90;
+        clusterer.outlierThresh = 0.95;
         clusterer.metric = distanceMetricDbscan;
         clusterer.fit_model(); 			% trains a cluster hierarchy
     catch
         % (1) directly set the parameters
         clusterer.minpts = 3;
         clusterer.minclustsize = 3;
-        clusterer.outlierThresh = 0.90;
+        clusterer.outlierThresh = 0.95;
         clusterer.metric = distanceMetricDbscan;
         clusterer.fit_model(); 			% trains a cluster hierarchy
     end
@@ -172,7 +172,7 @@ for chan = goodVec
     end
     
     %   if plotIt
-    if plotIt && chan == 28
+    if plotIt && chan == 21
         %%
         
         figure
@@ -350,25 +350,25 @@ for trial = 1:size(rawSig,3)
             
             rawSigTemp(win) = rawSigTemp(win) - templateSubtract;
             
-            %             if plotIt
-            %                 if 1 && chan == 28 && (sts == 1 || sts == 2 || sts == 10)
-            %                     figure
-            %                     t = [0:length(extractedSig)-1]/fs;
-            %
-            %                     plot(1e3*t,1e3*extractedSig,'linewidth',2,'color','k')
-            %                     hold on
-            %                     plot(1e3*t,1e3*templateSubtract,'linewidth',2,'color',[0.5 0.5 0.5])
-            %                     plot(1e3*t,1e3*extractedSig-1e3*templateSubtract,'linewidth',2,'color',[204 85 0]/255)
-            %                     legend('Raw Signal','Template Selected','Recovered Signal');
-            %                     set(gca,'fontsize',18)
-            %                     title('Raw Signal, Template, and Recovered Signal')
-            %                     ylabel('Voltage (mV)')
-            %                     xlabel('Time (ms)')
-            %                 end
-            %             end
+%                         if plotIt
+%                             if 1 && chan == 28 && (sts == 1 || sts == 2 || sts == 10)
+%                                 figure
+%                                 t = [0:length(extractedSig)-1]/fs;
+%             
+%                                 plot(1e3*t,1e3*extractedSig,'linewidth',2,'color','k')
+%                                 hold on
+%                                 plot(1e3*t,1e3*templateSubtract,'linewidth',2,'color',[0.5 0.5 0.5])
+%                                 plot(1e3*t,1e3*extractedSig-1e3*templateSubtract,'linewidth',2,'color',[204 85 0]/255)
+%                                 legend('Raw Signal','Template Selected','Recovered Signal');
+%                                 set(gca,'fontsize',18)
+%                                 title('Raw Signal, Template, and Recovered Signal')
+%                                 ylabel('Voltage (mV)')
+%                                 xlabel('Time (ms)')
+%                             end
+%                         end
         end
         
-        if plotIt && (trial == 10 || trial == 15 || trial == 20) && chan == 28
+        if plotIt && (trial == 10 || trial == 15 || trial == 20) && chan == 21
             figure
             hold on
             for indexPlot = 1:length(startInds{trial}{chan})
@@ -432,7 +432,7 @@ end
 % plot trials belong to particular clusters
 
 if plotIt
-    chan = 28;
+    chan = 21;
     templateArrayShortened = templateListVec{chan};
     t = 1e3*[0:size(templateArrayShortened,1)-1]/fs;
     figure
