@@ -171,11 +171,10 @@ for chan = goodVec
         end
     end
     
- %   if plotIt
-   if plotIt && chan == 28
+    %   if plotIt
+    if plotIt && chan == 28
         %%
-        CT = cbrewerHelper.cbrewer('qual', 'Dark2', length(unique(tempLabels)));
-        colors = CT;
+        
         figure
         h = scatter(1e3*clusterer.data(:,maxSub),1e3*clusterer.data(:,maxSub+1),'.');
         ylabel('time point 1 : voltage (mV)')
@@ -185,8 +184,14 @@ for chan = goodVec
         tempLabels = clusterer.labels;
         tempLabels(tempLabels == 0) = max(unique(tempLabels))+1;
         [C,ia,ic] = unique(tempLabels);
+        labelInfo.C{chan} = C;
+        labelInfo.ic{chan} = ia;
+        labelInfo.tempLabels{chan} = tempLabels;
         h.CData = ic;
+        CT = cbrewerHelper.cbrewer('qual', 'Dark2', length(unique(tempLabels)));
+        colors = CT;
         colormap(colors);
+        labelInfo.colors{chan} = colors;
         
         set(gca,'fontsize',18)
         
@@ -202,8 +207,6 @@ for chan = goodVec
         set(gca,'fontsize',18)
         
         subplot(2,1,2)
-        labelsInt = unique(clusterer.labels);
-        labelsInt = labelsInt(labelsInt~=0);
         
         t = 1e3*[0:size(templateArrayShortened,1)-1]/fs;
         plot(t,1e3*templateArrayShortened,'color',[0.75 0.75 0.75])
@@ -262,7 +265,7 @@ for trial = 1:size(rawSig,3)
         templates = templateArrayCellOutput{chan};
         
         % add on the trial one
-        templates = [templates mean(templateTrial{chan}{trial},2)];
+        %templates = [templates mean(templateTrial{chan}{trial},2)];
         templates = templates;
         % ensure no subtraction of exponential
         if recoverExp
@@ -342,11 +345,11 @@ for trial = 1:size(rawSig,3)
             firstLoopChan = 0;
             
             % scaling
-            scaling = max(abs(rawSigTemp(win)))/max(abs(templateSubtract));
+            scaling = mean([max(rawSigTemp(win))/max(templateSubtract),min(rawSigTemp(win))/min(templateSubtract)]);
             templateSubtract = templateSubtract*scaling;
             
             rawSigTemp(win) = rawSigTemp(win) - templateSubtract;
-            %
+            
             %             if plotIt
             %                 if 1 && chan == 28 && (sts == 1 || sts == 2 || sts == 10)
             %                     figure
@@ -355,10 +358,10 @@ for trial = 1:size(rawSig,3)
             %                     plot(1e3*t,1e3*extractedSig,'linewidth',2,'color','k')
             %                     hold on
             %                     plot(1e3*t,1e3*templateSubtract,'linewidth',2,'color',[0.5 0.5 0.5])
-            %                     plot(1e3*t,1e3*extractedSig-templateSubtract,'linewidth',2,'color',[204 85 0]/255)
+            %                     plot(1e3*t,1e3*extractedSig-1e3*templateSubtract,'linewidth',2,'color',[204 85 0]/255)
             %                     legend('Raw Signal','Template Selected','Recovered Signal');
             %                     set(gca,'fontsize',18)
-            %                     title('Raw signal, Template, and Recovered signal')
+            %                     title('Raw Signal, Template, and Recovered Signal')
             %                     ylabel('Voltage (mV)')
             %                     xlabel('Time (ms)')
             %                 end
@@ -428,8 +431,8 @@ end
 %%
 % plot trials belong to particular clusters
 
-if plotIt && chan == 28
-    
+if plotIt
+    chan = 28;
     templateArrayShortened = templateListVec{chan};
     t = 1e3*[0:size(templateArrayShortened,1)-1]/fs;
     figure
@@ -460,9 +463,24 @@ if plotIt && chan == 28
     templatesChoiceTimeSeries = templates(indices);
     figure
     
-    CT = cbrewerHelper.cbrewer('qual', 'Dark2', 8);
-    repeats = max( 1,ceil( max( clusterer.labels )/8 ) );
-    colors = [CT(1,:);repmat( CT(2:end,:),repeats,1 )];
+    tempLabels = labelInfo.tempLabels{chan};
+    colors = labelInfo.colors{chan};
+    CT = cbrewerHelper.cbrewer('qual', 'Dark2', length(unique(tempLabels)));
+    colors = CT;
+    colormap(colors);
+    
+%      tempLabels = clusterer.labels;
+%         tempLabels(tempLabels == 0) = max(unique(tempLabels))+1;
+%         [C,ia,ic] = unique(tempLabels);
+%         labelInfo.C{chan} = C;
+%         labelInfo.ic{chan} = ia;
+%         labelInfo.tempLabels{chan} = tempLabels;
+%         h.CData = ic;
+%         CT = cbrewerHelper.cbrewer('qual', 'Dark2', length(unique(tempLabels)));
+%         colors = CT;
+%         colormap(colors);
+%         labelInfo.colors{chan} = colors;
+%         
     
     for ii = 1:numIndices
         colorInt = colors(templatesChoiceTimeSeries(ii),:);
@@ -532,8 +550,8 @@ if plotIt && chan == 28
     counter = 1;
     uniqueVec = unique(templatesChoice)';
     t = 1e3*(0:size(templateArrayShortened,1)-1)/fs;
-    for templateInterest = uniqueVec(1:end-1)
-        colorInt = colors(templatesChoiceTimeSeries(counter),:);
+    for templateInterest = uniqueVec(1:end)
+        colorInt = colors(counter,:);
         subplot(length(uniqueVec),1,counter)
         plot(t,1e3*templateArrayShortened(:,templateInterest),'color',colorInt,'linewidth',2)
         counter = counter + 1;
