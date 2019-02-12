@@ -81,6 +81,7 @@ addParameter(p,'bracketRange',[-8:8],@isnumeric);
 
 addParameter(p,'expThreshVoltageCut',95,@isnumeric);
 addParameter(p,'expThreshDiffCut',95,@isnumeric);
+addParameter(p,'chanInt',1,@isnumeric);
 
 p.parse(templateArrayCell,templateTrial,rawSig,fs,varargin{:});
 
@@ -104,6 +105,8 @@ bracketRange = p.Results.bracketRange;
 
 expThreshVoltageCut = p.Results.expThreshVoltageCut;
 expThreshDiffCut = p.Results.expThreshDiffCut;
+
+chanInt = p.Results.chanInt;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 templateArrayCellOutput = {};
@@ -172,11 +175,11 @@ for chan = goodVec
     end
     
     %   if plotIt
-    if plotIt && chan == 23
+    if plotIt && chan == chanInt
         %%
         
         figure
-        h = scatter(1e3*clusterer.data(:,maxSub),1e3*clusterer.data(:,maxSub+1),'.');
+        h = scatter(1e3*clusterer.data(:,maxSub),1e3*clusterer.data(:,maxSub+1),20,'filled');
         ylabel('time point 1 : voltage (mV)')
         xlabel('time point 2 : voltage (mV)')
         set( h.Parent,'tickdir','out','box','off' );
@@ -195,9 +198,11 @@ for chan = goodVec
         
         set(gca,'fontsize',18)
         
-        figure
-        subplot(2,1,1)
-        h = scatter(1e3*clusterer.data(:,maxSub),1e3*clusterer.data(:,maxSub+1),'.');
+                totalFig = figure;
+        totalFig.Units = 'inches';
+        totalFig.Position = [7.0729 0.6979 6.0417 9.4792];
+                subplot(2,1,1)
+        h = scatter(1e3*clusterer.data(:,maxSub),1e3*clusterer.data(:,maxSub+1),20,'filled');
         ylabel('time point 1 : voltage (mV)')
         xlabel('time point 2 : voltage (mV)')
         set( h.Parent,'tickdir','out','box','off' );
@@ -346,6 +351,7 @@ for trial = 1:size(rawSig,3)
             
             % scaling
             scaling = mean([max(rawSigTemp(win))/max(templateSubtract),min(rawSigTemp(win))/min(templateSubtract)]);
+          scaling = max(rawSigTemp(win))/max(templateSubtract);
             templateSubtract = templateSubtract*scaling;
             
             rawSigTemp(win) = rawSigTemp(win) - templateSubtract;
@@ -368,7 +374,7 @@ for trial = 1:size(rawSig,3)
 %                         end
         end
         
-        if plotIt && (trial == 10 || trial == 15 || trial == 20) && chan == 21
+        if plotIt && (trial == 10 || trial == 15 || trial == 20) && chan == chanInt
             figure
             hold on
             for indexPlot = 1:length(startInds{trial}{chan})
@@ -432,10 +438,12 @@ end
 % plot trials belong to particular clusters
 
 if plotIt
-    chan = 23;
+    chan = chanInt;
     templateArrayShortened = templateListVec{chan};
     t = 1e3*[0:size(templateArrayShortened,1)-1]/fs;
-    figure
+    figUnsortTime = figure;
+    figUnsortTime.Units = "inches";
+    figUnsortTime.Position = [7.0729 0.9479 1.2500 9.2292];
     numIndices = 35;
     indices = randi(size(templateArrayShortened,2),numIndices,1);
     for ii = 1:numIndices
@@ -461,27 +469,15 @@ if plotIt
     
     templates = templateSubtractCell{chan};
     templatesChoiceTimeSeries = templates(indices);
-    figure
-    
+        figSortTime = figure;
+    figSortTime.Units = "inches";
+    figSortTime.Position = [7.0729 0.9479 1.2500 9.2292];
     tempLabels = labelInfo.tempLabels{chan};
     colors = labelInfo.colors{chan};
     CT = cbrewerHelper.cbrewer('qual', 'Dark2', length(unique(tempLabels)));
     colors = CT;
     colormap(colors);
-    
-%      tempLabels = clusterer.labels;
-%         tempLabels(tempLabels == 0) = max(unique(tempLabels))+1;
-%         [C,ia,ic] = unique(tempLabels);
-%         labelInfo.C{chan} = C;
-%         labelInfo.ic{chan} = ia;
-%         labelInfo.tempLabels{chan} = tempLabels;
-%         h.CData = ic;
-%         CT = cbrewerHelper.cbrewer('qual', 'Dark2', length(unique(tempLabels)));
-%         colors = CT;
-%         colormap(colors);
-%         labelInfo.colors{chan} = colors;
-%         
-    
+
     for ii = 1:numIndices
         colorInt = colors(templatesChoiceTimeSeries(ii),:);
         vizFunc.smplot(numIndices,1,ii,'axis','off','right',0.02,'bottom',0.02,'left',0.02,'top',0.02)
@@ -523,7 +519,9 @@ if plotIt
     %%
     templates = templateSubtractCell{chan};
     templatesChoice = templates(indicesISC);
-    figure
+    figSorted = figure;
+    figSorted.Units = "inches";
+    figSorted.Position = [4.2500 0.2708 4.8333 9.9583];
     counter = 1;
     for templateInterest = unique(templatesChoice)'
         indicesSelect = find(templatesChoice == templateInterest);
@@ -546,7 +544,9 @@ if plotIt
     %%
     templateArrayExtracted = templateArrayCellOutput{chan};
     templateArrayShortened = templateArrayExtracted(maxLocation+bracketRange,:);
-    figure
+    figureTemplate = figure;
+    figureTemplate.Units = "inches";
+    figureTemplate.Position =[4.2500 0.2708 2.4000 9.9583];
     counter = 1;
     uniqueVec = unique(templatesChoice)';
     t = 1e3*(0:size(templateArrayShortened,1)-1)/fs;

@@ -35,7 +35,7 @@ modePlot = p.Results.modePlot;
 if newFig
     totalFig = figure;
     totalFig.Units = 'inches';
-    totalFig.Position = [   10.4097    3.4722   13.2708   10.4514];
+    totalFig.Position = [2.5313 0.4688 13.2708 9.5104];
     CT = vizFunc.cbrewer('qual','Accent',8);
     CT = flipud(CT);
 else

@@ -18,6 +18,7 @@
 % t_epoch - epoched time window
 %%
 % clear the workspace
+%close all;clear all;clc
 close all;clear all;clc
 %%
 % choose data file of interest
@@ -152,7 +153,8 @@ if dataChoice == 6 || dataChoice == 7
     threshDiffCut = 75;
     expThreshVoltageCut = 95;
     expThreshDiffCut = 95;
-    bracketRange = [-8:8];
+    bracketRange = [-6:6];
+    chanInt = 21;
     
 elseif dataChoice == 4
     type = 'dictionary';
@@ -182,12 +184,12 @@ elseif dataChoice == 4
     
     recoverExp = 1;
     
-    threshVoltageCut = 60;
-    threshDiffCut = 60;
+    threshVoltageCut = 55;
+    threshDiffCut = 55;
     expThreshVoltageCut = 95;
     expThreshDiffCut = 95;
-    bracketRange = [-8:8];
-    
+    bracketRange = [-6:6];
+    chanInt = 10;
     
 elseif dataChoice == 2
     type = 'dictionary';
@@ -218,8 +220,8 @@ elseif dataChoice == 2
     threshDiffCut = 75;
     expThreshVoltageCut = 95;
     expThreshDiffCut = 95;
-    bracketRange = [-8:8];
-
+    bracketRange = [-6:6];
+    chanInt = 10;
 elseif dataChoice == 1
     type = 'dictionary';
     
@@ -251,9 +253,8 @@ elseif dataChoice == 1
     threshDiffCut = 75;
     expThreshVoltageCut = 95;
     expThreshDiffCut = 95;
-    bracketRange = [-8:8];
-            bracketRange = [-6:6];
-
+    bracketRange = [-6:6];
+    chanInt = 28;
 else
     
     type = 'dictionary';
@@ -283,7 +284,7 @@ else
     threshDiffCut = 75;
     expThreshVoltageCut = 95;
     expThreshDiffCut = 95;
-    bracketRange = [-8:8];
+    bracketRange = [-6:6];
     
 end
 
@@ -294,7 +295,7 @@ end
     'distanceMetricDbscan',distanceMetricDbscan,'distanceMetricSigMatch',distanceMetricSigMatch,...
     'recoverExp',recoverExp,'normalize',normalize,'amntPreAverage',amntPreAverage,...
     'minDuration',minDuration,'bracketRange',bracketRange,'threshVoltageCut',threshVoltageCut,...
-    'threshDiffCut',threshDiffCut,'expThreshVoltageCut',expThreshVoltageCut,'expThreshDiffCut',expThreshDiffCut);
+    'threshDiffCut',threshDiffCut,'expThreshVoltageCut',expThreshVoltageCut,'expThreshDiffCut',expThreshDiffCut,'chanInt',chanInt);
 %
 % visualization
 % of note - more visualizations are created here, including what the
@@ -335,6 +336,7 @@ switch dataChoice
         badChannels = [stimChans [53:64]];
     case 2
         badChannels = stimChans;
+        channelsToUse = [22 23 30 31 38 39 46 47];
     case 6
         badChannels = stimChans;
     case 7
@@ -342,8 +344,8 @@ switch dataChoice
 end
 reref = 0;
 if reref
-    processedSig = analyFunc.rereference_CAR_median(processedSig,rerefMode,badChannels);
-    processedSigReref = analyFunc.rereference_CAR_median(processedSig,rerefMode,badChannels);
+    processedSig = analyFunc.rereference_CAR_median(processedSig,rerefMode,badChannels,[],[],channelsToUse);
+    processedSigReref = analyFunc.rereference_CAR_median(processedSig,rerefMode,badChannels,[],[],channelsToUse);
 end
 
 %

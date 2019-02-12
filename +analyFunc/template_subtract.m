@@ -46,6 +46,9 @@ addParameter(p,'threshDiffCut',75,@isnumeric);
 addParameter(p,'expThreshVoltageCut',75,@isnumeric);
 addParameter(p,'expThreshDiffCut',75,@isnumeric);
 
+addParameter(p,'chanInt',1,@isnumeric);
+
+
 
 p.parse(rawSig,varargin{:});
 
@@ -79,6 +82,8 @@ threshDiffCut = p.Results.threshDiffCut;
 
 expThreshVoltageCut = p.Results.expThreshVoltageCut;
 expThreshDiffCut = p.Results.expThreshDiffCut;
+
+chanInt = p.Results.chanInt;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % define matrix of zeros
@@ -117,7 +122,7 @@ switch type
             'distanceMetricDbscan',distanceMetricDbscan,'distanceMetricSigMatch',distanceMetricSigMatch,...
             'goodVec',goodVec,'startInds',startInds,'endInds',endInds,'recoverExp',recoverExp,'maxAmps',maxAmps,...
             'amntPreAverage',amntPreAverage,'maxLocation',maxLocation,'bracketRange',bracketRange,...
-            'expThreshDiffCut',expThreshDiffCut,'expThreshVoltageCut',expThreshVoltageCut);
+            'expThreshDiffCut',expThreshDiffCut,'expThreshVoltageCut',expThreshVoltageCut,'chanInt',chanInt);
         
     case 'average'
         [processedSig,templateArrayCellOutput] = analyFunc.template_average(templateArrayCell,rawSig,'plotIt',plotIt...,

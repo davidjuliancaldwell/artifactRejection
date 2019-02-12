@@ -52,7 +52,7 @@ if individual
         vizFunc.set_colormap_threshold(gcf, [-0.5 0.5], [-3 3], [1 1 1])
         
         h1 = subplot(3,1,2);
-        plot(1e3*tEpoch,1e3*processedSig(:,chanInt,i),'color',[204 85 0]/255)
+        plot(1e3*tEpoch,1e3*processedSig(:,chanInt,i),'color',[204 85 0]/255,'linewidth',2)
         xlabel('Time (ms)');
         ylabel('Voltage (mV)')
         title(['Recovered Signal Channel ' num2str(chanInt) ' Trial ' num2str(i)]);
@@ -63,7 +63,7 @@ if individual
         set(gca,'fontsize',14)
         
         h2 = subplot(3,1,1);
-        plot(1e3*tEpoch,1e3*dataInt(:,chanInt,i),'color','k')
+        plot(1e3*tEpoch,1e3*dataInt(:,chanInt,i),'color','k','linewidth',2)
         xlabel('Time (ms)');
         ylabel('Voltage (mV)')
         title(['Raw Signal Channel ' num2str(chanInt) ' Trial ' num2str(i)]);
@@ -130,7 +130,7 @@ if average
     colorbar();
     
     h3 = subplot(3,1,2);
-    plot(1e3*tEpoch,1e3*nanmean(squeeze(processedSig(:,chanInt,:)),2),'color',[204 85 0]/255)
+    plot(1e3*tEpoch,1e3*nanmean(squeeze(processedSig(:,chanInt,:)),2),'color',[204 85 0]/255,'linewidth',2)
     xlabel('Time (ms)');
     ylabel('Voltage (mV)')
     title(['Recovered Signal Channel ' ]);
@@ -142,7 +142,7 @@ if average
     set(gca,'fontsize',14)
     
     h4 = subplot(3,1,1);
-    plot(1e3*tEpoch,1e3*nanmean(squeeze(dataInt(:,chanInt,:)),2),'color','k')
+    plot(1e3*tEpoch,1e3*nanmean(squeeze(dataInt(:,chanInt,:)),2),'color','k','linewidth',2)
     xlabel('Time (ms)');
     ylabel('Voltage (mV)')
     title(['Recovered Signal Channel ' num2str(chanInt)]);
