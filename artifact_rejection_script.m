@@ -21,7 +21,7 @@
 close all;clear all;clc
 %%
 % choose data file of interest
-dataChoice = 1;
+dataChoice = 6;
 
 switch dataChoice
     
@@ -327,6 +327,57 @@ vizFunc.small_multiples_time_series(processedSig,tEpoch,'type1',stimChans,'type2
 % %%
 %  [processedSig_v2,templateDictCell,template] = analyFunc.template_subtract_iterative(processedSig,...,
 %      'fs',fsData,'plotIt',0,'pre',pre,'post',post,'stimChans',stimChans,'startInds',startInds,'endInds',endInds);
+%% additional processing
+
+rerefMode = 'mean';
+switch dataChoice
+    case 1
+        badChannels = [stimChans [53:64]];
+    case 2
+        badChannels = stimChans;
+    case 6
+        badChannels = stimChans;
+    case 7
+        badChannels = stimChans;
+end
+reref = 0;
+if reref
+    processedSig = analyFunc.rereference_CAR_median(processedSig,rerefMode,badChannels);
+    processedSigReref = analyFunc.rereference_CAR_median(processedSig,rerefMode,badChannels);
+end
+
+%
+%%%%%%% wavelet
+timeRes = 0.01; % 25 ms bins
+
+% [powerout,fMorlet,tMorlet] = wavelet_wrapper(processedSig,fsData,stimChans);
+[powerout,fMorlet,tMorlet,~] = analyFunc.waveletWrapper(processedSig,fsData,timeRes,stimChans);
+%
+% additional parameters
+postStim = 2000;
+sampsPostStim = round(postStim/1e3*fsData);
+
+preStim = 1000;
+sampsPreStim = round(preStim/1e3*fsData);
+
+tMorlet = linspace(-preStim,postStim,length(tMorlet))/1e3;
+% normalize data
+dataRef = powerout(:,tMorlet<0.05 & tMorlet>-0.8,:,:);
+%
+[normalizedData] = analyFunc.normalize_spectrogram_wavelet(dataRef,powerout);
+individual = 0;
+average = 1;
+% chanIntLIst = 42;
+
+% chanIntList = chanInt;
+for chanInt = chanIntList
+    vizFunc.visualize_wavelet_channel(normalizedData,tMorlet,fMorlet,processedSig,...
+        tEpoch,dataInt,chanInt,individual,average)
+end
+ylimsSpect = [5 300];
+vizFunc.small_multiples_spectrogram(normalizedData,tMorlet,fMorlet,'type1',stimChans,'type2',0,'xlims',xlims,'ylims',ylimsSpect);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 return
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -398,54 +449,3 @@ vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fsData,'type',type,'tE
     'chanIntList',chanIntList,'modePlot','confInt')
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% additional processing
-
-rerefMode = 'mean';
-switch dataChoice
-    case 1
-        badChannels = [stimChans [53:64]];
-    case 2
-        badChannels = stimChans;
-    case 6
-        badChannels = stimChans;
-    case 7
-        badChannels = stimChans;
-end
-reref = 0;
-if reref
-    processedSig = analyFunc.rereference_CAR_median(processedSig,rerefMode,badChannels);
-    processedSigReref = analyFunc.rereference_CAR_median(processedSig,rerefMode,badChannels);
-end
-
-%
-%%%%%%% wavelet
-timeRes = 0.01; % 25 ms bins
-
-% [powerout,fMorlet,tMorlet] = wavelet_wrapper(processedSig,fsData,stimChans);
-[powerout,fMorlet,tMorlet,~] = analyFunc.waveletWrapper(processedSig,fsData,timeRes,stimChans);
-%
-% additional parameters
-postStim = 2000;
-sampsPostStim = round(postStim/1e3*fsData);
-
-preStim = 1000;
-sampsPreStim = round(preStim/1e3*fsData);
-
-tMorlet = linspace(-preStim,postStim,length(tMorlet))/1e3;
-% normalize data
-dataRef = powerout(:,tMorlet<0.05 & tMorlet>-0.8,:,:);
-%
-[normalizedData] = analyFunc.normalize_spectrogram_wavelet(dataRef,powerout);
-individual = 0;
-average = 1;
-% chanIntLIst = 42;
-
-% chanIntList = chanInt;
-for chanInt = chanIntList
-    vizFunc.visualize_wavelet_channel(normalizedData,tMorlet,fMorlet,processedSig,...
-        tEpoch,dataInt,chanInt,individual,average)
-end
-ylimsSpect = [5 300];
-vizFunc.small_multiples_spectrogram(normalizedData,tMorlet,fMorlet,'type1',stimChans,'type2',0,'xlims',xlims,'ylims',ylimsSpect);
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

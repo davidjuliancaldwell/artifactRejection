@@ -172,7 +172,7 @@ for chan = goodVec
     end
     
     %   if plotIt
-    if plotIt && chan == 21
+    if plotIt && chan == 23
         %%
         
         figure
@@ -432,7 +432,7 @@ end
 % plot trials belong to particular clusters
 
 if plotIt
-    chan = 21;
+    chan = 23;
     templateArrayShortened = templateListVec{chan};
     t = 1e3*[0:size(templateArrayShortened,1)-1]/fs;
     figure
