@@ -36,7 +36,7 @@ end
 %
 totalFig = figure;
 totalFig.Units = 'inches';
-totalFig.Position = [ 1.7708 1.5208 12.7917 8.2604];
+totalFig.Position = [1 1 7 7];
 
 p = numSubplots(size(signal,3));
 %min_c = squeeze(min(min(min(signal))));

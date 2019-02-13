@@ -138,35 +138,72 @@ vizFunc.small_multiples_time_series(processedSig(:,:,:),tEpoch,'type1',stimChans
 
 % make a list of the channels of interest to visualize one at a time
 %%
+
+rawExampTotal = mean(rawSig(:,chanIntList,:),3);
+ylims = 1e3*[-max(abs(rawExampTotal(:))) max(abs(rawExampTotal(:)))];
 for ind = chanIntList
     
     exampChan = mean(squeeze(processedSig(:,ind,:)),2);
+    rawExampChan = mean(squeeze(rawSig(:,ind,:)),2);
+    chanFig = figure;
+    chanFig.Units = "inches";
+    chanFig.Position = [1 1 3.5 7];
     
-    figure
-    ax1 = subplot(2,1,1);
+    ax1 = subplot(2,1,2);
     plot(1e3*tEpoch,1e3*exampChan,'linewidth',2,'color',[204 85 0]/255);
     xlim(xlims)
     ylim(ylims)
-    set(gca,'fontsize',18)
-    title(['Recovered Signal - Channel ' num2str(ind)])
+    set(gca,'fontsize',14)
+    xlabel('Time (ms)')
+    
+    title({'Recovered Signal',[' Channel ' num2str(ind)]})
     clear exampChan
     
     
-    ax2 = subplot(2,1,2);
-    exampChan = mean(squeeze(rawSig(:,ind,:)),2);
-    plot(1e3*tEpoch,1e3*exampChan,'linewidth',2,'color','k');
+    ax2 = subplot(2,1,1);
+    plot(1e3*tEpoch,1e3*rawExampChan,'linewidth',2,'color','k');
     xlim(xlims)
     ylim(ylims)
-    xlabel('Time (ms)')
     ylabel('Voltage (mV)')
-    title(['Raw Signal - Channel ' num2str(ind)])
-    set(gca,'fontsize',18)
+    title({'Raw Signal',[' Channel ' num2str(ind)]})
+    set(gca,'fontsize',14)
     
     linkaxes([ax1,ax2],'xy')
     
-    clear exampChan
+    clear exampChan rawExampChan
 end
-%
+%%
+figureArtifact = figure;
+figureArtifact.Units = "inches";
+figureArtifact.Position =[1 1 2 4];
+
+for ind = 1:size(rawExampTotal,2)
+    rawExampChan = mean(squeeze(rawSig(:,ind,:)),2);
+    
+    vizFunc.smplot(size(rawExampTotal,2),1,ind,'axis','off','right',0.02,'bottom',0.02,'left',0.02,'top',0.02)
+    
+    
+    plot(1e3*tEpoch,1e3*rawExampChan,'linewidth',2,'color','k');
+    ylim(ylims)
+    xlim(xlims)
+    set(gca,'XTick',[], 'YTick', [],'YLabel',[], 'Xlabel',[],'Visible','off')
+    
+end
+obj = vizFunc.scalebar;
+obj.XLen = 50;              %X-Length, 10.
+obj.XUnit = 'ms';            %X-Unit, 'm'.
+obj.YLen = 50;
+obj.YUnit = 'mV';
+set(gca,'fontsize',18)
+%     obj.Position = [1,-1];
+%     obj.hTextX_Pos = [1,-2]; %move only the LABEL position
+%     obj.hTextY_Pos =  [0.5,-1];
+obj.hLineY(2).LineWidth = 5;
+obj.hLineY(1).LineWidth = 5;
+obj.hLineX(2).LineWidth = 5;
+obj.hLineX(1).LineWidth = 5;
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 % look at the FFT difference

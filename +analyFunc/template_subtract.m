@@ -47,9 +47,6 @@ addParameter(p,'expThreshVoltageCut',75,@isnumeric);
 addParameter(p,'expThreshDiffCut',75,@isnumeric);
 
 addParameter(p,'chanInt',1,@isnumeric);
-
-
-
 p.parse(rawSig,varargin{:});
 
 rawSig = p.Results.rawSig;

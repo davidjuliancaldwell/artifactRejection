@@ -77,7 +77,7 @@ addParameter(p,'recoverExp',1,@(x) x==0 || x ==1);
 addParameter(p,'maxAmps',ones(size(rawSig,2),size(rawSig,3)),@isnumeric)
 addParameter(p,'maxLocation',15,@isnumeric);
 addParameter(p,'amntPreAverage',3,@isnumeric);
-addParameter(p,'bracketRange',[-8:8],@isnumeric);
+addParameter(p,'bracketRange',[-6:6],@isnumeric);
 
 addParameter(p,'expThreshVoltageCut',95,@isnumeric);
 addParameter(p,'expThreshDiffCut',95,@isnumeric);
@@ -179,6 +179,10 @@ for chan = goodVec
         %%
         
         figure
+        currentFig = gcf;
+        currentFig.Units = "inches";
+        currentFig.Position = [1 1 1.8 1.8];
+        set(gca,'fontsize',8);
         h = scatter(1e3*clusterer.data(:,maxSub),1e3*clusterer.data(:,maxSub+1),20,'filled');
         ylabel('time point 1 : voltage (mV)')
         xlabel('time point 2 : voltage (mV)')
@@ -196,12 +200,11 @@ for chan = goodVec
         colormap(colors);
         labelInfo.colors{chan} = colors;
         
-        set(gca,'fontsize',18)
         
-                totalFig = figure;
+        totalFig = figure;
         totalFig.Units = 'inches';
-        totalFig.Position = [7.0729 0.6979 6.0417 9.4792];
-                subplot(2,1,1)
+        totalFig.Position = [1 1 6.0417 9.4792];
+        subplot(2,1,1)
         h = scatter(1e3*clusterer.data(:,maxSub),1e3*clusterer.data(:,maxSub+1),20,'filled');
         ylabel('time point 1 : voltage (mV)')
         xlabel('time point 2 : voltage (mV)')
@@ -241,6 +244,21 @@ for chan = goodVec
             index = index + 1;
         end
         
+        figure
+        totalFig.Units = 'inches';
+        totalFig.Position = [1 1 6.0417 9.4792];
+        t = 1e3*[0:size(templateArrayShortened,1)-1]/fs;
+        plot(t,1e3*templateArrayShortened,'color',[0.75 0.75 0.75])
+        hold on
+        h2 = plot(t,1e3*templateArrayExtracted(maxLocation+bracketRange,:),'linewidth',2);
+        set(h2, {'color'}, num2cell(colors(1:length(C)-1,:),2));
+        
+        colormap( colors );
+        
+        ylabel('Voltage (mV)')
+        xlabel('Time (ms)')
+        set(gca,'fontsize',18)
+        title('Dictionary of Templates from Raw Traces')
         
     end
     templateListVec{chan} = templateArrayShortened;
@@ -347,86 +365,102 @@ for trial = 1:size(rawSig,3)
                 templateSubtractCell{chan} = [templateSubtractCell{chan}; index];
             end
             
-            firstLoopChan = 0;
             
             % scaling
             scaling = mean([max(rawSigTemp(win))/max(templateSubtract),min(rawSigTemp(win))/min(templateSubtract)]);
-          scaling = max(rawSigTemp(win))/max(templateSubtract);
+            %    scaling = max(rawSigTemp(win))/max(templateSubtract);
             templateSubtract = templateSubtract*scaling;
             
             rawSigTemp(win) = rawSigTemp(win) - templateSubtract;
             
-%                         if plotIt
-%                             if 1 && chan == 28 && (sts == 1 || sts == 2 || sts == 10)
-%                                 figure
-%                                 t = [0:length(extractedSig)-1]/fs;
-%             
-%                                 plot(1e3*t,1e3*extractedSig,'linewidth',2,'color','k')
-%                                 hold on
-%                                 plot(1e3*t,1e3*templateSubtract,'linewidth',2,'color',[0.5 0.5 0.5])
-%                                 plot(1e3*t,1e3*extractedSig-1e3*templateSubtract,'linewidth',2,'color',[204 85 0]/255)
-%                                 legend('Raw Signal','Template Selected','Recovered Signal');
-%                                 set(gca,'fontsize',18)
-%                                 title('Raw Signal, Template, and Recovered Signal')
-%                                 ylabel('Voltage (mV)')
-%                                 xlabel('Time (ms)')
-%                             end
-%                         end
+            if plotIt && chan == chanInt && (sts == 1 || sts == 2 || sts == 10) && firstLoopChan
+                figure
+                currentFig = gcf;
+                currentFig.Units = "inches";
+                currentFig.Position = [1 1 1.8 1.8];
+                set(gca,'fontsize',8);
+                t = [0:length(extractedSig)-1]/fs;
+                
+                plot(1e3*t,1e3*extractedSig,'linewidth',2,'color','k')
+                hold on
+                plot(1e3*t,1e3*templateSubtract,'linewidth',2,'color',[0.5 0.5 0.5])
+                plot(1e3*t,1e3*extractedSig-1e3*templateSubtract,'linewidth',2,'color',[204 85 0]/255)
+                legend('Raw Signal','Template Selected','Recovered Signal');
+                set(gca,'fontsize',8)
+                title('Raw Signal, Template, and Recovered Signal')
+                ylabel('Voltage (mV)')
+                xlabel('Time (ms)')
+            end
+            
+            firstLoopChan = 0;
+            
+            
         end
         
         if plotIt && (trial == 10 || trial == 15 || trial == 20) && chan == chanInt
+          %%
             figure
-            hold on
+            currentFig = gcf;
+            currentFig.Units = "inches";
+            currentFig.Position = [1 1 2.8330 3.6670];
+            set(gca,'fontsize',12);
+                        hold on
             for indexPlot = 1:length(startInds{trial}{chan})
-                tempBox = vizFunc.highlight(gca, [1e3*startInds{trial}{chan}(indexPlot)/fs 1e3*endInds{trial}{chan}(indexPlot)/fs], [1e3*min(rawSig(:,chan,trial))-10 1e3*max(rawSig(:,chan,trial))+10], [.7 .7 .7]);
+                tempBox = vizFunc.highlight(gca, [1e3*startInds{trial}{chan}(indexPlot)/fs 1e3*endInds{trial}{chan}(indexPlot)/fs], [-1e3*max(abs(rawSig(:,chan,trial))) 1e3*max(abs(rawSig(:,chan,trial)))], [.7 .7 .7]);
             end
             t = [0:length(rawSigTemp)-1]/fs;
             plot1 = plot(1e3*t,1e3*rawSig(:,chan,trial),'linewidth',2,'color','k');
             plot2 = plot(1e3*t',1e3*rawSigTemp,'linewidth',2,'color',[204 85 0]/255);
-            
+            xlim([900 1500])
             ylim([-1e3*max(abs(rawSig(:,chan,trial))) 1e3*max(abs(rawSig(:,chan,trial)))])
             legend([tempBox,plot1,plot2],{'Artifact Windows','Raw Signal','Recovered Signal'})
-            set(gca,'fontsize',18)
-            title('Raw vs. Recovered Sig')
+            title('Raw vs. Recovered Signal')
             xlabel('Time (ms)')
             ylabel('Voltage (mV)')
             
             figure
+            currentFig = gcf;
+            currentFig.Units = "inches";
+            currentFig.Position = [1 1 2.8330 3.6670];
+            set(gca,'fontsize',12);
             hold on
             for indexPlot = 1:length(startInds{trial}{chan})
-                tempBox = vizFunc.highlight(gca, [1e3*startInds{trial}{chan}(indexPlot)/fs 1e3*endInds{trial}{chan}(indexPlot)/fs], [1e3*min(rawSig(:,chan,trial))-10 1e3*max(rawSig(:,chan,trial))+10], [.7 .7 .7]);
+                tempBox = vizFunc.highlight(gca, [1e3*startInds{trial}{chan}(indexPlot)/fs 1e3*endInds{trial}{chan}(indexPlot)/fs], [-1e3*max(abs(rawSig(:,chan,trial))) 1e3*max(abs(rawSig(:,chan,trial)))], [.7 .7 .7]);
             end
             t = [0:length(rawSigTemp)-1]/fs;
             plot1 = plot(1e3*t,1e3*rawSig(:,chan,trial),'linewidth',2,'color','k');
             plot2 = plot(1e3*t',1e3*rawSigTemp,'linewidth',2,'color',[204 85 0]/255);
-            xlim([1000 1020])
+            xlim([1000 1015])
             ylim([-1e3*max(abs(rawSig(:,chan,trial))) 1e3*max(abs(rawSig(:,chan,trial)))])
             legend([tempBox,plot1,plot2],{'Artifact Windows','Raw Signal','Recovered Signal'})
-            set(gca,'fontsize',18)
-            title('Raw vs. Recovered Sig')
+            title('Raw vs. Recovered Signal')
             xlabel('Time (ms)')
             ylabel('Voltage (mV)')
             
             figure
+            currentFig = gcf;
+            currentFig.Units = "inches";
+            currentFig.Position = [1 1 2.8330 3.6670];
+            set(gca,'fontsize',14);
             subplot(2,1,1)
             ylabel('Voltage (mV)')
             plot(1e3*t,1e3*rawSig(:,chan,trial),'linewidth',2,'color','k');
             title('Raw Signal')
-            xlim([1000 1020])
+            xlim([1000 1015])
             ylim([-0.5 0.5])
             ylabel('Voltage (mV)')
-            set(gca,'fontsize',18)
             
             
             subplot(2,1,2)
+            currentFig = gcf;
+            set(gca,'fontsize',14);
             xlabel('Time (ms)')
             plot(1e3*t',1e3*rawSigTemp,'linewidth',2,'color',[204 85 0]/255);
             title('Recovered Signal')
             xlabel('Time (ms)')
-            xlim([1000 1020])
+            xlim([1000 1015])
             ylim([-0.5 0.5])
             
-            set(gca,'fontsize',18)
             
         end
         
@@ -443,19 +477,22 @@ if plotIt
     t = 1e3*[0:size(templateArrayShortened,1)-1]/fs;
     figUnsortTime = figure;
     figUnsortTime.Units = "inches";
-    figUnsortTime.Position = [7.0729 0.9479 1.2500 9.2292];
-    numIndices = 35;
+    figUnsortTime.Position = [1 1 1 10/2];
+    numIndices = 20;
     indices = randi(size(templateArrayShortened,2),numIndices,1);
+    subselectTrials = templateArrayShortened(:,indices);
+    maxSubselect = 1e3*max(abs(subselectTrials(:)));
     for ii = 1:numIndices
         vizFunc.smplot(numIndices,1,ii,'axis','off','right',0.02,'bottom',0.02,'left',0.02,'top',0.02)
-        plot(t, templateArrayShortened(:,indices(ii)),'color','k','linewidth',2)
+        plot(t, 1e3*subselectTrials(:,ii),'color','k','linewidth',2)
+        ylim([-maxSubselect maxSubselect])
         set(gca,'XTick',[], 'YTick', [],'YLabel',[], 'Xlabel',[],'Visible','off')
     end
     
     obj = vizFunc.scalebar;
-    obj.XLen = 0.25;              %X-Length, 10.
+    obj.XLen = 0.5;              %X-Length, 10.
     obj.XUnit = 'ms';            %X-Unit, 'm'.
-    obj.YLen = 0.02;
+    obj.YLen = 10;
     obj.YUnit = 'mV';
     set(gca,'fontsize',18)
     %     obj.Position = [1,-1];
@@ -469,26 +506,28 @@ if plotIt
     
     templates = templateSubtractCell{chan};
     templatesChoiceTimeSeries = templates(indices);
-        figSortTime = figure;
+    figSortTime = figure;
     figSortTime.Units = "inches";
-    figSortTime.Position = [7.0729 0.9479 1.2500 9.2292];
+    figSortTime.Position = [1 1 1 10/2];
     tempLabels = labelInfo.tempLabels{chan};
     colors = labelInfo.colors{chan};
     CT = cbrewerHelper.cbrewer('qual', 'Dark2', length(unique(tempLabels)));
     colors = CT;
     colormap(colors);
-
+    
     for ii = 1:numIndices
         colorInt = colors(templatesChoiceTimeSeries(ii),:);
         vizFunc.smplot(numIndices,1,ii,'axis','off','right',0.02,'bottom',0.02,'left',0.02,'top',0.02)
-        plot(t, templateArrayShortened(:,indices(ii)),'color',colorInt,'linewidth',2)
+        plot(t, 1e3*subselectTrials(:,ii),'color',colorInt,'linewidth',2)
+        ylim([-maxSubselect maxSubselect])
+        
         set(gca,'XTick',[], 'YTick', [],'YLabel',[], 'Xlabel',[],'Visible','off')
     end
     
     obj = vizFunc.scalebar;
-    obj.XLen = 0.25;              %X-Length, 10.
+    obj.XLen = 0.5;              %X-Length, 10.
     obj.XUnit = 'ms';            %X-Unit, 'm'.
-    obj.YLen = 0.02;
+    obj.YLen = 10;
     obj.YUnit = 'mV';
     set(gca,'fontsize',18)
     %     obj.Position = [1,-1];
@@ -505,39 +544,49 @@ if plotIt
     indicesISC = randi(size(templateArrayShortened,2),numIndicesISC,1);
     templateArrayInt = templateArrayShortened(:,indicesISC);
     
-    figure
+    figHeatMapUnsort = figure;
+    figHeatMapUnsort.Units = "inches";
+    figHeatMapUnsort.Position = [1 1 2.8330 4];
     imagesc(1e3*templateArrayInt')
     xlabel('Sample')
     ylabel('Trial #')
-    set(gca,'fontsize',18)
+    set(gca,'fontsize',14)
     colormap(CTdiv)
     caxis([-max(abs(1e3*templateArrayInt(:))) max(abs(1e3*templateArrayInt(:)))])
     c = colorbar();
     c.Label.String = 'Voltage (mV)';
-    title('Subselection of Trials before Template Matching')
+    title({'Subselection of Trials',' Before Template Matching'})
     
     %%
     templates = templateSubtractCell{chan};
     templatesChoice = templates(indicesISC);
     figSorted = figure;
     figSorted.Units = "inches";
-    figSorted.Position = [4.2500 0.2708 4.8333 9.9583];
+    figSorted.Position = [1 1 2.8330 4];
     counter = 1;
     for templateInterest = unique(templatesChoice)'
         indicesSelect = find(templatesChoice == templateInterest);
         subplot(length(unique(templatesChoice)),1,counter)
+        %         vizFunc.smplot(length(unique(templatesChoice)),1,counter,'axis','off',...
+        %             'right',0.1,'bottom',0.1,'left',0.1,'top',0.1)
+        
         imagesc(1e3*templateArrayInt(:,indicesSelect)')
         if counter == 1
-            title('Sorted Subselection of Trials')
+            title({'Sorted Subselection of Trials','By Template'})
         end
-        counter = counter + 1;
         colormap(CTdiv)
         caxis([-max(abs(1e3*templateArrayShortened(:))) max(abs(1e3*templateArrayShortened(:)))])
-        set(gca,'fontsize',16)
+        if counter < length(unique(templatesChoice))
+            set(gca,'YLabel',[], 'Xlabel',[],'Xtick',[])
+            
+        end
+        set(gca,'fontsize',10)
+        counter = counter + 1;
+        
     end
-    xlabel('Time (ms)')
+    xlabel('Sample')
     ylabel('Trial #')
-    set(gca,'fontsize',18)
+    set(gca,'fontsize',10)
     caxis([-max(abs(1e3*templateArrayShortened(:))) max(abs(1e3*templateArrayShortened(:)))])
     % c = colorbar();
     %c.Label.String = 'Voltage (mV)';
@@ -546,20 +595,61 @@ if plotIt
     templateArrayShortened = templateArrayExtracted(maxLocation+bracketRange,:);
     figureTemplate = figure;
     figureTemplate.Units = "inches";
-    figureTemplate.Position =[4.2500 0.2708 2.4000 9.9583];
+    figureTemplate.Position =[1 1 1 4];
     counter = 1;
     uniqueVec = unique(templatesChoice)';
     t = 1e3*(0:size(templateArrayShortened,1)-1)/fs;
     for templateInterest = uniqueVec(1:end)
         colorInt = colors(counter,:);
-        subplot(length(uniqueVec),1,counter)
+        vizFunc.smplot(length(uniqueVec),1,counter,'axis','off','right',0.02,'bottom',0.02,'left',0.02,'top',0.02)
+        
+        % subplot(length(uniqueVec),1,counter)
+        ylim([-maxSubselect maxSubselect])
+        
         plot(t,1e3*templateArrayShortened(:,templateInterest),'color',colorInt,'linewidth',2)
         counter = counter + 1;
-        set(gca,'fontsize',18)
+        set(gca,'fontsize',14)
+        set(gca,'XTick',[], 'YTick', [],'YLabel',[], 'Xlabel',[],'Visible','off')
+        
     end
     xlabel('Time (ms')
     ylabel('Voltage (ms)')
     
+    obj = vizFunc.scalebar;
+    obj.XLen = 0.5;              %X-Length, 10.
+    obj.XUnit = 'ms';            %X-Unit, 'm'.
+    obj.YLen = 10;
+    obj.YUnit = 'mV';
+    set(gca,'fontsize',18)
+    %     obj.Position = [1,-1];
+    %     obj.hTextX_Pos = [1,-2]; %move only the LABEL position
+    %     obj.hTextY_Pos =  [0.5,-1];
+    obj.hLineY(2).LineWidth = 5;
+    obj.hLineY(1).LineWidth = 5;
+    obj.hLineX(2).LineWidth = 5;
+    obj.hLineX(1).LineWidth = 5;
+    
+    figure
+    currentFig = gcf;
+    currentFig.Units = "inches";
+    currentFig.Position = [1 1 2.8330 2.8330];
+    h = scatter(1e3*clusterer.data(:,maxSub),1e3*clusterer.data(:,maxSub+1),20,'filled');
+    ylabel('time point 1 : voltage (mV)')
+    xlabel('time point 2 : voltage (mV)')
+    set( h.Parent,'tickdir','out','box','off' );
+    
+    tempLabels = clusterer.labels;
+    tempLabels(tempLabels == 0) = max(unique(tempLabels))+1;
+    [C,ia,ic] = unique(tempLabels);
+    labelInfo.C{chan} = C;
+    labelInfo.ic{chan} = ia;
+    labelInfo.tempLabels{chan} = tempLabels;
+    h.CData = ic;
+    CT = cbrewerHelper.cbrewer('qual', 'Dark2', length(unique(tempLabels)));
+    colors = CT;
+    colormap(colors);
+    labelInfo.colors{chan} = colors;
+    set(gca,'fontsize',12);
     
 end
 

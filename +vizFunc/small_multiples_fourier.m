@@ -30,7 +30,7 @@ plotLog = p.Results.plotLog;
 if newFig
     totalFig = figure;
     totalFig.Units = 'inches';
-    totalFig.Position = [2.5313 0.4688 13.2708 9.5104];
+    totalFig.Position = [1 1 7 7];
     CT = vizFunc.cbrewer('qual','Accent',8);
     CT = flipud(CT);
 else
