@@ -35,7 +35,7 @@ modePlot = p.Results.modePlot;
 if newFig
     totalFig = figure;
     totalFig.Units = 'inches';
-    totalFig.Position = [1 1 7 7 ];
+    totalFig.Position = [1 1 8 8];
     CT = vizFunc.cbrewer('qual','Accent',8);
     CT = flipud(CT);
 else
@@ -69,8 +69,8 @@ for idx=1:size(signal,2)
                 plot(1e3*t,1e3*signal(:,idx),'Color',CT(2,:),'LineWidth',2)
                 title([num2str(idx)],'Color',CT(2,:))
             else
-                plot(1e3*t,1e3*signal(:,idx),'Color',CT(1,:),'LineWidth',2)
-                title([num2str(idx)],'color',CT(1,:))
+                plot(1e3*t,1e3*signal(:,idx),'Color',[204 85 0]/255,'LineWidth',2)
+                title([num2str(idx)],'color','k')
             end
             
         case 'ind'
@@ -81,8 +81,8 @@ for idx=1:size(signal,2)
                 plot(1e3*t,1e3*squeeze(signal(:,idx)),'Color',CT(2,:),'LineWidth',2)
                 title([num2str(idx)],'Color',CT(2,:))
             else
-                plot(1e3*t,1e3*squeeze(signal(:,idx)),'Color',CT(1,:),'LineWidth',2)
-                title([num2str(idx)],'color',CT(1,:))
+                plot(1e3*t,1e3*squeeze(signal(:,idx)),'color',[204 85 0]/255,'LineWidth',2)
+                title([num2str(idx)],'color','k')
             end
             
         case 'confInt'
@@ -94,7 +94,7 @@ for idx=1:size(signal,2)
                 title([num2str(idx)],'Color',CT(2,:))
             else
                 vizFunc.plot_error(1e3*t'',1e3*squeeze(signal(:,idx,:)),'CI',CT(1,:));
-                title([num2str(idx)],'color',CT(1,:))
+                title([num2str(idx)],'color','k')
             end
     end
    
@@ -107,22 +107,24 @@ for idx=1:size(signal,2)
     vizFunc.vline(0)
     
     if ~isempty(highlightRange)
-        hColor = [116/255 255/255 112/255];
+       %hColor = [116/255 255/255 112/255];
+         hColor = [0.5 0.5 0.5];
+
         y_range = ([-150 150]);
         vizFunc.highlight(plt_sub, highlightRange, y_range, hColor);
     end
     
 end
-
+%%
 obj = vizFunc.scalebar;
-obj.XLen = 200;              %X-Length, 10.
+obj.XLen = 500;              %X-Length, 10.
 obj.XUnit = 'ms';            %X-Unit, 'm'.
-obj.YLen = 0.2;
+obj.YLen = 0.5;
 obj.YUnit = 'mV';
 
-obj.Position = [20,-130];
-obj.hTextX_Pos = [5,-50]; %move only the LABEL position
-obj.hTextY_Pos =  [-45,-40];
+obj.Position = [0 0];
+obj.hTextX_Pos = [5,-0.2]; %move only the LABEL position
+obj.hTextY_Pos =  [-150 0];
 obj.hLineY(2).LineWidth = 5;
 obj.hLineY(1).LineWidth = 5;
 obj.hLineX(2).LineWidth = 5;

@@ -22,7 +22,7 @@
 close all;clear all;clc
 %%
 % choose data file of interest
-for dataChoice = [1,6,4]
+for dataChoice = [5]
     
     switch dataChoice
         
@@ -77,7 +77,8 @@ for dataChoice = [1,6,4]
             minDuration = 0.5; % minimum duration of artifact in ms
             fsData = fs_data;
             tEpoch = t_epoch;
-            
+            dataInt = 4*dataInt;
+            trainDuration = [0 500];
         case 6
             load('+data/a1355e_examplePriming_Prime_high.mat')
             trainDuration = [0 200]; % this is how long the stimulation train was
@@ -255,6 +256,39 @@ for dataChoice = [1,6,4]
         expThreshDiffCut = 95;
         bracketRange = [-6:6];
         chanInt = 28;
+    elseif dataChoice == 5
+                type = 'dictionary';
+        
+        useFixedEnd = 0;
+        %fixedDistance = 2;
+        fixedDistance = 4; % in ms
+        plotIt = 0;
+        
+        %pre = 0.4096; % in ms
+        %post = 0.4096; % in ms
+        
+        pre = 0.8; % started with 1
+        post = 1; % started with 0.2
+        % 2.8, 1, 0.5 was 3/19/2018
+        
+        % these are the metrics used if the dictionary method is selected. The
+        % options are 'eucl', 'cosine', 'corr', for either euclidean distance,
+        % cosine similarity, or correlation for clustering and template matching.
+        
+        
+        distanceMetricDbscan = 'eucl';
+        distanceMetricSigMatch = 'eucl';
+        amntPreAverage = 3;
+        normalize = 'preAverage';
+        %normalize = 'firstSamp';
+        
+        recoverExp = 0;
+        threshVoltageCut = 75;
+        threshDiffCut = 75;
+        expThreshVoltageCut = 95;
+        expThreshDiffCut = 95;
+        bracketRange = [-3:3];
+        chanInt = 55;
     else
         
         type = 'dictionary';
@@ -382,6 +416,11 @@ for dataChoice = [1,6,4]
      for chanInt = chanIntList
         vizFunc.visualize_wavelet_channel(normalizedData,tMorlet,fMorlet,processedSig,...
             tEpoch,dataInt,chanInt,individual,average)
+     end
+    %%
+      for chanInt = chanIntList
+        vizFunc.visualize_wavelet_channel_small(normalizedData,tMorlet,fMorlet,processedSig,...
+            tEpoch,dataInt,chanInt,individual,average)
     end
     %%
     ylimsSpect = [5 300];
@@ -437,11 +476,6 @@ vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fsData,'type',type,'tE
 % using piecewise polynomial interpolation here
 type = 'pchip';
 useFixedEnd = 0;
-%pre = 0.4096; % in ms
-pre = 0.6;
-post = 0.4096; % in ms1
-
-
 pre = 0.8; % started with 1
 post = 1; % started with 0.2
 % 2.8, 1, 0.5 was 3/19/2018

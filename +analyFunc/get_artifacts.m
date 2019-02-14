@@ -25,6 +25,10 @@ amntPreAverage = p.Results.amntPreAverage;
 
 lengthMaxVecTrial = zeros(size(rawSig,3),size(rawSig,2));
 
+goodChansLogical = logical(zeros(size(rawSig,2),1));
+goodChansLogical(goodVec) = 1;
+rawSig(:,~goodChansLogical,:) = 0;
+
 for trial = 1:size(rawSig,3) % loop through trials 
     lengthMaxChan = zeros(1,size(rawSig,2));
     

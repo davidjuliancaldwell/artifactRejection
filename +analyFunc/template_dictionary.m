@@ -546,23 +546,23 @@ if plotIt
     
     figHeatMapUnsort = figure;
     figHeatMapUnsort.Units = "inches";
-    figHeatMapUnsort.Position = [1 1 2.8330 4];
+    figHeatMapUnsort.Position = [1 1 2 4];
     imagesc(1e3*templateArrayInt')
     xlabel('Sample')
     ylabel('Trial #')
-    set(gca,'fontsize',14)
+    set(gca,'fontsize',10)
     colormap(CTdiv)
     caxis([-max(abs(1e3*templateArrayInt(:))) max(abs(1e3*templateArrayInt(:)))])
     c = colorbar();
     c.Label.String = 'Voltage (mV)';
-    title({'Subselection of Trials',' Before Template Matching'})
+%     title({'Subselection of Trials',' Before Template Matching'})
     
     %%
     templates = templateSubtractCell{chan};
     templatesChoice = templates(indicesISC);
     figSorted = figure;
     figSorted.Units = "inches";
-    figSorted.Position = [1 1 2.8330 4];
+    figSorted.Position = [1 1 2 4];
     counter = 1;
     for templateInterest = unique(templatesChoice)'
         indicesSelect = find(templatesChoice == templateInterest);
@@ -572,7 +572,7 @@ if plotIt
         
         imagesc(1e3*templateArrayInt(:,indicesSelect)')
         if counter == 1
-            title({'Sorted Subselection of Trials','By Template'})
+%             title({'Sorted Subselection of Trials','By Template'})
         end
         colormap(CTdiv)
         caxis([-max(abs(1e3*templateArrayShortened(:))) max(abs(1e3*templateArrayShortened(:)))])
@@ -595,7 +595,7 @@ if plotIt
     templateArrayShortened = templateArrayExtracted(maxLocation+bracketRange,:);
     figureTemplate = figure;
     figureTemplate.Units = "inches";
-    figureTemplate.Position =[1 1 1 4];
+    figureTemplate.Position =[1 1 2 4];
     counter = 1;
     uniqueVec = unique(templatesChoice)';
     t = 1e3*(0:size(templateArrayShortened,1)-1)/fs;
@@ -632,7 +632,7 @@ if plotIt
     figure
     currentFig = gcf;
     currentFig.Units = "inches";
-    currentFig.Position = [1 1 2.8330 2.8330];
+    currentFig.Position = [1 1 1.8 1.8];
     h = scatter(1e3*clusterer.data(:,maxSub),1e3*clusterer.data(:,maxSub+1),20,'filled');
     ylabel('time point 1 : voltage (mV)')
     xlabel('time point 2 : voltage (mV)')
