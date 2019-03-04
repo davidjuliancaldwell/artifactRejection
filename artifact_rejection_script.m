@@ -19,10 +19,11 @@
 %%
 % clear the workspace
 %close all;clear all;clc
-close all;clear all;clc
+%close all;clear all;clc
+clear all,clc
 %%
 % choose data file of interest
-for dataChoice = [5]
+for dataChoice = [1]
     
     switch dataChoice
         
@@ -336,7 +337,7 @@ for dataChoice = [5]
     % templates look like on each channel, and what the discovered templates are
         xlims = [-100 500];
      xlims = [-10 210];
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fsData,'type',type,'tEpoch',...
         tEpoch,'xlims',xlims,'trainDuration',trainDuration,'stimChans',stimChans,...,
         'chanIntList',chanIntList,'templateTrial',templateTrial,'templateDictCell',templateDictCell,'modePlot','confInt')
@@ -349,7 +350,7 @@ for dataChoice = [5]
     ylims = [-0.6 0.6];
     vizFunc.small_multiples_time_series(processedSig,tEpoch,'type1',stimChans,'type2',0,'xlims',xlims,'ylims',ylims,'modePlot',modePlot,'highlightRange',trainDuration)
     
-    % %%
+%     % %%
     % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % [processedSig2,startInds2,endInds2] = analyFunc.interpolate_artifact(processedSig,'fs',fsData,'plotIt',0,'type',type,...,
     %     'stimchans',stimChans,'useFixedEneastd',useFixedEnd,'fixedDistance',fixedDistance,'pre',pre,'post',post);
@@ -406,24 +407,25 @@ for dataChoice = [5]
     individual = 0;
     average = 1;
     % chanIntLIst = 42;
-    %%
-    % chanIntList = chanInt;
-    for chanInt = chanIntList
-        vizFunc.visualize_wavelet_channel_no_raw(normalizedData,tMorlet,fMorlet,processedSig,...
-            tEpoch,chanInt,individual,average)
-    end
-    
-     for chanInt = chanIntList
-        vizFunc.visualize_wavelet_channel(normalizedData,tMorlet,fMorlet,processedSig,...
-            tEpoch,dataInt,chanInt,individual,average)
-     end
-    %%
-      for chanInt = chanIntList
-        vizFunc.visualize_wavelet_channel_small(normalizedData,tMorlet,fMorlet,processedSig,...
-            tEpoch,dataInt,chanInt,individual,average)
-    end
+%     %%
+%     % chanIntList = chanInt;
+%     for chanInt = chanIntList
+%         vizFunc.visualize_wavelet_channel_no_raw(normalizedData,tMorlet,fMorlet,processedSig,...
+%             tEpoch,chanInt,individual,average)
+%     end
+%     
+%      for chanInt = chanIntList
+%         vizFunc.visualize_wavelet_channel(normalizedData,tMorlet,fMorlet,processedSig,...
+%             tEpoch,dataInt,chanInt,individual,average)
+%      end
+%     %%
+%       for chanInt = chanIntList
+%         vizFunc.visualize_wavelet_channel_small(normalizedData,tMorlet,fMorlet,processedSig,...
+%             tEpoch,dataInt,chanInt,individual,average)
+%     end
     %%
     ylimsSpect = [5 300];
+    xlims = [-200 1000];
     vizFunc.small_multiples_spectrogram(normalizedData,tMorlet,fMorlet,'type1',stimChans,'type2',0,'xlims',xlims,'ylims',ylimsSpect);
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

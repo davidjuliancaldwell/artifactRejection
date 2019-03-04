@@ -10,7 +10,7 @@ type1 = [];
 type2 = [];
 average = 0;
 xlims = [-200 1000];
-ylims = [1 300];
+ylims = [5 300];
 
 for i=1:2:(length(varargin)-1)
     if ~ischar (varargin{i})
@@ -41,8 +41,8 @@ totalFig.Position = [1 1 8 8];
 p = numSubplots(size(signal,3));
 %min_c = squeeze(min(min(min(signal))));
 %max_c = squeeze(max(max(max(signal))));
-minC = -3;
-maxC = 3;
+minC = -2;
+maxC = 2;
 %cmap=flipud(cbrewer('div', 'RdBu', 13));
 load('america');
 cmap = cm;

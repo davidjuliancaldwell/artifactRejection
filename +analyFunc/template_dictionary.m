@@ -177,15 +177,20 @@ for chan = goodVec
     %   if plotIt
     if plotIt && chan == chanInt
         %%
+        colorFirst = [117 112 179;
+            231 41 138;
+            213 255 0;
+            0 244 255;
+            0.7 0.7 0.7]./255;
         
         figure
         currentFig = gcf;
         currentFig.Units = "inches";
         currentFig.Position = [1 1 1.8 1.8];
-        set(gca,'fontsize',8);
+        set(gca,'fontsize',12);
         h = scatter(1e3*clusterer.data(:,maxSub),1e3*clusterer.data(:,maxSub+1),20,'filled');
-        ylabel('time point 1 : voltage (mV)')
-        xlabel('time point 2 : voltage (mV)')
+        ylabel('V(t=1)')
+        xlabel('V(t=2)')
         set( h.Parent,'tickdir','out','box','off' );
         
         tempLabels = clusterer.labels;
@@ -195,11 +200,20 @@ for chan = goodVec
         labelInfo.ic{chan} = ia;
         labelInfo.tempLabels{chan} = tempLabels;
         h.CData = ic;
-        CT = cbrewerHelper.cbrewer('qual', 'Dark2', length(unique(tempLabels)));
-        colors = CT;
-        colormap(colors);
-        labelInfo.colors{chan} = colors;
         
+        %minLength1 = 8;
+        minLength1 = 5;
+        minLength2 = length(unique(tempLabels))+2;
+        CT = [colorFirst; cbrewerHelper.cbrewer('qual', 'Set1',max(minLength1,minLength2))];
+        % colormapOrder = [3 4 6 8];
+        % lengthCTvec = 1:size(CT,1);
+        %   isMemberCT = ismember(lengthCTvec,colormapOrder);
+        %   colormapOrder = [colormapOrder lengthCTvec(~isMemberCT)];
+        %  CT = CT(colormapOrder,:);
+        colors=CT;
+        labelInfo.colors{chan} = colors;
+        colorsNew = colors(1:length(unique(ic)),:);
+        colormap(colorsNew);
         
         totalFig = figure;
         totalFig.Units = 'inches';
@@ -210,12 +224,12 @@ for chan = goodVec
         xlabel('time point 2 : voltage (mV)')
         set( h.Parent,'tickdir','out','box','off' );
         h.CData = ic;
-        colormap(colors);
+        colorsNew = colors(1:length(unique(ic)),:);
+        colormap(colorsNew);
         
         set(gca,'fontsize',18)
         
         subplot(2,1,2)
-        
         t = 1e3*[0:size(templateArrayShortened,1)-1]/fs;
         plot(t,1e3*templateArrayShortened,'color',[0.75 0.75 0.75])
         hold on
@@ -223,7 +237,6 @@ for chan = goodVec
         set(h2, {'color'}, num2cell(colors(1:length(C)-1,:),2));
         
         colormap( colors );
-        
         ylabel('Voltage (mV)')
         xlabel('Time (ms)')
         set(gca,'fontsize',18)
@@ -259,7 +272,7 @@ for chan = goodVec
         xlabel('Time (ms)')
         set(gca,'fontsize',18)
         title('Dictionary of Templates from Raw Traces')
-        
+        clusterInt = clusterer;
     end
     templateListVec{chan} = templateArrayShortened;
     
@@ -377,13 +390,13 @@ for trial = 1:size(rawSig,3)
                 figure
                 currentFig = gcf;
                 currentFig.Units = "inches";
-                currentFig.Position = [1 1 1.8 1.8];
+                currentFig.Position = [1 1 2 2];
                 set(gca,'fontsize',8);
                 t = [0:length(extractedSig)-1]/fs;
                 
                 plot(1e3*t,1e3*extractedSig,'linewidth',2,'color','k')
                 hold on
-                plot(1e3*t,1e3*templateSubtract,'linewidth',2,'color',[0.5 0.5 0.5])
+                plot(1e3*t,1e3*templateSubtract,'linewidth',2,'color',[0 255 134]/255)
                 plot(1e3*t,1e3*extractedSig-1e3*templateSubtract,'linewidth',2,'color',[204 85 0]/255)
                 legend('Raw Signal','Template Selected','Recovered Signal');
                 set(gca,'fontsize',8)
@@ -398,13 +411,13 @@ for trial = 1:size(rawSig,3)
         end
         
         if plotIt && (trial == 10 || trial == 15 || trial == 20) && chan == chanInt
-          %%
+            %%
             figure
             currentFig = gcf;
             currentFig.Units = "inches";
             currentFig.Position = [1 1 2.8330 3.6670];
             set(gca,'fontsize',12);
-                        hold on
+            hold on
             for indexPlot = 1:length(startInds{trial}{chan})
                 tempBox = vizFunc.highlight(gca, [1e3*startInds{trial}{chan}(indexPlot)/fs 1e3*endInds{trial}{chan}(indexPlot)/fs], [-1e3*max(abs(rawSig(:,chan,trial))) 1e3*max(abs(rawSig(:,chan,trial)))], [.7 .7 .7]);
             end
@@ -510,10 +523,8 @@ if plotIt
     figSortTime.Units = "inches";
     figSortTime.Position = [1 1 1 10/2];
     tempLabels = labelInfo.tempLabels{chan};
-    colors = labelInfo.colors{chan};
-    CT = cbrewerHelper.cbrewer('qual', 'Dark2', length(unique(tempLabels)));
-    colors = CT;
-    colormap(colors);
+    minLength1 = 7;
+    minLength2 = length(unique(tempLabels))+2;
     
     for ii = 1:numIndices
         colorInt = colors(templatesChoiceTimeSeries(ii),:);
@@ -555,7 +566,7 @@ if plotIt
     caxis([-max(abs(1e3*templateArrayInt(:))) max(abs(1e3*templateArrayInt(:)))])
     c = colorbar();
     c.Label.String = 'Voltage (mV)';
-%     title({'Subselection of Trials',' Before Template Matching'})
+    %     title({'Subselection of Trials',' Before Template Matching'})
     
     %%
     templates = templateSubtractCell{chan};
@@ -572,7 +583,7 @@ if plotIt
         
         imagesc(1e3*templateArrayInt(:,indicesSelect)')
         if counter == 1
-%             title({'Sorted Subselection of Trials','By Template'})
+            %             title({'Sorted Subselection of Trials','By Template'})
         end
         colormap(CTdiv)
         caxis([-max(abs(1e3*templateArrayShortened(:))) max(abs(1e3*templateArrayShortened(:)))])
@@ -630,12 +641,15 @@ if plotIt
     obj.hLineX(1).LineWidth = 5;
     
     figure
+    clusterer = clusterInt;
     currentFig = gcf;
     currentFig.Units = "inches";
     currentFig.Position = [1 1 1.8 1.8];
     h = scatter(1e3*clusterer.data(:,maxSub),1e3*clusterer.data(:,maxSub+1),20,'filled');
-    ylabel('time point 1 : voltage (mV)')
-    xlabel('time point 2 : voltage (mV)')
+    %ylabel('time point 1 : voltage (mV)')
+    ylabel('V(t=2)')
+    xlabel('V(t=1)')
+    % xlabel('time point 2 : voltage (mV)')
     set( h.Parent,'tickdir','out','box','off' );
     
     tempLabels = clusterer.labels;
@@ -645,9 +659,7 @@ if plotIt
     labelInfo.ic{chan} = ia;
     labelInfo.tempLabels{chan} = tempLabels;
     h.CData = ic;
-    CT = cbrewerHelper.cbrewer('qual', 'Dark2', length(unique(tempLabels)));
-    colors = CT;
-    colormap(colors);
+    colormap(colorsNew);
     labelInfo.colors{chan} = colors;
     set(gca,'fontsize',12);
     
