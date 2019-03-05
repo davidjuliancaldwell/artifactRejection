@@ -39,6 +39,7 @@ addParameter(p,'normalize','firstSamp',@isstr);
 addParameter(p,'recoverExp',0,@(x) x==0 || x ==1);
 addParameter(p,'minDuration',0,@isnumeric);
 addParameter(p,'bracketRange',[-8:8],@isnumeric);
+addParameter(p,'onsetThreshold',1.5,@isnumeric);
 
 addParameter(p,'threshVoltageCut',75,@isnumeric);
 addParameter(p,'threshDiffCut',75,@isnumeric);
@@ -66,6 +67,7 @@ bads = p.Results.bads;
 fixedDistance = p.Results.fixedDistance;
 fs = p.Results.fs;
 
+onsetThreshold = p.Results.onsetThreshold;
 amntPreAverage = p.Results.amntPreAverage;
 normalize = p.Results.normalize;
 
@@ -95,7 +97,7 @@ numChans = size(rawSig,2);
 
 [startInds,endInds] = analyFunc.get_artifact_indices(rawSig,'pre',pre,'post',post,'plotIt',...,
     plotIt,'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,'fs',fs,'goodVec',goodVec,...
-    'minDuration',minDuration,'threshVoltageCut',threshVoltageCut,'threshDiffCut',threshDiffCut);
+    'minDuration',minDuration,'threshVoltageCut',threshVoltageCut,'threshDiffCut',threshDiffCut,'onsetThreshold',onsetThreshold);
 
       %       corrected_signal = artifact_correction(squeeze(processedSig(:,:,1)), index, stimulation_mode, stimulation_length, sampling_frequency, default, varargin)
 

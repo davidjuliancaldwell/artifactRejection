@@ -66,6 +66,8 @@ addParameter(p,'goodVec',[1:64],@isnumeric);
 addParameter(p,'chanInt',1,@isnumeric);
 addParameter(p,'minDuration',0,@isnumeric);
 
+addParameter(p,'onsetThreshold',1.5,@isnumeric);
+
 addParameter(p,'threshVoltageCut',75,@isnumeric);
 addParameter(p,'threshDiffCut',75,@isnumeric);
 
@@ -83,8 +85,9 @@ chanInt = p.Results.chanInt;
 minDuration = p.Results.minDuration;
 threshVoltageCut = p.Results.threshVoltageCut;
 threshDiffCut = p.Results.threshDiffCut;
-
+onsetThreshold = p.Results.onsetThreshold;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 presamps = round(pre/1e3 * fs); % pre time in sec
 postsamps = round(post/1e3 * fs); %
 minDuration = round(minDuration/1e3 * fs);
@@ -132,9 +135,9 @@ timeSampsExtend = 2*fs/1000;% time_ms
 
 for trial = 1:size(rawSig,3)
     
-    inds = find(abs(zscore(diffSig(:,chanMax,trial)))>1.5); % didn't quite work with 2, try 1.5 DJC 9-4-2018
+    inds = find(abs(zscore(diffSig(:,chanMax,trial)))>onsetThreshold); % didn't quite work with 2, try 1.5 DJC 9-4-2018
     diffBtInds = [diff(inds)'];
-    [~,indsOnset] = find(abs(zscore(diffBtInds))>1.5);
+    [~,indsOnset] = find(abs(zscore(diffBtInds))>onsetThreshold);
     
     for chan = goodVec
         

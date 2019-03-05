@@ -63,6 +63,11 @@ addParameter(p,'stimChans',[],@isnumeric);
 addParameter(p,'bads',[],@isnumeric);
 addParameter(p,'fixedDistance',2,@isnumeric);
 addParameter(p,'fs',12207,@isnumeric);
+addParameter(p,'onsetThreshold',1.5,@isnumeric);
+addParameter(p,'minDuration',0,@isnumeric);
+addParameter(p,'threshVoltageCut',75,@isnumeric);
+addParameter(p,'threshDiffCut',75,@isnumeric);
+
 
 p.parse(rawSig,varargin{:});
 rawSig = p.Results.rawSig;
@@ -73,11 +78,16 @@ pre = p.Results.pre;
 post = p.Results.post;
 preInterp = p.Results.preInterp;
 postInterp = p.Results.postInterp;close all
+onsetThreshold = p.Results.onsetThreshold;
 
 stimChans = p.Results.stimChans;
 bads = p.Results.bads;
 fixedDistance = p.Results.fixedDistance;
 fs = p.Results.fs;
+minDuration = p.Results.minDuration;
+threshVoltageCut = p.Results.threshVoltageCut;
+threshDiffCut = p.Results.threshDiffCut;
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -95,7 +105,8 @@ fprintf(['-------Interpolation-------- \n'])
 fprintf(['-------' type '-------- \n'])
 
 [startInds,endInds] = analyFunc.get_artifact_indices(rawSig,'pre',pre,'post',post,'plotIt',...,
-    0,'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,'fs',fs,'goodVec',goodVec);
+    plotIt,'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,'fs',fs,'goodVec',goodVec,...
+    'minDuration',minDuration,'threshVoltageCut',threshVoltageCut,'threshDiffCut',threshDiffCut,'onsetThreshold',onsetThreshold);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -128,9 +139,9 @@ for trial = 1:size(rawSig,3)
             hold on
             plot(1e3*t,1e6*rawSig(:,chan,trial),'linewidth',2,'color','k')
             for indexPlot = 1:length(startInds{trial}{chan})
-               tempBox = vizFunc.highlight(gca, [1e3*startInds{trial}{chan}(indexPlot)/fs 1e3*endInds{trial}{chan}(indexPlot)/fs], [1e6*min(rawSig(:,chan,trial)) 1e6*max(rawSig(:,chan,trial))], [.5 .5 .5]);
+                tempBox = vizFunc.highlight(gca, [1e3*startInds{trial}{chan}(indexPlot)/fs 1e3*endInds{trial}{chan}(indexPlot)/fs], [1e6*min(rawSig(:,chan,trial)) 1e6*max(rawSig(:,chan,trial))], [.5 .5 .5]);
             end
-     
+            
             legend({'linear interpolation','raw signal','artifact window'})
             set(gca,'fontsize',18)
             title('Raw vs. Processed Sig')

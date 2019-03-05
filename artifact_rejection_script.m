@@ -5,7 +5,7 @@
 
 % variables required for functions to work properly
 %
-% dataInt = time x channels x trials
+% dataInt = time x channels x epochs
 %
 % fsData = sampling rate of the data Hz
 %
@@ -23,7 +23,7 @@
 clear all,clc
 %%
 % choose data file of interest
-for dataChoice = [1]
+for dataChoice = [6]
     
     switch dataChoice
         
@@ -148,15 +148,14 @@ for dataChoice = [1]
         amntPreAverage = 3;
         normalize = 'preAverage';
         %normalize = 'firstSamp';
-        
+        onsetThreshold = 1.5;
         recoverExp = 0;
-        
         threshVoltageCut = 75;
         threshDiffCut = 75;
         expThreshVoltageCut = 95;
         expThreshDiffCut = 95;
         bracketRange = [-6:6];
-        chanInt = 23;
+        chanInt = 15;
         
     elseif dataChoice == 4
         type = 'dictionary';
@@ -183,9 +182,8 @@ for dataChoice = [1]
         amntPreAverage = 3;
         normalize = 'preAverage';
         %normalize = 'firstSamp';
-        
+        onsetThreshold = 1.5;
         recoverExp = 1;
-        
         threshVoltageCut = 55;
         threshDiffCut = 55;
         expThreshVoltageCut = 95;
@@ -216,7 +214,7 @@ for dataChoice = [1]
         amntPreAverage = 3;
         normalize = 'preAverage';
         %normalize = 'firstSamp';
-        
+        onsetThreshold = 1.5;
         recoverExp = 0;
         threshVoltageCut = 75;
         threshDiffCut = 75;
@@ -241,14 +239,15 @@ for dataChoice = [1]
         
         % these are the metrics used if the dictionary method is selected. The
         % options are 'eucl', 'cosine', 'corr', for either euclidean distance,
-        % cosine similarity, or correlation for clustering and template matching.
-        
+        % cosine similarity, or correlation for clustering and template matching.    
         
         distanceMetricDbscan = 'eucl';
         distanceMetricSigMatch = 'eucl';
         amntPreAverage = 3;
         normalize = 'preAverage';
         %normalize = 'firstSamp';
+        
+        onsetThreshold = 1.5;
         
         recoverExp = 0;
         threshVoltageCut = 75;
@@ -258,7 +257,7 @@ for dataChoice = [1]
         bracketRange = [-6:6];
         chanInt = 28;
     elseif dataChoice == 5
-                type = 'dictionary';
+        type = 'dictionary';
         
         useFixedEnd = 0;
         %fixedDistance = 2;
@@ -282,6 +281,7 @@ for dataChoice = [1]
         amntPreAverage = 3;
         normalize = 'preAverage';
         %normalize = 'firstSamp';
+        onsetThreshold = 1.5;
         
         recoverExp = 0;
         threshVoltageCut = 75;
@@ -314,6 +314,9 @@ for dataChoice = [1]
         amntPreAverage = 3;
         normalize = 'preAverage';
         %normalize = 'firstSamp';
+        
+        onsetThreshold = 1.5;
+        
         recoverExp = 0;
         threshVoltageCut = 75;
         threshDiffCut = 75;
@@ -330,14 +333,15 @@ for dataChoice = [1]
         'distanceMetricDbscan',distanceMetricDbscan,'distanceMetricSigMatch',distanceMetricSigMatch,...
         'recoverExp',recoverExp,'normalize',normalize,'amntPreAverage',amntPreAverage,...
         'minDuration',minDuration,'bracketRange',bracketRange,'threshVoltageCut',threshVoltageCut,...
-        'threshDiffCut',threshDiffCut,'expThreshVoltageCut',expThreshVoltageCut,'expThreshDiffCut',expThreshDiffCut,'chanInt',chanInt);
-    %
+        'threshDiffCut',threshDiffCut,'expThreshVoltageCut',expThreshVoltageCut,...
+        'expThreshDiffCut',expThreshDiffCut,'onsetThreshold',onsetThreshold,'chanInt',chanInt);
+    
     % visualization
     % of note - more visualizations are created here, including what the
     % templates look like on each channel, and what the discovered templates are
-        xlims = [-100 500];
-     xlims = [-10 210];
-%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    xlims = [-100 500];
+    xlims = [-10 210];
+    %     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fsData,'type',type,'tEpoch',...
         tEpoch,'xlims',xlims,'trainDuration',trainDuration,'stimChans',stimChans,...,
         'chanIntList',chanIntList,'templateTrial',templateTrial,'templateDictCell',templateDictCell,'modePlot','confInt')
@@ -350,7 +354,7 @@ for dataChoice = [1]
     ylims = [-0.6 0.6];
     vizFunc.small_multiples_time_series(processedSig,tEpoch,'type1',stimChans,'type2',0,'xlims',xlims,'ylims',ylims,'modePlot',modePlot,'highlightRange',trainDuration)
     
-%     % %%
+    %     % %%
     % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % [processedSig2,startInds2,endInds2] = analyFunc.interpolate_artifact(processedSig,'fs',fsData,'plotIt',0,'type',type,...,
     %     'stimchans',stimChans,'useFixedEneastd',useFixedEnd,'fixedDistance',fixedDistance,'pre',pre,'post',post);
@@ -407,22 +411,22 @@ for dataChoice = [1]
     individual = 0;
     average = 1;
     % chanIntLIst = 42;
-%     %%
-%     % chanIntList = chanInt;
-%     for chanInt = chanIntList
-%         vizFunc.visualize_wavelet_channel_no_raw(normalizedData,tMorlet,fMorlet,processedSig,...
-%             tEpoch,chanInt,individual,average)
-%     end
-%     
-%      for chanInt = chanIntList
-%         vizFunc.visualize_wavelet_channel(normalizedData,tMorlet,fMorlet,processedSig,...
-%             tEpoch,dataInt,chanInt,individual,average)
-%      end
-%     %%
-%       for chanInt = chanIntList
-%         vizFunc.visualize_wavelet_channel_small(normalizedData,tMorlet,fMorlet,processedSig,...
-%             tEpoch,dataInt,chanInt,individual,average)
-%     end
+    %     %%
+    %     % chanIntList = chanInt;
+    %     for chanInt = chanIntList
+    %         vizFunc.visualize_wavelet_channel_no_raw(normalizedData,tMorlet,fMorlet,processedSig,...
+    %             tEpoch,chanInt,individual,average)
+    %     end
+    %
+    %      for chanInt = chanIntList
+    %         vizFunc.visualize_wavelet_channel(normalizedData,tMorlet,fMorlet,processedSig,...
+    %             tEpoch,dataInt,chanInt,individual,average)
+    %      end
+    %     %%
+    %       for chanInt = chanIntList
+    %         vizFunc.visualize_wavelet_channel_small(normalizedData,tMorlet,fMorlet,processedSig,...
+    %             tEpoch,dataInt,chanInt,individual,average)
+    %     end
     %%
     ylimsSpect = [5 300];
     xlims = [-200 1000];
@@ -460,7 +464,7 @@ fixedDistance = 1.2; % in ms % 2.2 for the first 2 cases, 4 for the 3rd,
 
 % perform the processing
 [processedSig,startInds,endInds] = analyFunc.interpolate_artifact(dataInt,'fs',fsData,'plotIt',0,'type',type,...,
-    'stimchans',stimChans,'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,'pre',pre,'post',post);
+    'stimchans',stimChans,'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,'pre',pre,'post',post,'onsetThreshold',onsetThreshold);
 
 % visualization
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -484,8 +488,10 @@ post = 1; % started with 0.2
 
 fixedDistance = 2; % in ms
 
-[processedSig,startInds,endInds] = analyFunc.interpolate_artifact(dataInt,'fs',fsData,'plotIt',1,'type',type,...,
-    'stimchans',stimChans,'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,'pre',pre,'post',post);
+[processedSig,startInds,endInds] = analyFunc.interpolate_artifact(dataInt,'fs',fsData,...
+    'plotIt',plotIt,'type',type,'stimchans',stimChans,'useFixedEnd',useFixedEnd,...
+    'fixedDistance',fixedDistance,'pre',pre,'post',post,'onsetThreshold',onsetThreshold,...
+    'threshVoltageCut',threshVoltageCut,'threshDiffCut',threshDiffCut);
 
 %visualization
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -495,3 +501,90 @@ vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fsData,'type',type,'tE
     'chanIntList',chanIntList,'modePlot','confInt')
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%
+average = 1;
+%chanIntList = 3;
+trainDuration = [0 400];
+modePlot = 'avg';
+xlims = [-200 1000];
+ylims = [-0.6 0.6];
+vizFunc.small_multiples_time_series(processedSig,tEpoch,'type1',stimChans,'type2',0,'xlims',xlims,'ylims',ylims,'modePlot',modePlot,'highlightRange',trainDuration)
+
+%     % %%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% [processedSig2,startInds2,endInds2] = analyFunc.interpolate_artifact(processedSig,'fs',fsData,'plotIt',0,'type',type,...,
+%     'stimchans',stimChans,'useFixedEneastd',useFixedEnd,'fixedDistance',fixedDistance,'pre',pre,'post',post);
+% %%
+% [processedSig2,templateDictCell2,templateTrial2,startInds2,endInds2] = analyFunc.template_subtract(dataInt,'type',type,...
+%     'fs',fsData,'plotIt',plotIt,'pre',pre,'post',post,'stimChans',stimChans,...
+%     'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,...,
+%     'distanceMetricDbscan',distanceMetricDbscan,'distanceMetricSigMatch',distanceMetricSigMatch,...
+%     'recoverExp',recoverExp,'normalize',normalize,'amntPreAverage',amntPreAverage,...
+%     'minDuration',minDuration,'bracketRange',bracketRange);
+%
+% %%
+%  [processedSig_v2,templateDictCell,template] = analyFunc.template_subtract_iterative(processedSig,...,
+%      'fs',fsData,'plotIt',0,'pre',pre,'post',post,'stimChans',stimChans,'startInds',startInds,'endInds',endInds);
+%%additional processing
+
+rerefMode = 'mean';
+switch dataChoice
+    case 1
+        badChannels = [stimChans [53:64]];
+    case 2
+        badChannels = stimChans;
+        channelsToUse = [22 23 30 31 38 39 46 47];
+    case 6
+        badChannels = stimChans;
+    case 7
+        badChannels = stimChans;
+end
+reref = 0;
+if reref
+    processedSig = analyFunc.rereference_CAR_median(processedSig,rerefMode,badChannels,[],[],channelsToUse);
+    processedSigReref = analyFunc.rereference_CAR_median(processedSig,rerefMode,badChannels,[],[],channelsToUse);
+end
+
+%
+%%%%%%% wavelet
+timeRes = 0.01; % 25 ms bins
+
+% [powerout,fMorlet,tMorlet] = wavelet_wrapper(processedSig,fsData,stimChans);
+[powerout,fMorlet,tMorlet,~] = analyFunc.waveletWrapper(processedSig,fsData,timeRes,stimChans);
+%
+% additional parameters
+postStim = 2000;
+sampsPostStim = round(postStim/1e3*fsData);
+
+preStim = 1000;
+sampsPreStim = round(preStim/1e3*fsData);
+
+tMorlet = linspace(-preStim,postStim,length(tMorlet))/1e3;
+% normalize data
+dataRef = powerout(:,tMorlet<0.05 & tMorlet>-0.8,:,:);
+%
+[normalizedData] = analyFunc.normalize_spectrogram_wavelet(dataRef,powerout);
+individual = 0;
+average = 1;
+% chanIntLIst = 42;
+%     %%
+%     % chanIntList = chanInt;
+%     for chanInt = chanIntList
+%         vizFunc.visualize_wavelet_channel_no_raw(normalizedData,tMorlet,fMorlet,processedSig,...
+%             tEpoch,chanInt,individual,average)
+%     end
+%
+%      for chanInt = chanIntList
+%         vizFunc.visualize_wavelet_channel(normalizedData,tMorlet,fMorlet,processedSig,...
+%             tEpoch,dataInt,chanInt,individual,average)
+%      end
+%     %%
+%       for chanInt = chanIntList
+%         vizFunc.visualize_wavelet_channel_small(normalizedData,tMorlet,fMorlet,processedSig,...
+%             tEpoch,dataInt,chanInt,individual,average)
+%     end
+%
+ylimsSpect = [5 300];
+xlims = [-200 1000];
+vizFunc.small_multiples_spectrogram(normalizedData,tMorlet,fMorlet,'type1',stimChans,'type2',0,'xlims',xlims,'ylims',ylimsSpect);
