@@ -342,19 +342,19 @@ for dataChoice = [6]
     xlims = [-100 500];
     xlims = [-10 210];
     %     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fsData,'type',type,'tEpoch',...
-        tEpoch,'xlims',xlims,'trainDuration',trainDuration,'stimChans',stimChans,...,
-        'chanIntList',chanIntList,'templateTrial',templateTrial,'templateDictCell',templateDictCell,'modePlot','confInt')
-    %
+%     vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fsData,'type',type,'tEpoch',...
+%         tEpoch,'xlims',xlims,'trainDuration',trainDuration,'stimChans',stimChans,...,
+%         'chanIntList',chanIntList,'templateTrial',templateTrial,'templateDictCell',templateDictCell,'modePlot','confInt')
+%     %
     average = 1;
     %chanIntList = 3;
     trainDuration = [0 400];
     modePlot = 'avg';
     xlims = [-200 1000];
     ylims = [-0.6 0.6];
-    vizFunc.small_multiples_time_series(processedSig,tEpoch,'type1',stimChans,'type2',0,'xlims',xlims,'ylims',ylims,'modePlot',modePlot,'highlightRange',trainDuration)
-    
-    %     % %%
+%     vizFunc.small_multiples_time_series(processedSig,tEpoch,'type1',stimChans,'type2',0,'xlims',xlims,'ylims',ylims,'modePlot',modePlot,'highlightRange',trainDuration)
+%     
+%     %     % %%
     % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % [processedSig2,startInds2,endInds2] = analyFunc.interpolate_artifact(processedSig,'fs',fsData,'plotIt',0,'type',type,...,
     %     'stimchans',stimChans,'useFixedEneastd',useFixedEnd,'fixedDistance',fixedDistance,'pre',pre,'post',post);
@@ -391,7 +391,7 @@ for dataChoice = [6]
     
     %
     %%%%%%% wavelet
-    timeRes = 0.01; % 25 ms bins
+    timeRes = 0.01; % 10 ms bins
     
     % [powerout,fMorlet,tMorlet] = wavelet_wrapper(processedSig,fsData,stimChans);
     [powerout,fMorlet,tMorlet,~] = analyFunc.waveletWrapper(processedSig,fsData,timeRes,stimChans);

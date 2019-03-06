@@ -96,8 +96,18 @@ for idx=1:size(signal,3)
     colormap(cmap);
     vizFunc.set_colormap_threshold(gcf, [-0.5 0.5], [minC maxC], [1 1 1])
     axis off
-    vline(0,'k')
-
+    vizFunc.vline(0,'k')
+    
+    lines(1) = vline(xlims(1),'k');
+    lines(2) = vline(xlims(2),'k');
+    lines(3) = hline(ylims(1),'k');
+    lines(4) = hline(ylims(2),'k');
+    
+    lines(1).LineWidth = 0.5;
+    lines(2).LineWidth = 0.5;
+    lines(3).LineWidth = 0.5;
+    lines(4).LineWidth = 0.5;
+    
 end
 
 colorbar()
