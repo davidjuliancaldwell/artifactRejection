@@ -1,4 +1,4 @@
-function [] = visualize_wavelet_channel_no_raw(powerout,tMorlet,fMorlet,processedSig,tEpoch,chanInt,individual,average)
+function [] = visualize_wavelet_channel_no_raw_button(powerout,tMorlet,fMorlet,processedSig,tEpoch,chanInt,individual,average)
 % set colormap using cbrewer
 %CT = cbrewer('div','RdBu',11);
 % flip it so red is increase, blue is down
@@ -10,7 +10,7 @@ if individual
     for i = 1:size(powerout,4)
         totalFig = figure;
         totalFig.Units = 'inches';
-        totalFig.Position = [1 1 2 3];
+        totalFig.Position = [1 1 4 6];
         subplot(2,1,2);
         s = surf(1e3*tMorlet,fMorlet,powerout(:,:,chanInt,i),'edgecolor','none');
         % Extract X,Y and Z data from surface plot
@@ -50,14 +50,14 @@ if individual
         ylim(ylimsVec);
         set(gca,'fontsize',8)
         colormap(CT);
-        vizFunc.set_colormap_threshold(gcf, [-0.5 0.5], [-2 2], [1 1 1])
+        vizFunc.set_colormap_threshold(gcf, [-0.2 0.2], [-2 2], [1 1 1])
         
         h1 = subplot(2,1,1);
         plot(1e3*tEpoch,1e3*processedSig(:,chanInt,i),'color',[204 85 0]/255,'linewidth',1)
         xlabel('Time (ms)');
         ylabel('Voltage (mV)')
         title(['Recovered Signal Channel ' num2str(chanInt) ' Trial ' num2str(i)]);
-        ylims = [-(max(abs(1e3*nanmean(squeeze(processedSig(:,chanInt,:)),2)))+0.01) (max(abs(1e3*nanmean(squeeze(processedSig(:,chanInt,:)),2))))+0.01];
+        ylims = [-(max(abs(1e3*nanmean(squeeze(processedSig(:,chanInt,:)),2)))+0.02) (max(abs(1e3*nanmean(squeeze(processedSig(:,chanInt,:)),2))))+0.02];
         ylim(ylims);
         ylim_h1 = ylims;
         xlim([-200 1000]);
@@ -73,11 +73,11 @@ if average
     
     totalFig2 = figure;
     totalFig2.Units = 'inches';
-    totalFig2.Position =[1 1 2 3];
+    totalFig2.Position =[1 1 4 6];
     subplot(2,1,2);
     s = surf(1e3*tMorlet,fMorlet,poweroutAvg,'edgecolor','none');
     hold on
-    xlimsVec = [-200 1000];
+    xlimsVec = [-200 800];
     ylimsVec = [5 300];
     % Extract X,Y and Z data from surface plot
     x=s.XData;
@@ -116,7 +116,7 @@ if average
     ylim(ylimsVec);
     set(gca,'fontsize',8)
     colormap(CT);
-    vizFunc.set_colormap_threshold(gcf, [-0.5 0.5 ], [-2 2], [1 1 1])
+    vizFunc.set_colormap_threshold(gcf, [-0.01 0.01], [-1 1], [1 1 1])
     colorbar();
     
     h3 = subplot(2,1,1);
@@ -124,9 +124,9 @@ if average
     xlabel('Time (ms)');
     ylabel('Voltage (mV)')
     title(['Recovered Signal Channel ' num2str(chanInt)]);
-    ylims = [-(max(abs(1e3*nanmean(squeeze(processedSig(:,chanInt,:)),2)))+0.01) (max(abs(1e3*nanmean(squeeze(processedSig(:,chanInt,:)),2))))+0.01];
+    ylims = [-(max(abs(1e3*nanmean(squeeze(processedSig(:,chanInt,:)),2)))+0.02) (max(abs(1e3*nanmean(squeeze(processedSig(:,chanInt,:)),2))))+0.02];
     ylim(ylims);
-    xlim([-200 1000]);
+    xlim([-200 800]);
     
     set(gca,'fontsize',8,'Xlabel',[])
     

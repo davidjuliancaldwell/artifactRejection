@@ -83,6 +83,10 @@ addParameter(p,'expThreshVoltageCut',95,@isnumeric);
 addParameter(p,'expThreshDiffCut',95,@isnumeric);
 addParameter(p,'chanInt',1,@isnumeric);
 
+addParameter(p,'minPts',2,@isnumeric);
+addParameter(p,'minClustSize',3,@isnumeric);
+addParameter(p,'outlierThresh',0.95,@isnumeric);
+
 p.parse(templateArrayCell,templateTrial,rawSig,fs,varargin{:});
 
 templateArrayCell = p.Results.templateArrayCell;
@@ -107,6 +111,10 @@ expThreshVoltageCut = p.Results.expThreshVoltageCut;
 expThreshDiffCut = p.Results.expThreshDiffCut;
 
 chanInt = p.Results.chanInt;
+
+minPts = p.Results.minPts;
+minClustSize = p.Results.minClustSize;
+outlierThresh = p.Results.outlierThresh;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 templateArrayCellOutput = {};
@@ -143,16 +151,21 @@ for chan = goodVec
     
     try
         % (1) directly set the parameters
-        clusterer.minpts = 2;
-        clusterer.minclustsize = 3;
-        clusterer.outlierThresh = 0.95;
+%         clusterer.minpts = 2;
+%         clusterer.minclustsize = 3;
+%         clusterer.outlierThresh = 0.95;
+         clusterer.minpts = minPts;
+         clusterer.minclustsize = minClustSize;
+         clusterer.outlierThresh = outlierThresh;
+
+
         clusterer.metric = distanceMetricDbscan;
         clusterer.fit_model(); 			% trains a cluster hierarchy
     catch
         % (1) directly set the parameters
-        clusterer.minpts = 3;
-        clusterer.minclustsize = 3;
-        clusterer.outlierThresh = 0.95;
+        clusterer.minpts = minPts+1;
+        clusterer.minclustsize = minClustSize+1;
+        clusterer.outlierThresh = outlierThresh;
         clusterer.metric = distanceMetricDbscan;
         clusterer.fit_model(); 			% trains a cluster hierarchy
     end

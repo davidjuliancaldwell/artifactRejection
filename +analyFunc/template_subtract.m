@@ -48,6 +48,12 @@ addParameter(p,'expThreshVoltageCut',75,@isnumeric);
 addParameter(p,'expThreshDiffCut',75,@isnumeric);
 
 addParameter(p,'chanInt',1,@isnumeric);
+
+
+addParameter(p,'minPts',2,@isnumeric);
+addParameter(p,'minClustSize',3,@isnumeric);
+addParameter(p,'outlierThresh',0.95,@isnumeric);
+
 p.parse(rawSig,varargin{:});
 
 rawSig = p.Results.rawSig;
@@ -83,6 +89,10 @@ expThreshVoltageCut = p.Results.expThreshVoltageCut;
 expThreshDiffCut = p.Results.expThreshDiffCut;
 
 chanInt = p.Results.chanInt;
+
+minPts = p.Results.minPts;
+minClustSize = p.Results.minClustSize;
+outlierThresh = p.Results.outlierThresh;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % define matrix of zeros
@@ -121,7 +131,7 @@ switch type
             'distanceMetricDbscan',distanceMetricDbscan,'distanceMetricSigMatch',distanceMetricSigMatch,...
             'goodVec',goodVec,'startInds',startInds,'endInds',endInds,'recoverExp',recoverExp,'maxAmps',maxAmps,...
             'amntPreAverage',amntPreAverage,'maxLocation',maxLocation,'bracketRange',bracketRange,...
-            'expThreshDiffCut',expThreshDiffCut,'expThreshVoltageCut',expThreshVoltageCut,'chanInt',chanInt);
+            'expThreshDiffCut',expThreshDiffCut,'expThreshVoltageCut',expThreshVoltageCut,'chanInt',chanInt,'minPts',minPts,'minClustSize',minClustSize,'outlierThresh',outlierThresh);
         
     case 'average'
         [processedSig,templateArrayCellOutput] = analyFunc.template_average(templateArrayCell,rawSig,'plotIt',plotIt...,

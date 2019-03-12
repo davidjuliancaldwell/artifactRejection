@@ -239,7 +239,7 @@ for dataChoice = [6]
         
         % these are the metrics used if the dictionary method is selected. The
         % options are 'eucl', 'cosine', 'corr', for either euclidean distance,
-        % cosine similarity, or correlation for clustering and template matching.    
+        % cosine similarity, or correlation for clustering and template matching.
         
         distanceMetricDbscan = 'eucl';
         distanceMetricSigMatch = 'eucl';
@@ -342,19 +342,19 @@ for dataChoice = [6]
     xlims = [-100 500];
     xlims = [-10 210];
     %     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%     vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fsData,'type',type,'tEpoch',...
-%         tEpoch,'xlims',xlims,'trainDuration',trainDuration,'stimChans',stimChans,...,
-%         'chanIntList',chanIntList,'templateTrial',templateTrial,'templateDictCell',templateDictCell,'modePlot','confInt')
-%     %
+    %     vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fsData,'type',type,'tEpoch',...
+    %         tEpoch,'xlims',xlims,'trainDuration',trainDuration,'stimChans',stimChans,...,
+    %         'chanIntList',chanIntList,'templateTrial',templateTrial,'templateDictCell',templateDictCell,'modePlot','confInt')
+    %     %
     average = 1;
     %chanIntList = 3;
     trainDuration = [0 400];
     modePlot = 'avg';
     xlims = [-200 1000];
     ylims = [-0.6 0.6];
-%     vizFunc.small_multiples_time_series(processedSig,tEpoch,'type1',stimChans,'type2',0,'xlims',xlims,'ylims',ylims,'modePlot',modePlot,'highlightRange',trainDuration)
-%     
-%     %     % %%
+    %     vizFunc.small_multiples_time_series(processedSig,tEpoch,'type1',stimChans,'type2',0,'xlims',xlims,'ylims',ylims,'modePlot',modePlot,'highlightRange',trainDuration)
+    %
+    %     %     % %%
     % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % [processedSig2,startInds2,endInds2] = analyFunc.interpolate_artifact(processedSig,'fs',fsData,'plotIt',0,'type',type,...,
     %     'stimchans',stimChans,'useFixedEneastd',useFixedEnd,'fixedDistance',fixedDistance,'pre',pre,'post',post);
@@ -385,17 +385,23 @@ for dataChoice = [6]
     end
     reref = 0;
     if reref
+        fprintf(['-------Done rereferencing-------- \n'])
+        
         processedSig = analyFunc.rereference_CAR_median(processedSig,rerefMode,badChannels,[],[],channelsToUse);
         processedSigReref = analyFunc.rereference_CAR_median(processedSig,rerefMode,badChannels,[],[],channelsToUse);
     end
     
     %
     %%%%%%% wavelet
+    fprintf(['-------Beginning wavelet analysis-------- \n'])
+    
     timeRes = 0.01; % 10 ms bins
     
     % [powerout,fMorlet,tMorlet] = wavelet_wrapper(processedSig,fsData,stimChans);
     [powerout,fMorlet,tMorlet,~] = analyFunc.waveletWrapper(processedSig,fsData,timeRes,stimChans);
     %
+    fprintf(['-------Ending wavelet analysis-------- \n'])
+    
     % additional parameters
     postStim = 2000;
     sampsPostStim = round(postStim/1e3*fsData);
