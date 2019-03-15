@@ -97,8 +97,6 @@ defaultWinAverage = fixedDistanceSamps ; %end_inds{trial}(1)-start_inds{trial}(1
 % take diff of signal to find onset of stimulation train
 order = 3;
 framelen = 7;
-%diffSig = permute(cat(3,zeros(size(rawSig,2), size(rawSig,3)),permute(diff(rawSig),[2 3 1])),[3 1 2]);
-
 fprintf(['-------Smoothing data with Savitsky-Golay Filter-------- \n'])
 
 rawSigFilt = rawSig;
@@ -163,46 +161,14 @@ for trial = 1:size(rawSig,3)
                 %
                 absZSig = abs(zscore(signal));
                 absZDiffSig = abs(zscore(diffSignal));
-                threshSig = pctl(absZSig,90); % 97.5 for DBS, was 80, try 75 for TOJ % was 65 6-25-2018
-                threshDiff = pctl(absZDiffSig,90); % 97.5 for DBS, was 80, try 75 for TOJ % was 6-25-2018
-                
-                threshSig = pctl(absZSig,75); % 97.5 for DBS, was 80, try 75 for TOJ % was 65 6-25-2018
-                threshDiff = pctl(absZDiffSig,75); % 97.5 for DBS, was 80, try 75 for TOJ % was 6-25-2018
-                
+
                 threshSig = pctl(absZSig,threshVoltageCut); % 97.5 for DBS, was 80, try 75 for TOJ % was 65 6-25-2018
                 threshDiff = pctl(absZDiffSig,threshDiffCut); % 97.5 for DBS, was 80, try 75 for TOJ % was 6-25-2018
-                
-                
-                % for two pulses only
-                %                           threshSig = pctl(absZSig,97.5); % 97.5 for DBS, was 80, try 75 for TOJ % was 65 6-25-2018
-                %                 threshDiff = pctl(absZDiffSig,97.5); % 97.5 for DBS, was 80, try 75 for TOJ % was 6-25-2018
-                %
-                %                 % was 75 before 9-4-2018, but it missed one trial, so try
-                % 80
                 
                 % look past minimum start time
                 last = presamps+minDuration+find(absZSig(presamps+minDuration:end)>threshSig,1,'last'); % started with 0.2
                 last2 = presamps+minDuration+find(absZDiffSig(presamps+minDuration:end)>threshDiff,1,'last')+1; % started with 5e-3
                 ct = max(last, last2);
-                %ctMin = min(last,last2);
-                
-                %                 if ~isempty(ct) && length(win) - ct > timeSampsExtend  % look for exponential decay and adjust if needed
-                %
-                %                     try
-                %                         x = [ct:length(win)]';
-                %                         y = signal(x);
-                %                         [f2,gof,output] = fit(x,y,'exp2');
-                %                         func_fit = @(x) f2.a*exp(f2.b*x) + f2.c*exp(f2.d*x);
-                %
-                %                         if gof.adjrsquare>0.95
-                %                             ct = length(win);
-                %                         end
-                %
-                %                     catch
-                %
-                %                     end
-                %
-                %                 end
                 
                 if isempty(ct)
                     ct = last;

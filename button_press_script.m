@@ -254,6 +254,7 @@ for i = 1:64
     vline(0)
     title(['Stim Channel ' num2str(i)])
 end
+return
 %%
 
 figure
