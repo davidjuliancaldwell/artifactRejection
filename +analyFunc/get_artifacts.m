@@ -29,7 +29,7 @@ goodChansLogical = logical(zeros(size(rawSig,2),1));
 goodChansLogical(goodVec) = 1;
 rawSig(:,~goodChansLogical,:) = 0;
 
-for trial = 1:size(rawSig,3) % loop through trials 
+for trial = 1:size(rawSig,3) % loop through trials
     lengthMaxChan = zeros(1,size(rawSig,2));
     
     for chan = goodVec % loop through channels
@@ -38,7 +38,7 @@ for trial = 1:size(rawSig,3) % loop through trials
         
         avgSignal = {};
         lengthMaxVecTemp = [];
-        for sts = 1:length(startInds{trial}{chan}) % loop through individual stimulation epochs 
+        for sts = 1:length(startInds{trial}{chan}) % loop through individual stimulation epochs
             win = startInds{trial}{chan}(sts):endInds{trial}{chan}(sts);
             lengthMaxTemp = length(win);
             
@@ -49,6 +49,9 @@ for trial = 1:size(rawSig,3) % loop through trials
                     avgSignal{sts} = rawSigTemp(win);
                 case 'firstSamp'
                     avgSignal{sts} = rawSigTemp(win) - rawSigTemp(startInds{trial}{chan}(sts));
+                case 'mean'
+                    avgSignal{sts} = rawSigTemp(win) - mean(rawSigTemp(win));
+                    
             end
             
             lengthMaxVecTemp = [lengthMaxVecTemp lengthMaxTemp];
@@ -67,16 +70,16 @@ for trial = 1:size(rawSig,3) % loop through trials
         end
         
     end
-    lengthMaxVecTrial(trial,:) = lengthMaxChan; 
+    lengthMaxVecTrial(trial,:) = lengthMaxChan;
     
 end
 
 % figure out the maximum amplitude artifact for each given channel and
-% trial 
+% trial
 
 maxAmps = squeeze(max(rawSig,[],1));
 
-% find maximum index for reducing dimensionality later 
+% find maximum index for reducing dimensionality later
 [~,maxChan] = max(maxAmps,[],1);
 maxChan = maxChan(1);
 [~,maxTrial] = max(maxAmps,[],2);

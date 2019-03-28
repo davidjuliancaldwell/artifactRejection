@@ -143,8 +143,8 @@ for dataChoice = [6]
         % options are 'eucl', 'cosine', 'corr', for either euclidean distance,
         % cosine similarity, or correlation for clustering and template matching.
         
-        distanceMetricDbscan = 'eucl';
-        distanceMetricSigMatch = 'eucl';
+        distanceMetricDbscan = 'corr';
+        distanceMetricSigMatch = 'corr';
         amntPreAverage = 3;
         normalize = 'preAverage';
         %normalize = 'firstSamp';
@@ -242,7 +242,7 @@ for dataChoice = [6]
         % cosine similarity, or correlation for clustering and template matching.
         
         distanceMetricDbscan = 'eucl';
-        distanceMetricSigMatch = 'eucl';
+        distanceMetricSigMatch = 'corr';
         amntPreAverage = 3;
         normalize = 'preAverage';
         %normalize = 'firstSamp';
@@ -352,7 +352,7 @@ for dataChoice = [6]
     modePlot = 'avg';
     xlims = [-200 1000];
     ylims = [-0.6 0.6];
-    %     vizFunc.small_multiples_time_series(processedSig,tEpoch,'type1',stimChans,'type2',0,'xlims',xlims,'ylims',ylims,'modePlot',modePlot,'highlightRange',trainDuration)
+    vizFunc.small_multiples_time_series(processedSig,tEpoch,'type1',stimChans,'type2',0,'xlims',xlims,'ylims',ylims,'modePlot',modePlot,'highlightRange',trainDuration)
     %
     %     %     % %%
     % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -416,23 +416,21 @@ for dataChoice = [6]
     [normalizedData] = analyFunc.normalize_spectrogram_wavelet(dataRef,powerout);
     individual = 0;
     average = 1;
-    % chanIntLIst = 42;
-    %     %%
-    %     % chanIntList = chanInt;
-    %     for chanInt = chanIntList
-    %         vizFunc.visualize_wavelet_channel_no_raw(normalizedData,tMorlet,fMorlet,processedSig,...
-    %             tEpoch,chanInt,individual,average)
-    %     end
-    %
-    %      for chanInt = chanIntList
-    %         vizFunc.visualize_wavelet_channel(normalizedData,tMorlet,fMorlet,processedSig,...
-    %             tEpoch,dataInt,chanInt,individual,average)
-    %      end
-    %     %%
-    %       for chanInt = chanIntList
-    %         vizFunc.visualize_wavelet_channel_small(normalizedData,tMorlet,fMorlet,processedSig,...
-    %             tEpoch,dataInt,chanInt,individual,average)
-    %     end
+    %%
+    for chanInt = chanIntList
+        vizFunc.visualize_wavelet_channel_no_raw(normalizedData,tMorlet,fMorlet,processedSig,...
+            tEpoch,chanInt,individual,average)
+    end
+    %%
+    for chanInt = chanIntList
+        vizFunc.visualize_wavelet_channel(normalizedData,tMorlet,fMorlet,processedSig,...
+            tEpoch,dataInt,chanInt,individual,average)
+    end
+    %%
+    for chanInt = chanIntList
+        vizFunc.visualize_wavelet_channel_small(normalizedData,tMorlet,fMorlet,processedSig,...
+            tEpoch,dataInt,chanInt,individual,average)
+    end
     %%
     ylimsSpect = [5 300];
     xlims = [-200 1000];

@@ -76,6 +76,8 @@ addParameter(p,'endInds',[],@iscell);
 addParameter(p,'recoverExp',1,@(x) x==0 || x ==1);
 addParameter(p,'maxAmps',ones(size(rawSig,2),size(rawSig,3)),@isnumeric)
 addParameter(p,'maxLocation',15,@isnumeric);
+
+addParameter(p,'normalize','preAverage',@isstr);
 addParameter(p,'amntPreAverage',3,@isnumeric);
 addParameter(p,'bracketRange',[-6:6],@isnumeric);
 
@@ -103,6 +105,8 @@ endInds = p.Results.endInds;
 
 recoverExp = p.Results.recoverExp;
 maxAmps = p.Results.maxAmps;
+
+normalize = p.Results.normalize;
 amntPreAverage = p.Results.amntPreAverage;
 maxLocation = p.Results.maxLocation;
 bracketRange = p.Results.bracketRange;
@@ -151,14 +155,14 @@ for chan = goodVec
     
     try
         % (1) directly set the parameters
-%         clusterer.minpts = 2;
-%         clusterer.minclustsize = 3;
-%         clusterer.outlierThresh = 0.95;
-         clusterer.minpts = minPts;
-         clusterer.minclustsize = minClustSize;
-         clusterer.outlierThresh = outlierThresh;
-
-
+        %         clusterer.minpts = 2;
+        %         clusterer.minclustsize = 3;
+        %         clusterer.outlierThresh = 0.95;
+        clusterer.minpts = minPts;
+        clusterer.minclustsize = minClustSize;
+        clusterer.outlierThresh = outlierThresh;
+        
+        
         clusterer.metric = distanceMetricDbscan;
         clusterer.fit_model(); 			% trains a cluster hierarchy
     catch
@@ -324,7 +328,17 @@ for trial = 1:size(rawSig,3)
         for sts = 1:length(startInds{trial}{chan})
             win = startInds{trial}{chan}(sts):endInds{trial}{chan}(sts);
             extractedSig = rawSigTemp(win);
-            extractedSig = extractedSig - mean(extractedSig(1:amntPreAverage));
+            
+            switch normalize
+                case 'preAverage'
+                    extractedSig = extractedSig - mean(extractedSig(1:amntPreAverage));
+                case 'none'
+                    extractedSig = extractedSig ;
+                case 'firstSamp'
+                    extractedSig = extractedSig - extractedSig(1);
+                case 'mean'
+                    extractedSig = extractedSig - mean(extractedSig);
+            end
             
             % find best artifact
             templatesSts = templates(1:length(extractedSig),:);
@@ -356,7 +370,7 @@ for trial = 1:size(rawSig,3)
             extractedSigShortened = extractedSig(maxLocation+bracketRange,:);
             
             switch distanceMetricSigMatch
-                case 'correlation'
+                case 'corr'
                     % correlation
                     correlations = corr(extractedSigShortened,templatesStsShortened);
                     [~,index] = max((correlations));

@@ -32,6 +32,26 @@ if strcmp(metric,'eucl')
             bsxfun( @minus, sum( Y.^2,2 )', 2*(X * Y') ) ) ) );
     end
     
+elseif strcmp(metric,'corr')
+    
+    if isempty(varargin{1})
+        D = corr(X');
+        D = sqrt(1-D);
+                D = (D + D.')/2;
+
+    else
+        Y = varargin{2};
+        if size( Y,2 ) ~= size( X,2 )
+            error( 'X and Y must have equal number of dimensions' );
+        end
+        
+        D =  corr(X',Y') ;
+        D = sqrt(1-D);
+        D = (D + D.')/2;
+
+
+    end
+    
 elseif strcmp(metric,'dtw')
     
     if isempty(varargin{1})
