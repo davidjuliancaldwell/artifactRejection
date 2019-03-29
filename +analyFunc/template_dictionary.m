@@ -367,7 +367,7 @@ for trial = 1:size(rawSig,3)
             end
             
             if isempty(bracketRange)
-               bracketRange = 1:length(templatesSts);
+               bracketRange = 1:length(templatesSts)-1;
                maxLocation = 1;
             end
             
