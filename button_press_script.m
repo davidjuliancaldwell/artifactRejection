@@ -1,5 +1,5 @@
 %% load in subject
-close all;clear all;clc
+%close all;clear all;clc
 
 % load in data
 load(fullfile('+data/a7a181_StimParamSweep-8.mat'))
@@ -86,7 +86,7 @@ post = 1; % started with 0.2
 minDuration = 0.5; % minimum duration of artifact in ms
 
 distanceMetricDbscan = 'eucl';
-distanceMetricSigMatch = 'eucl';
+distanceMetricSigMatch = 'corr';
 amntPreAverage = 3;
 normalize = 'preAverage';
 %normalize = 'firstSamp';
@@ -99,9 +99,11 @@ threshDiffCut = 75;
 expThreshVoltageCut = 95;
 expThreshDiffCut = 95;
 bracketRange = [-6:6];
-chanInt = 29;
+chanInt = 8;
 minPts = 15;
 minClustSize = 10;
+% minPts = 2;
+% minClustSize = 3;
 outlierThresh = 0.95;
 
 [processedSigStim,templateDictCell,templateTrial,startInds,endInds] = analyFunc.template_subtract(epochedDataStim,'type',type,...

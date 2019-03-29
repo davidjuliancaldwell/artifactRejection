@@ -143,7 +143,7 @@ for dataChoice = [6]
         % options are 'eucl', 'cosine', 'corr', for either euclidean distance,
         % cosine similarity, or correlation for clustering and template matching.
         
-        distanceMetricDbscan = 'corr';
+        distanceMetricDbscan = 'eucl';
         distanceMetricSigMatch = 'corr';
         amntPreAverage = 3;
         normalize = 'preAverage';
