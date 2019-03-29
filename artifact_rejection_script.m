@@ -19,11 +19,11 @@
 %%
 % clear the workspace
 %close all;clear all;clc
-%close all;clear all;clc
+close all;clear all;clc
 clear all,clc
 %%
 % choose data file of interest
-for dataChoice = [6]
+for dataChoice = [5]
     
     switch dataChoice
         
@@ -142,7 +142,6 @@ for dataChoice = [6]
         % these are the metrics used if the dictionary method is selected. The
         % options are 'eucl', 'cosine', 'corr', for either euclidean distance,
         % cosine similarity, or correlation for clustering and template matching.
-        
         distanceMetricDbscan = 'eucl';
         distanceMetricSigMatch = 'corr';
         amntPreAverage = 3;
@@ -177,8 +176,7 @@ for dataChoice = [6]
         % cosine similarity, or correlation for clustering and template matching.
         
         distanceMetricDbscan = 'eucl';
-        
-        distanceMetricSigMatch = 'eucl';
+        distanceMetricSigMatch = 'corr';
         amntPreAverage = 3;
         normalize = 'preAverage';
         %normalize = 'firstSamp';
@@ -209,8 +207,7 @@ for dataChoice = [6]
         % cosine similarity, or correlation for clustering and template matching.
         
         distanceMetricDbscan = 'eucl';
-        
-        distanceMetricSigMatch = 'eucl';
+        distanceMetricSigMatch = 'corr';
         amntPreAverage = 3;
         normalize = 'preAverage';
         %normalize = 'firstSamp';
@@ -240,7 +237,6 @@ for dataChoice = [6]
         % these are the metrics used if the dictionary method is selected. The
         % options are 'eucl', 'cosine', 'corr', for either euclidean distance,
         % cosine similarity, or correlation for clustering and template matching.
-        
         distanceMetricDbscan = 'eucl';
         distanceMetricSigMatch = 'corr';
         amntPreAverage = 3;
@@ -267,7 +263,7 @@ for dataChoice = [6]
         %pre = 0.4096; % in ms
         %post = 0.4096; % in ms
         
-        pre = 0.8; % started with 1
+        pre = 1; % started with 1
         post = 1; % started with 0.2
         % 2.8, 1, 0.5 was 3/19/2018
         
@@ -275,9 +271,8 @@ for dataChoice = [6]
         % options are 'eucl', 'cosine', 'corr', for either euclidean distance,
         % cosine similarity, or correlation for clustering and template matching.
         
-        
         distanceMetricDbscan = 'eucl';
-        distanceMetricSigMatch = 'eucl';
+        distanceMetricSigMatch = 'corr';
         amntPreAverage = 3;
         normalize = 'preAverage';
         %normalize = 'firstSamp';
@@ -288,7 +283,7 @@ for dataChoice = [6]
         threshDiffCut = 75;
         expThreshVoltageCut = 95;
         expThreshDiffCut = 95;
-        bracketRange = [-3:3];
+        bracketRange = [-2:2];
         chanInt = 55;
     else
         
@@ -310,7 +305,7 @@ for dataChoice = [6]
         % options are 'eucl', 'cosine', 'corr', for either euclidean distance,
         % cosine similarity, or correlation for clustering and template matching.
         distanceMetricDbscan = 'eucl';
-        distanceMetricSigMatch = 'eucl';
+        distanceMetricSigMatch = 'corr';
         amntPreAverage = 3;
         normalize = 'preAverage';
         %normalize = 'firstSamp';

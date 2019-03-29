@@ -366,6 +366,11 @@ for trial = 1:size(rawSig,3)
                 bracketRange = [bracketRangeMin:bracketRangeMax];
             end
             
+            if isempty(bracketRange)
+               bracketRange = 1:length(templatesSts);
+               maxLocation = 1;
+            end
+            
             templatesStsShortened = templatesSts(maxLocation+bracketRange,:);
             extractedSigShortened = extractedSig(maxLocation+bracketRange,:);
             
