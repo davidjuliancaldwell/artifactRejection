@@ -184,11 +184,18 @@ for chan = goodVec
     labels = clusterer.labels;
     vectorUniq = unique(labels);
     templateArrayExtracted = [];
-    for i = vectorUniq'
-        if i~=0
-            meanTempArray = mean(templateArray(:,labels==i),2);
-            templateArrayExtracted = [templateArrayExtracted (meanTempArray )]; %no subtraction
+    
+    if sum(vectorUniq) > 0
+        for ii = vectorUniq'
+            if ii~=0
+                meanTempArray = mean(templateArray(:,labels==ii),2);
+                templateArrayExtracted = [templateArrayExtracted (meanTempArray )]; %no subtraction
+            end
         end
+        % if no good clusters, try just
+    else
+        warning('Using average of pulses for channel because no points not labelled as outliers')
+        templateArrayExtracted = mean(templateArray)';
     end
     
     %   if plotIt
@@ -593,7 +600,7 @@ if plotIt
     figHeatMapUnsort.Position = [1 1 2 4];
     imagesc(1e3*templateArrayInt')
     xlabel('Sample')
-    ylabel('Trial #')
+    ylabel('Pulse #')
     set(gca,'fontsize',10)
     colormap(CTdiv)
     caxis([-max(abs(1e3*templateArrayInt(:))) max(abs(1e3*templateArrayInt(:)))])
@@ -629,7 +636,7 @@ if plotIt
         
     end
     xlabel('Sample')
-    ylabel('Trial #')
+    ylabel('Pulse #')
     set(gca,'fontsize',10)
     caxis([-max(abs(1e3*templateArrayShortened(:))) max(abs(1e3*templateArrayShortened(:)))])
     % c = colorbar();

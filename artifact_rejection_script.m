@@ -19,7 +19,7 @@
 %%
 % clear the workspace
 %close all;clear all;clc
-%close all;clear all;clc
+close all;clear all;clc
 clear all,clc
 %%
 % choose data file of interest
@@ -118,6 +118,10 @@ for dataChoice = [3]
         expThreshDiffCut = 95;
         bracketRange = [-6:6];
         chanInt = 28;
+        minPts = 2;
+        minClustSize = 3;
+        outlierThresh = 0.95;
+        
         
     elseif dataChoice == 2
         type = 'dictionary';
@@ -150,6 +154,10 @@ for dataChoice = [3]
         expThreshDiffCut = 95;
         bracketRange = [-6:6];
         chanInt = 15;
+        minPts = 2;
+        minClustSize = 3;
+        outlierThresh = 0.95;
+        
         
     elseif dataChoice == 3
         type = 'dictionary';
@@ -183,6 +191,10 @@ for dataChoice = [3]
         expThreshDiffCut = 95;
         bracketRange = [-6:6];
         chanInt = 10;
+        minPts = 2;
+        minClustSize = 3;
+        outlierThresh = 0.95;
+        
     elseif dataChoice == 4
         type = 'dictionary';
         
@@ -214,8 +226,12 @@ for dataChoice = [3]
         threshDiffCut = 75;
         expThreshVoltageCut = 95;
         expThreshDiffCut = 95;
-        bracketRange = [-2:2];
+        bracketRange = [-3:3];
         chanInt = 55;
+        minPts = 5;
+        minClustSize = 6;
+        outlierThresh = 0.95;
+        
     else
         
         type = 'dictionary';
@@ -249,6 +265,10 @@ for dataChoice = [3]
         expThreshVoltageCut = 95;
         expThreshDiffCut = 95;
         bracketRange = [-6:6];
+        minPts = 2;
+        minClustSize = 3;
+        outlierThresh = 0.95;
+        
         
     end
     
@@ -260,7 +280,8 @@ for dataChoice = [3]
         'recoverExp',recoverExp,'normalize',normalize,'amntPreAverage',amntPreAverage,...
         'minDuration',minDuration,'bracketRange',bracketRange,'threshVoltageCut',threshVoltageCut,...
         'threshDiffCut',threshDiffCut,'expThreshVoltageCut',expThreshVoltageCut,...
-        'expThreshDiffCut',expThreshDiffCut,'onsetThreshold',onsetThreshold,'chanInt',chanInt);
+        'expThreshDiffCut',expThreshDiffCut,'onsetThreshold',onsetThreshold,'chanInt',chanInt,...
+        'minPts',minPts,'minClustSize',minClustSize,'outlierThresh',outlierThresh);
     
     % visualization
     % of note - more visualizations are created here, including what the
