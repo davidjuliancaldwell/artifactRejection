@@ -19,24 +19,14 @@
 %%
 % clear the workspace
 %close all;clear all;clc
-close all;clear all;clc
+%close all;clear all;clc
 clear all,clc
 %%
 % choose data file of interest
-for dataChoice = [5]
+for dataChoice = [1]
     
     switch dataChoice
-        
-        %     case 1
-        %         load('+data/693ffd_exampData_800ms.mat') % response timing data set
-        %         trainDuration = [0 800]; % this is how long the stimulation train was
-        %         xlims = [-200 1000]; % these are the x limits to visualize in plots
-        %         chanIntList = [4 12 21 28 19 18 36 44 43 30 33 41 34]; % these are the channels of interest to visualize in closer detail
-        %         minDuration = 0.5; % minimum duration of artifact in ms
-        %         fsData = fs_data;
-        %         tEpoch=t_epoch;
-        %         dataInt = 4*dataInt;
-        
+               
         case 1
             load('+data/693ffd_exampData_400ms.mat') % response timing data set
             trainDuration = [0 800]; % this is how long the stimulation train was
@@ -47,24 +37,16 @@ for dataChoice = [5]
             % dataInt = 4*dataInt;
             
         case 2
-            load('+data/2fd831_exampData_400ms.mat') % response timing data set
-            trainDuration = [0 400]; % this is how long the stimulation train was
-            xlims = [-200 1000]; % these are the x limits to visualize in plots
-            chanIntList = [2 10 51 42]; % these are the channels of interest to visualize in closer detail
+            load('+data/a1355e_examplePriming_Prime_high.mat')
+            trainDuration = [0 200]; % this is how long the stimulation train was
+            xlims = [-50 500]; % these are the x limits to visualize in plots
+            chanIntList = [7 8 10 15 17 22 23 29 30 31 32]; % these are the channels of interest to visualize in closer detail
             minDuration = 0.5; % minimum duration of artifact in ms
             fsData = fs_data;
-            tEpoch=t_epoch;
-            dataInt = 4*dataInt;
+            tEpoch = t_epoch;
+            %   dataInt = 4*dataInt;
             
         case 3
-            load('+data/3f2113_stim_12_52.mat') % stimulation spacing data set
-            trainDuration = [0 5];
-            xlims = [-10 100];
-            chanIntList = [13 53 51 42 60 61 ]; % these are the channels of interest to visualize in closer detail
-            minDuration = 0.5; % minimum duration of artifact in ms
-            dataInt = 4*dataInt;
-            
-        case 4
             load('+data/50ad9_paramSweep4.mat') % DBS data set
             fsData = fs_data;
             tEpoch = t_epoch;
@@ -73,34 +55,15 @@ for dataChoice = [5]
             trainDuration = [0 500];
             minDuration = 0.250; % minimum duration of artifact in ms
             dataInt = 4*dataInt;
-        case 5
+        case 4
             load('+data/ecb43e_RHI_async_trial14.mat') % rubber hand illusion data set
             minDuration = 0.5; % minimum duration of artifact in ms
             fsData = fs_data;
             tEpoch = t_epoch;
             dataInt = 4*dataInt;
             trainDuration = [0 500];
-        case 6
-            load('+data/a1355e_examplePriming_Prime_high.mat')
-            trainDuration = [0 200]; % this is how long the stimulation train was
-            xlims = [-50 500]; % these are the x limits to visualize in plots
-            chanIntList = [7 8 10 15 17 22 23 29 30 31 32]; % these are the channels of interest to visualize in closer detail
-            minDuration = 0.5; % minimum duration of artifact in ms
-            fsData = fs_data;
-            tEpoch = t_epoch;
             
-            %   dataInt = 4*dataInt;
             
-        case 7
-            load('+data/a1355e_examplePriming_noPrime_high.mat')
-            trainDuration = [0 200]; % this is how long the stimulation train was
-            xlims = [-50 500]; % these are the x limits to visualize in plots
-            chanIntList = [7 8 10 15 17 22 23 29 30 31 32]; % these are the channels of interest to visualize in closer detail
-            minDuration = 0.5; % minimum duration of artifact in ms
-            fsData = fs_data;
-            tEpoch = t_epoch;
-            
-            % dataInt = 4*dataInt
             
     end
     
@@ -123,103 +86,7 @@ for dataChoice = [5]
     % matching algorithm with DBSCAN clustering to discover the family of
     % artifacts.
     
-    
-    if dataChoice == 6 || dataChoice == 7
-        type = 'dictionary';
-        
-        useFixedEnd = 0;
-        %fixedDistance = 2;
-        fixedDistance = 4; % in ms
-        plotIt = 0;
-        
-        %pre = 0.4096; % in ms
-        %post = 0.4096; % in ms
-        
-        pre = 0.8; % started with 1
-        post = 1; % started with 0.2
-        % 2.8, 1, 0.5 was 3/19/2018
-        
-        % these are the metrics used if the dictionary method is selected. The
-        % options are 'eucl', 'cosine', 'corr', for either euclidean distance,
-        % cosine similarity, or correlation for clustering and template matching.
-        distanceMetricDbscan = 'eucl';
-        distanceMetricSigMatch = 'corr';
-        amntPreAverage = 3;
-        normalize = 'preAverage';
-        %normalize = 'firstSamp';
-        onsetThreshold = 1.5;
-        recoverExp = 0;
-        threshVoltageCut = 75;
-        threshDiffCut = 75;
-        expThreshVoltageCut = 95;
-        expThreshDiffCut = 95;
-        bracketRange = [-6:6];
-        chanInt = 15;
-        
-    elseif dataChoice == 4
-        type = 'dictionary';
-        
-        useFixedEnd = 0;
-        %fixedDistance = 2;
-        fixedDistance = 4; % in ms
-        plotIt = 0;
-        
-        %pre = 0.4096; % in ms
-        %post = 0.4096; % in ms
-        
-        pre = 0.8; % started with 1
-        post = 1; % started with 0.2
-        % 2.8, 1, 0.5 was 3/19/2018
-        
-        % these are the metrics used if the dictionary method is selected. The
-        % options are 'eucl', 'cosine', 'corr', for either euclidean distance,
-        % cosine similarity, or correlation for clustering and template matching.
-        
-        distanceMetricDbscan = 'eucl';
-        distanceMetricSigMatch = 'corr';
-        amntPreAverage = 3;
-        normalize = 'preAverage';
-        %normalize = 'firstSamp';
-        onsetThreshold = 1.5;
-        recoverExp = 1;
-        threshVoltageCut = 55;
-        threshDiffCut = 55;
-        expThreshVoltageCut = 95;
-        expThreshDiffCut = 95;
-        bracketRange = [-6:6];
-        chanInt = 10;
-        
-    elseif dataChoice == 2
-        type = 'dictionary';
-        
-        useFixedEnd = 0;
-        %fixedDistance = 2;
-        fixedDistance = 4; % in ms
-        plotIt = 0;
-        
-        %pre = 0.4096; % in ms
-        %post = 0.4096; % in ms
-        
-        pre = 0.8; % started with 1
-        post = 1; % started with 0.2
-        % these are the metrics used if the dictionary method is selected. The
-        % options are 'eucl', 'cosine', 'corr', for either euclidean distance,
-        % cosine similarity, or correlation for clustering and template matching.
-        
-        distanceMetricDbscan = 'eucl';
-        distanceMetricSigMatch = 'corr';
-        amntPreAverage = 3;
-        normalize = 'preAverage';
-        %normalize = 'firstSamp';
-        onsetThreshold = 1.5;
-        recoverExp = 0;
-        threshVoltageCut = 75;
-        threshDiffCut = 75;
-        expThreshVoltageCut = 95;
-        expThreshDiffCut = 95;
-        bracketRange = [-6:6];
-        chanInt = 10;
-    elseif dataChoice == 1
+    if dataChoice == 1
         type = 'dictionary';
         
         useFixedEnd = 0;
@@ -252,7 +119,8 @@ for dataChoice = [5]
         expThreshDiffCut = 95;
         bracketRange = [-6:6];
         chanInt = 28;
-    elseif dataChoice == 5
+        
+    elseif dataChoice == 2
         type = 'dictionary';
         
         useFixedEnd = 0;
@@ -263,7 +131,74 @@ for dataChoice = [5]
         %pre = 0.4096; % in ms
         %post = 0.4096; % in ms
         
-        pre = 1; % started with 1
+        pre = 0.8; % started with 1
+        post = 1; % started with 0.2
+        % 2.8, 1, 0.5 was 3/19/2018
+        
+        % these are the metrics used if the dictionary method is selected. The
+        % options are 'eucl', 'cosine', 'corr', for either euclidean distance,
+        % cosine similarity, or correlation for clustering and template matching.
+        distanceMetricDbscan = 'eucl';
+        distanceMetricSigMatch = 'corr';
+        amntPreAverage = 3;
+        normalize = 'preAverage';
+        %normalize = 'firstSamp';
+        onsetThreshold = 1.5;
+        recoverExp = 0;
+        threshVoltageCut = 75;
+        threshDiffCut = 75;
+        expThreshVoltageCut = 95;
+        expThreshDiffCut = 95;
+        bracketRange = [-6:6];
+        chanInt = 15;
+        
+    elseif dataChoice == 3
+        type = 'dictionary';
+        
+        useFixedEnd = 0;
+        %fixedDistance = 2;
+        fixedDistance = 4; % in ms
+        plotIt = 0;
+        
+        %pre = 0.4096; % in ms
+        %post = 0.4096; % in ms
+        
+        pre = 0.8; % started with 1
+        post = 1; % started with 0.2
+        % 2.8, 1, 0.5 was 3/19/2018
+        
+        % these are the metrics used if the dictionary method is selected. The
+        % options are 'eucl', 'cosine', 'corr', for either euclidean distance,
+        % cosine similarity, or correlation for clustering and template matching.
+        
+        distanceMetricDbscan = 'eucl';
+        distanceMetricSigMatch = 'corr';
+        amntPreAverage = 3;
+        normalize = 'preAverage';
+        %normalize = 'firstSamp';
+        onsetThreshold = 1.5;
+        recoverExp = 1;
+        threshVoltageCut = 55;
+        threshDiffCut = 55;
+        expThreshVoltageCut = 95;
+        expThreshDiffCut = 95;
+        bracketRange = [-6:6];
+        chanInt = 10;
+        
+        
+        
+    elseif dataChoice == 4
+        type = 'dictionary';
+        
+        useFixedEnd = 0;
+        %fixedDistance = 2;
+        fixedDistance = 4; % in ms
+        plotIt = 0;
+        
+        %pre = 0.4096; % in ms
+        %post = 0.4096; % in ms
+        
+        pre = 0.8; % started with 1
         post = 1; % started with 0.2
         % 2.8, 1, 0.5 was 3/19/2018
         

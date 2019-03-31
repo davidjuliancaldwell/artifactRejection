@@ -403,6 +403,7 @@ for trial = 1:size(rawSig,3)
             end
             
             templateSubtract = templatesSts(:,index);
+            templateSubtractShort = templatesStsShortened(:,index);
             % which template best matched
             if firstLoopChan && firstLoopTrial
                 templateSubtractCell{chan} = index;
@@ -412,8 +413,9 @@ for trial = 1:size(rawSig,3)
             
             
             % scaling
-            scaling = mean([max(rawSigTemp(win))/max(templateSubtract),min(rawSigTemp(win))/min(templateSubtract)]);
+           % scaling = mean([max(rawSigTemp(win))/max(templateSubtract),min(rawSigTemp(win))/min(templateSubtract)]);
             %    scaling = max(rawSigTemp(win))/max(templateSubtract);
+            scaling = (max(templateSubtractShort) - min(templateSubtractShort))/(max(extractedSigShortened) - min(extractedSigShortened))
             templateSubtract = templateSubtract*scaling;
             
             rawSigTemp(win) = rawSigTemp(win) - templateSubtract;
