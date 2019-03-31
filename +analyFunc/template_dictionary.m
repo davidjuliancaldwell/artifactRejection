@@ -367,8 +367,8 @@ for trial = 1:size(rawSig,3)
             end
             
             if isempty(bracketRange)
-               bracketRange = 1:length(templatesSts)-1;
-               maxLocation = 1;
+                bracketRange = 1:length(templatesSts)-1;
+                maxLocation = 1;
             end
             
             templatesStsShortened = templatesSts(maxLocation+bracketRange,:);
@@ -413,9 +413,9 @@ for trial = 1:size(rawSig,3)
             
             
             % scaling
-           % scaling = mean([max(rawSigTemp(win))/max(templateSubtract),min(rawSigTemp(win))/min(templateSubtract)]);
+            % scaling = mean([max(rawSigTemp(win))/max(templateSubtract),min(rawSigTemp(win))/min(templateSubtract)]);
             %    scaling = max(rawSigTemp(win))/max(templateSubtract);
-            scaling = (max(templateSubtractShort) - min(templateSubtractShort))/(max(extractedSigShortened) - min(extractedSigShortened))
+            scaling = (max(extractedSig) - min(extractedSig))/(max(templateSubtract) - min(templateSubtract));
             templateSubtract = templateSubtract*scaling;
             
             rawSigTemp(win) = rawSigTemp(win) - templateSubtract;
@@ -440,7 +440,6 @@ for trial = 1:size(rawSig,3)
             end
             
             firstLoopChan = 0;
-            
             
         end
         

@@ -23,10 +23,10 @@
 clear all,clc
 %%
 % choose data file of interest
-for dataChoice = [1]
+for dataChoice = [3]
     
     switch dataChoice
-               
+        
         case 1
             load('+data/693ffd_exampData_400ms.mat') % response timing data set
             trainDuration = [0 800]; % this is how long the stimulation train was
@@ -51,7 +51,7 @@ for dataChoice = [1]
             fsData = fs_data;
             tEpoch = t_epoch;
             xlims = [-200 600];
-            chanIntList = [1:10];
+            chanIntList = [9:10];
             trainDuration = [0 500];
             minDuration = 0.250; % minimum duration of artifact in ms
             dataInt = 4*dataInt;
@@ -62,7 +62,6 @@ for dataChoice = [1]
             tEpoch = t_epoch;
             dataInt = 4*dataInt;
             trainDuration = [0 500];
-            
             
             
     end
@@ -184,9 +183,6 @@ for dataChoice = [1]
         expThreshDiffCut = 95;
         bracketRange = [-6:6];
         chanInt = 10;
-        
-        
-        
     elseif dataChoice == 4
         type = 'dictionary';
         
@@ -283,22 +279,7 @@ for dataChoice = [1]
     xlims = [-200 1000];
     ylims = [-0.6 0.6];
     vizFunc.small_multiples_time_series(processedSig,tEpoch,'type1',stimChans,'type2',0,'xlims',xlims,'ylims',ylims,'modePlot',modePlot,'highlightRange',trainDuration)
-    %
-    %     %     % %%
-    % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % [processedSig2,startInds2,endInds2] = analyFunc.interpolate_artifact(processedSig,'fs',fsData,'plotIt',0,'type',type,...,
-    %     'stimchans',stimChans,'useFixedEneastd',useFixedEnd,'fixedDistance',fixedDistance,'pre',pre,'post',post);
-    % %%
-    % [processedSig2,templateDictCell2,templateTrial2,startInds2,endInds2] = analyFunc.template_subtract(dataInt,'type',type,...
-    %     'fs',fsData,'plotIt',plotIt,'pre',pre,'post',post,'stimChans',stimChans,...
-    %     'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,...,
-    %     'distanceMetricDbscan',distanceMetricDbscan,'distanceMetricSigMatch',distanceMetricSigMatch,...
-    %     'recoverExp',recoverExp,'normalize',normalize,'amntPreAverage',amntPreAverage,...
-    %     'minDuration',minDuration,'bracketRange',bracketRange);
-    %
-    % %%
-    %  [processedSig_v2,templateDictCell,template] = analyFunc.template_subtract_iterative(processedSig,...,
-    %      'fs',fsData,'plotIt',0,'pre',pre,'post',post,'stimChans',stimChans,'startInds',startInds,'endInds',endInds);
+    
     %% additional processing
     
     rerefMode = 'mean';
@@ -321,7 +302,7 @@ for dataChoice = [1]
         processedSigReref = analyFunc.rereference_CAR_median(processedSig,rerefMode,badChannels,[],[],channelsToUse);
     end
     
-    %
+    
     %%%%%%% wavelet
     fprintf(['-------Beginning wavelet analysis-------- \n'])
     
@@ -347,25 +328,35 @@ for dataChoice = [1]
     individual = 0;
     average = 1;
     %%
-    for chanInt = chanIntList
-        vizFunc.visualize_wavelet_channel_no_raw(normalizedData,tMorlet,fMorlet,processedSig,...
-            tEpoch,chanInt,individual,average)
+    if dataChoice == 1 || dataChoice == 2
+        
+        for chanInt = chanIntList
+            vizFunc.visualize_wavelet_channel_no_raw(normalizedData,tMorlet,fMorlet,processedSig,...
+                tEpoch,chanInt,individual,average)
+        end
+        %%
+        for chanInt = chanIntList
+            vizFunc.visualize_wavelet_channel(normalizedData,tMorlet,fMorlet,processedSig,...
+                tEpoch,dataInt,chanInt,individual,average)
+        end
+        %%
+        for chanInt = chanIntList
+            vizFunc.visualize_wavelet_channel_small(normalizedData,tMorlet,fMorlet,processedSig,...
+                tEpoch,dataInt,chanInt,individual,average)
+        end
+        %%
+        ylimsSpect = [5 300];
+        xlims = [-200 1000];
+        vizFunc.small_multiples_spectrogram(normalizedData,tMorlet,fMorlet,'type1',stimChans,'type2',0,'xlims',xlims,'ylims',ylimsSpect);
     end
     %%
-    for chanInt = chanIntList
-        vizFunc.visualize_wavelet_channel(normalizedData,tMorlet,fMorlet,processedSig,...
-            tEpoch,dataInt,chanInt,individual,average)
+    if dataChoice == 3
+        individual = 0;
+        average = 1;
+        for chanInt = chanIntList
+            vizFunc.visualize_raw_vs_processed(processedSig,tEpoch,dataInt,chanInt,individual,average)
+        end
     end
-    %%
-    for chanInt = chanIntList
-        vizFunc.visualize_wavelet_channel_small(normalizedData,tMorlet,fMorlet,processedSig,...
-            tEpoch,dataInt,chanInt,individual,average)
-    end
-    %%
-    ylimsSpect = [5 300];
-    xlims = [-200 1000];
-    vizFunc.small_multiples_spectrogram(normalizedData,tMorlet,fMorlet,'type1',stimChans,'type2',0,'xlims',xlims,'ylims',ylimsSpect);
-    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 end
 return
@@ -444,23 +435,6 @@ modePlot = 'avg';
 xlims = [-200 1000];
 ylims = [-0.6 0.6];
 vizFunc.small_multiples_time_series(processedSig,tEpoch,'type1',stimChans,'type2',0,'xlims',xlims,'ylims',ylims,'modePlot',modePlot,'highlightRange',trainDuration)
-
-%     % %%
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% [processedSig2,startInds2,endInds2] = analyFunc.interpolate_artifact(processedSig,'fs',fsData,'plotIt',0,'type',type,...,
-%     'stimchans',stimChans,'useFixedEneastd',useFixedEnd,'fixedDistance',fixedDistance,'pre',pre,'post',post);
-% %%
-% [processedSig2,templateDictCell2,templateTrial2,startInds2,endInds2] = analyFunc.template_subtract(dataInt,'type',type,...
-%     'fs',fsData,'plotIt',plotIt,'pre',pre,'post',post,'stimChans',stimChans,...
-%     'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,...,
-%     'distanceMetricDbscan',distanceMetricDbscan,'distanceMetricSigMatch',distanceMetricSigMatch,...
-%     'recoverExp',recoverExp,'normalize',normalize,'amntPreAverage',amntPreAverage,...
-%     'minDuration',minDuration,'bracketRange',bracketRange);
-%
-% %%
-%  [processedSig_v2,templateDictCell,template] = analyFunc.template_subtract_iterative(processedSig,...,
-%      'fs',fsData,'plotIt',0,'pre',pre,'post',post,'stimChans',stimChans,'startInds',startInds,'endInds',endInds);
-%%additional processing
 
 rerefMode = 'mean';
 switch dataChoice
