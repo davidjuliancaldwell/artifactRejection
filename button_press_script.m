@@ -1,5 +1,5 @@
 %% load in subject
-%close all;clear all;clc
+close all;clear all;clc
 
 % load in data
 load(fullfile('+data/a7a181_StimParamSweep-8.mat'))

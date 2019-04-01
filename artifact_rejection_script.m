@@ -10,7 +10,7 @@
 % fsData = sampling rate of the data Hz
 %
 % stimChans - the channels used for stimulation . These should be noted and
-% exluded from further analysis
+% excluded from further analysis
 %
 % plotIt - determines whether or not to plot the intermediate results of
 % the functions.
@@ -23,7 +23,7 @@ close all;clear all;clc
 clear all,clc
 %%
 % choose data file of interest
-for dataChoice = [3]
+for dataChoice = [1]
     
     switch dataChoice
         
@@ -51,7 +51,7 @@ for dataChoice = [3]
             fsData = fs_data;
             tEpoch = t_epoch;
             xlims = [-200 600];
-            chanIntList = [9:10];
+            chanIntList = [5,6,7,9,10];
             trainDuration = [0 500];
             minDuration = 0.250; % minimum duration of artifact in ms
             dataInt = 4*dataInt;
