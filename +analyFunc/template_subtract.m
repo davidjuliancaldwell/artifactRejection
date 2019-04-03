@@ -109,8 +109,6 @@ numChans = size(rawSig,2);
     plotIt,'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,'fs',fs,'goodVec',goodVec,...
     'minDuration',minDuration,'threshVoltageCut',threshVoltageCut,'threshDiffCut',threshDiffCut,'onsetThreshold',onsetThreshold);
 
-      %       corrected_signal = artifact_correction(squeeze(processedSig(:,:,1)), index, stimulation_mode, stimulation_length, sampling_frequency, default, varargin)
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% extract artifacts
 

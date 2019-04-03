@@ -160,9 +160,7 @@ for chan = goodVec
         %         clusterer.outlierThresh = 0.95;
         clusterer.minpts = minPts;
         clusterer.minclustsize = minClustSize;
-        clusterer.outlierThresh = outlierThresh;
-        
-        
+        clusterer.outlierThresh = outlierThresh; 
         clusterer.metric = distanceMetricDbscan;
         clusterer.fit_model(); 			% trains a cluster hierarchy
     catch
@@ -205,7 +203,7 @@ for chan = goodVec
             231 41 138;
             213 255 0;
             0 244 255;
-            0.7 0.7 0.7]./255;
+            179 179 179]./255;
         
         figure
         currentFig = gcf;
@@ -686,10 +684,10 @@ if plotIt
     currentFig.Units = "inches";
     currentFig.Position = [1 1 1.8 1.8];
     h = scatter(1e3*clusterer.data(:,maxSub),1e3*clusterer.data(:,maxSub+1),20,'filled');
-    %ylabel('time point 1 : voltage (mV)')
-    ylabel('V(t=2)')
-    xlabel('V(t=1)')
-    % xlabel('time point 2 : voltage (mV)')
+    ylabel('time point 1 : voltage (mV)')
+    %ylabel('V(t=2)')
+    %xlabel('V(t=1)')
+     xlabel('time point 2 : voltage (mV)')
     set( h.Parent,'tickdir','out','box','off' );
     
     tempLabels = clusterer.labels;

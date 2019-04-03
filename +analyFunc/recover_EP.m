@@ -50,7 +50,6 @@ for ind = 1:size(template,2)
             
         catch
             templateInd = templateInd;
-            
         end
         
         if plotIt
