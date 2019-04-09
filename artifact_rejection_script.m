@@ -23,13 +23,13 @@ close all;clear all;clc
 clear all,clc
 %%
 % choose data file of interest
-for dataChoice = [4]
+for dataChoice = [1]
     
     switch dataChoice
         
         case 1
             load('+data/693ffd_exampData_400ms.mat') % response timing data set
-            trainDuration = [0 800]; % this is how long the stimulation train was
+            trainDuration = [0 400]; % this is how long the stimulation train was
             xlims = [-200 1000]; % these are the x limits to visualize in plots
             chanIntList = [4 12 21 28 19 18 36 44 43 30 33 41 34]; % these are the channels of interest to visualize in closer detail
             %chanIntList = [21 28];
@@ -62,8 +62,6 @@ for dataChoice = [4]
             tEpoch = t_epoch;
             dataInt = 4*dataInt;
             trainDuration = [0 500];
-            
-            
     end
     
     
@@ -272,7 +270,6 @@ for dataChoice = [4]
         
     end
     
-    
     [processedSig,templateDictCell,templateTrial,startInds,endInds] = analyFunc.template_subtract(dataInt,'type',type,...
         'fs',fsData,'plotIt',plotIt,'pre',pre,'post',post,'stimChans',stimChans,...
         'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,...,
@@ -295,7 +292,7 @@ for dataChoice = [4]
     %     %
     average = 1;
     %chanIntList = 3;
-    trainDuration = [0 400];
+    %  trainDuration = [0 400];
     modePlot = 'avg';
     xlims = [-200 1000];
     ylims = [-0.6 0.6];
@@ -517,3 +514,102 @@ average = 1;
 ylimsSpect = [5 300];
 xlims = [-200 1000];
 vizFunc.small_multiples_spectrogram(normalizedData,tMorlet,fMorlet,'type1',stimChans,'type2',0,'xlims',xlims,'ylims',ylimsSpect);
+
+%% ica example
+
+scaleFactor = 600;
+numComponentsSearch = 20;
+plotIt = false;
+meanSub = 0;
+orderPoly = 3;
+[processedSig,subtractedSigCell,reconArtifactMatrix,reconArtifact,t] = analyFunc.ica_artifact_remove_train(tEpoch,dataInt,stimChans,fsData,scaleFactor,numComponentsSearch,plotIt,chanInt,meanSub,orderPoly);
+%%
+%%%%%%% wavelet
+timeRes = 0.01; % 25 ms bins
+
+% [powerout,fMorlet,tMorlet] = wavelet_wrapper(processedSig,fsData,stimChans);
+[powerout,fMorlet,tMorlet,~] = analyFunc.waveletWrapper(processedSig,fsData,timeRes,stimChans);
+%
+% additional parameters
+postStim = 2000;
+sampsPostStim = round(postStim/1e3*fsData);
+
+preStim = 1000;
+sampsPreStim = round(preStim/1e3*fsData);
+
+tMorlet = linspace(-preStim,postStim,length(tMorlet))/1e3;
+% normalize data
+dataRef = powerout(:,tMorlet<0.05 & tMorlet>-0.8,:,:);
+%
+[normalizedData] = analyFunc.normalize_spectrogram_wavelet(dataRef,powerout);
+individual = 0;
+average = 1;
+%%
+chanIntList = 28;
+% chanIntList = chanInt;
+for chanInt = chanIntList
+    vizFunc.visualize_wavelet_channel_no_raw(normalizedData,tMorlet,fMorlet,processedSig,...
+        tEpoch,chanInt,individual,average)
+end
+%%
+for chanInt = chanIntList
+    vizFunc.visualize_wavelet_channel(normalizedData,tMorlet,fMorlet,processedSig,...
+        tEpoch,dataInt,chanInt,individual,average)
+end
+%%
+for chanInt = chanIntList
+    vizFunc.visualize_wavelet_channel_small(normalizedData,tMorlet,fMorlet,processedSig,...
+        tEpoch,dataInt,chanInt,individual,average)
+end
+
+%% low pass filter
+lnReject = false;
+lnFreq = [];
+hp = false;
+hpFreq = [];
+lp = true;
+lpFreq = 200;
+filterOrder = 4;
+causality = 'acausal';
+for index = 1:size(dataInt,3)
+    processedSig(:,:,index) = ecogFilter(squeeze(dataInt(:,:,index)), lnReject, lnFreq, hp, hpFreq, lp, lpFreq, fsData, filterOrder, causality);
+end
+
+%
+%%%%%%% wavelet
+timeRes = 0.01; % 25 ms bins
+
+% [powerout,fMorlet,tMorlet] = wavelet_wrapper(processedSig,fsData,stimChans);
+[powerout,fMorlet,tMorlet,~] = analyFunc.waveletWrapper(processedSig,fsData,timeRes,stimChans);
+%
+% additional parameters
+postStim = 2000;
+sampsPostStim = round(postStim/1e3*fsData);
+
+preStim = 1000;
+sampsPreStim = round(preStim/1e3*fsData);
+
+tMorlet = linspace(-preStim,postStim,length(tMorlet))/1e3;
+% normalize data
+dataRef = powerout(:,tMorlet<0.05 & tMorlet>-0.8,:,:);
+%
+[normalizedData] = analyFunc.normalize_spectrogram_wavelet(dataRef,powerout);
+individual = 0;
+average = 1;
+%
+chanIntList = 28;
+% chanIntList = chanInt;
+for chanInt = chanIntList
+    vizFunc.visualize_wavelet_channel_no_raw(normalizedData,tMorlet,fMorlet,processedSig,...
+        tEpoch,chanInt,individual,average)
+end
+%
+for chanInt = chanIntList
+    vizFunc.visualize_wavelet_channel(normalizedData,tMorlet,fMorlet,processedSig,...
+        tEpoch,dataInt,chanInt,individual,average)
+end
+%
+for chanInt = chanIntList
+    vizFunc.visualize_wavelet_channel_small(normalizedData,tMorlet,fMorlet,processedSig,...
+        tEpoch,dataInt,chanInt,individual,average)
+end
