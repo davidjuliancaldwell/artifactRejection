@@ -284,7 +284,6 @@ for dataChoice = [1]
     % of note - more visualizations are created here, including what the
     % templates look like on each channel, and what the discovered templates are
     xlims = [-100 500];
-    xlims = [-10 210];
     %     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %     vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fsData,'type',type,'tEpoch',...
     %         tEpoch,'xlims',xlims,'trainDuration',trainDuration,'stimChans',stimChans,...,
@@ -517,13 +516,14 @@ vizFunc.small_multiples_spectrogram(normalizedData,tMorlet,fMorlet,'type1',stimC
 
 %% ica example
 
+chanInt = 28;
 scaleFactor = 600;
 numComponentsSearch = 20;
 plotIt = false;
 meanSub = 0;
 orderPoly = 3;
 [processedSig,subtractedSigCell,reconArtifactMatrix,reconArtifact,t] = analyFunc.ica_artifact_remove_train(tEpoch,dataInt,stimChans,fsData,scaleFactor,numComponentsSearch,plotIt,chanInt,meanSub,orderPoly);
-%%
+%
 %%%%%%% wavelet
 timeRes = 0.01; % 25 ms bins
 
@@ -545,31 +545,59 @@ dataRef = powerout(:,tMorlet<0.05 & tMorlet>-0.8,:,:);
 individual = 0;
 average = 1;
 %%
-chanIntList = 28;
+chanIntList = [38];
 % chanIntList = chanInt;
 for chanInt = chanIntList
     vizFunc.visualize_wavelet_channel_no_raw(normalizedData,tMorlet,fMorlet,processedSig,...
         tEpoch,chanInt,individual,average)
 end
-%%
+%
 for chanInt = chanIntList
     vizFunc.visualize_wavelet_channel(normalizedData,tMorlet,fMorlet,processedSig,...
         tEpoch,dataInt,chanInt,individual,average)
 end
-%%
+%
 for chanInt = chanIntList
     vizFunc.visualize_wavelet_channel_small(normalizedData,tMorlet,fMorlet,processedSig,...
         tEpoch,dataInt,chanInt,individual,average)
 end
 
+  %%
+    % visualization
+    % of note - more visualizations are created here, including what the
+    % templates look like on each channel, and what the discovered templates are
+    xlims = [-100 500];
+    %     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %     vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fsData,'type',type,'tEpoch',...
+    %         tEpoch,'xlims',xlims,'trainDuration',trainDuration,'stimChans',stimChans,...,
+    %         'chanIntList',chanIntList,'templateTrial',templateTrial,'templateDictCell',templateDictCell,'modePlot','confInt')
+    %     %
+    average = 1;
+    %chanIntList = 3;
+    %  trainDuration = [0 400];
+    modePlot = 'avg';
+    xlims = [-200 1000];
+    ylims = [-0.6 0.6];
+    vizFunc.small_multiples_time_series(processedSig,tEpoch,'type1',stimChans,'type2',0,'xlims',xlims,'ylims',ylims,'modePlot',modePlot,'highlightRange',trainDuration)
+
 %% low pass filter
-lnReject = false;
-lnFreq = [];
+
+% lnReject = false;
+% lnFreq = [];
+% hp = false;
+% hpFreq = [];
+% lp = true;
+% lpFreq = 100;
+% filterOrder = 4;
+% causality = 'acausal';
+
+lnReject = 1;
+lnFreq = 200;
 hp = false;
 hpFreq = [];
-lp = true;
-lpFreq = 200;
-filterOrder = 4;
+lp = false;
+lpFreq = [];
+filterOrder = 8;
 causality = 'acausal';
 for index = 1:size(dataInt,3)
     processedSig(:,:,index) = ecogFilter(squeeze(dataInt(:,:,index)), lnReject, lnFreq, hp, hpFreq, lp, lpFreq, fsData, filterOrder, causality);
