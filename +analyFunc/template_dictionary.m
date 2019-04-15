@@ -160,7 +160,7 @@ for chan = goodVec
         %         clusterer.outlierThresh = 0.95;
         clusterer.minpts = minPts;
         clusterer.minclustsize = minClustSize;
-        clusterer.outlierThresh = outlierThresh; 
+        clusterer.outlierThresh = outlierThresh;
         clusterer.metric = distanceMetricDbscan;
         clusterer.fit_model(); 			% trains a cluster hierarchy
     catch
@@ -421,11 +421,17 @@ for trial = 1:size(rawSig,3)
             % scaling = mean([max(rawSigTemp(win))/max(templateSubtract),min(rawSigTemp(win))/min(templateSubtract)]);
             %    scaling = max(rawSigTemp(win))/max(templateSubtract);
             scaling = (max(extractedSig) - min(extractedSig))/(max(templateSubtract) - min(templateSubtract));
+            %   scaling = [ones(length(extractedSig),1),templateSubtract]\extractedSig;
+            %   templateSubtract = templateSubtract*scaling(2)+scaling(1);
+            
+            %  scaling = templateSubtract\extractedSig;
             templateSubtract = templateSubtract*scaling;
+            
             
             rawSigTemp(win) = rawSigTemp(win) - templateSubtract;
             
             if plotIt && chan == chanInt && (sts == 1 || sts == 2 || sts == 10) && firstLoopChan
+                %%
                 figure
                 currentFig = gcf;
                 currentFig.Units = "inches";
@@ -516,7 +522,7 @@ for trial = 1:size(rawSig,3)
         end
         
         processedSig(:,chan,trial) = rawSigTemp;
-        fprintf(['-------Template Processed - Channel ' num2str(chan) '--' 'Trial ' num2str(trial) '-----\n'])
+       fprintf(['-------Template Processed - Channel ' num2str(chan) '--' 'Trial ' num2str(trial) '-----\n'])
     end
 end
 %%
@@ -687,7 +693,7 @@ if plotIt
     ylabel('time point 1 : voltage (mV)')
     %ylabel('V(t=2)')
     %xlabel('V(t=1)')
-     xlabel('time point 2 : voltage (mV)')
+    xlabel('time point 2 : voltage (mV)')
     set( h.Parent,'tickdir','out','box','off' );
     
     tempLabels = clusterer.labels;

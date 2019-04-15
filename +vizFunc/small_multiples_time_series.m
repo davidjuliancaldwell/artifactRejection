@@ -119,7 +119,7 @@ end
 obj = vizFunc.scalebar;
 obj.XLen = 500;              %X-Length, 10.
 obj.XUnit = 'ms';            %X-Unit, 'm'.
-obj.YLen = 0.5;
+obj.YLen = 1;
 obj.YUnit = 'mV';
 
 obj.Position = [0 0];
