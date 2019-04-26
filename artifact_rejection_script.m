@@ -20,7 +20,6 @@
 % clear the workspace
 %close all;clear all;clc
 close all;clear all;clc
-clear all,clc
 %%
 % choose data file of interest
 for dataChoice = [1]
@@ -299,10 +298,11 @@ for dataChoice = [1]
     
     %% additional processing
     
-    rerefMode = 'mean';
+    rerefMode = 'selectedChannelsMedian';
     switch dataChoice
         case 1
             badChannels = [stimChans [53:64]];
+            channelsToUse = [1 2 9 10];
         case 2
             badChannels = stimChans;
             channelsToUse = [22 23 30 31 38 39 46 47];
@@ -310,13 +310,13 @@ for dataChoice = [1]
             badChannels = stimChans;
         case 7
             badChannels = stimChans;
+            channels
     end
-    reref = 0;
+    %%
+    reref = 1;
     if reref
         fprintf(['-------Done rereferencing-------- \n'])
-        
         processedSig = analyFunc.rereference_CAR_median(processedSig,rerefMode,badChannels,[],[],channelsToUse);
-        processedSigReref = analyFunc.rereference_CAR_median(processedSig,rerefMode,badChannels,[],[],channelsToUse);
     end
     
     
@@ -325,7 +325,6 @@ for dataChoice = [1]
     
     timeRes = 0.01; % 10 ms bins
     
-    % [powerout,fMorlet,tMorlet] = wavelet_wrapper(processedSig,fsData,stimChans);
     [powerout,fMorlet,tMorlet,~] = analyFunc.waveletWrapper(processedSig,fsData,timeRes,stimChans);
     %
     fprintf(['-------Ending wavelet analysis-------- \n'])
@@ -591,13 +590,13 @@ end
 % filterOrder = 4;
 % causality = 'acausal';
 
-lnReject = 1;
+lnReject = false;
 lnFreq = 200;
 hp = false;
 hpFreq = [];
-lp = false;
-lpFreq = [];
-filterOrder = 8;
+lp = true;
+lpFreq = [100];p
+filterOrder = 4;
 causality = 'acausal';
 for index = 1:size(dataInt,3)
     processedSig(:,:,index) = ecogFilter(squeeze(dataInt(:,:,index)), lnReject, lnFreq, hp, hpFreq, lp, lpFreq, fsData, filterOrder, causality);

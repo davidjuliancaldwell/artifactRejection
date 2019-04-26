@@ -128,7 +128,7 @@ trainDuration = [0 0];
 %     %
 average = 1;
 %%
-rerefMode = 'mean';
+rerefMode = 'selectedChannelsMedian';
 badChannels = stimChans;
 channelsToUse = [1:4 9:12 17:21 25:29 33:37];
 

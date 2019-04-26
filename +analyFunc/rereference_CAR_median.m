@@ -53,17 +53,16 @@ switch(mode)
         chan = data(:,channelReference,:);
         repmatChan = repmat(chan,1,size(data,2));
         output = data - repmatChan;
-        
         output = permute(output,permuteOrder);
         
         
     case 'bipolarPair' % do 1 vs 2, 3 vs 4, etc
         for i = [1:2:size(data,2)]
             chanOdd = data(:,i,:);
-            chanEven = data(:,i+1,:);     
+            chanEven = data(:,i+1,:);
             newChan = chanEven-chanOdd;
             output(:,i,:) = zeros(size(newChan));
-            output(:,i+1,:) = newChan;   
+            output(:,i+1,:) = newChan;
         end
         
         output = permute(output,permuteOrder);
@@ -72,13 +71,20 @@ switch(mode)
     case 'bipolar' % do 1 vs 2, 3 vs 4, etc
         for i = [1:7] % for R side , do 8:end
             chanOdd = data(:,i,:);
-            chanEven = data(:,i+1,:);        
+            chanEven = data(:,i+1,:);
             newChan = chanEven-chanOdd;
             output(:,i,:) = newChan;
         end
         output(:,8,:) = zeros(size(newChan));
         output = permute(output,permuteOrder);
-    case 'selectedChannels'
+        
+    case 'selectedChannelsMean'
+        avg = mean(data(:,channelsToUse,:),2);
+        avg = repmat(avg, 1, size(data(:,channelMask,:),2));
+        output(:,channelMask,:) = data(:,channelMask,:) - avg;
+        output = permute(output,permuteOrder);
+        
+    case 'selectedChannelsMedian'
         avg = mean(data(:,channelsToUse,:),2);
         avg = repmat(avg, 1, size(data(:,channelMask,:),2));
         output(:,channelMask,:) = data(:,channelMask,:) - avg;
