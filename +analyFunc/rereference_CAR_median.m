@@ -85,7 +85,7 @@ switch(mode)
         output = permute(output,permuteOrder);
         
     case 'selectedChannelsMedian'
-        avg = mean(data(:,channelsToUse,:),2);
+        avg = median(data(:,channelsToUse,:),2);
         avg = repmat(avg, 1, size(data(:,channelMask,:),2));
         output(:,channelMask,:) = data(:,channelMask,:) - avg;
         output = permute(output,permuteOrder);

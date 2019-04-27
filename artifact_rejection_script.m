@@ -269,6 +269,21 @@ for dataChoice = [1]
         
     end
     
+    
+%%          
+    % set parameters for fit function
+    fRange = [59 61]; 
+    smoothSpan = 51; 
+    tic;
+    [subtractedSig,phase,f,r,fitline] = analyFunc.sine_fit(dataInt,tEpoch,smoothSpan,fRange,fsData,plotIt);
+toc;
+        fRange = [119 121]; 
+        [subtractedSig2,phase,f,r,fitline] = analyFunc.sine_fit(subtractedSig,tEpoch,smoothSpan,fRange,fsData,plotIt);
+
+              fRange = [179 181]; 
+        [subtractedSig3,phase,f,r,fitline] = analyFunc.sine_fit(subtractedSig2,tEpoch,smoothSpan,fRange,fsData,plotIt);
+
+%%    
     [processedSig,templateDictCell,templateTrial,startInds,endInds] = analyFunc.template_subtract(dataInt,'type',type,...
         'fs',fsData,'plotIt',plotIt,'pre',pre,'post',post,'stimChans',stimChans,...
         'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,...,
@@ -298,11 +313,12 @@ for dataChoice = [1]
     
     %% additional processing
     
-    rerefMode = 'selectedChannelsMedian';
+    rerefMode = 'selectedChannelsMean';
     switch dataChoice
         case 1
             badChannels = [stimChans [53:64]];
-            channelsToUse = [1 2 9 10];
+            channelsToUse = [1:8 41:48];
+            channelsToUse = [49 42 35 14 7 8];
         case 2
             badChannels = stimChans;
             channelsToUse = [22 23 30 31 38 39 46 47];
@@ -312,14 +328,15 @@ for dataChoice = [1]
             badChannels = stimChans;
             channels
     end
-    %%
-    reref = 1;
+    %
+    reref = 0;
     if reref
+        processedSigReref = analyFunc.rereference_CAR_median(processedSig,rerefMode,badChannels,[],[],channelsToUse);
+        vizFunc.small_multiples_time_series(processedSigReref,tEpoch,'type1',stimChans,'type2',0,'xlims',xlims,'ylims',ylims,'modePlot',modePlot,'highlightRange',trainDuration)
         fprintf(['-------Done rereferencing-------- \n'])
-        processedSig = analyFunc.rereference_CAR_median(processedSig,rerefMode,badChannels,[],[],channelsToUse);
+        
     end
-    
-    
+    %%
     %%%%%%% wavelet
     fprintf(['-------Beginning wavelet analysis-------- \n'])
     
@@ -346,21 +363,21 @@ for dataChoice = [1]
     %%
     if dataChoice == 1 || dataChoice == 2
         
-        for chanInt = chanIntList
-            vizFunc.visualize_wavelet_channel_no_raw(normalizedData,tMorlet,fMorlet,processedSig,...
-                tEpoch,chanInt,individual,average)
-        end
-        %%
+        %         for chanInt = chanIntList
+        %             vizFunc.visualize_wavelet_channel_no_raw(normalizedData,tMorlet,fMorlet,processedSigReref,...
+        %                 tEpoch,chanInt,individual,average)
+        %         end
+        %
         for chanInt = chanIntList
             vizFunc.visualize_wavelet_channel(normalizedData,tMorlet,fMorlet,processedSig,...
                 tEpoch,dataInt,chanInt,individual,average)
         end
-        %%
-        for chanInt = chanIntList
-            vizFunc.visualize_wavelet_channel_small(normalizedData,tMorlet,fMorlet,processedSig,...
-                tEpoch,dataInt,chanInt,individual,average)
-        end
-        %%
+        %         %
+        %         for chanInt = chanIntList
+        %             vizFunc.visualize_wavelet_channel_small(normalizedData,tMorlet,fMorlet,processedSigReref,...
+        %                 tEpoch,dataInt,chanInt,individual,average)
+        %       end
+        %
         ylimsSpect = [5 300];
         xlims = [-200 1000];
         vizFunc.small_multiples_spectrogram(normalizedData,tMorlet,fMorlet,'type1',stimChans,'type2',0,'xlims',xlims,'ylims',ylimsSpect);
@@ -370,7 +387,7 @@ for dataChoice = [1]
         individual = 0;
         average = 1;
         for chanInt = chanIntList
-            vizFunc.visualize_raw_vs_processed(processedSig,tEpoch,dataInt,chanInt,individual,average)
+            vizFunc.visualize_raw_vs_processed(processedSigReref,tEpoch,dataInt,chanInt,individual,average)
         end
     end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -561,23 +578,23 @@ for chanInt = chanIntList
         tEpoch,dataInt,chanInt,individual,average)
 end
 
-  %%
-    % visualization
-    % of note - more visualizations are created here, including what the
-    % templates look like on each channel, and what the discovered templates are
-    xlims = [-100 500];
-    %     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %     vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fsData,'type',type,'tEpoch',...
-    %         tEpoch,'xlims',xlims,'trainDuration',trainDuration,'stimChans',stimChans,...,
-    %         'chanIntList',chanIntList,'templateTrial',templateTrial,'templateDictCell',templateDictCell,'modePlot','confInt')
-    %     %
-    average = 1;
-    %chanIntList = 3;
-    %  trainDuration = [0 400];
-    modePlot = 'avg';
-    xlims = [-200 1000];
-    ylims = [-0.6 0.6];
-    vizFunc.small_multiples_time_series(processedSig,tEpoch,'type1',stimChans,'type2',0,'xlims',xlims,'ylims',ylims,'modePlot',modePlot,'highlightRange',trainDuration)
+%%
+% visualization
+% of note - more visualizations are created here, including what the
+% templates look like on each channel, and what the discovered templates are
+xlims = [-100 500];
+%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fsData,'type',type,'tEpoch',...
+%         tEpoch,'xlims',xlims,'trainDuration',trainDuration,'stimChans',stimChans,...,
+%         'chanIntList',chanIntList,'templateTrial',templateTrial,'templateDictCell',templateDictCell,'modePlot','confInt')
+%     %
+average = 1;
+%chanIntList = 3;
+%  trainDuration = [0 400];
+modePlot = 'avg';
+xlims = [-200 1000];
+ylims = [-0.6 0.6];
+vizFunc.small_multiples_time_series(processedSig,tEpoch,'type1',stimChans,'type2',0,'xlims',xlims,'ylims',ylims,'modePlot',modePlot,'highlightRange',trainDuration)
 
 %% low pass filter
 
