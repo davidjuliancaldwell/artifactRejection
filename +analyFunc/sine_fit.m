@@ -7,7 +7,7 @@ tRange = 1./fRange;
 tRange = tRange.*fs;
 
 if plotIt
-    figure
+ %   figure
 end
 
 % make matrices to store values over each iteration
@@ -18,10 +18,17 @@ Rsquare = zeros(size(X,2),size(X,3),1);
 f = zeros(size(X,2),size(X,3),1);
 
 for jj = 1:size(X,2)
-    for kk = 1:size(X,3)
+    parfor kk = 1:size(X,3)
         sigInd = X(:,jj,kk);
         
-        [pha_a,T_a,amp_a,rsquare_a,fitline,offset] = analyFunc.sinfit(1e6*sigInd,smoothSpan,tRange);
+        sigIndTemp = sigInd;
+        
+        maxVal = max(sigInd(zscore(sigInd)<0.5));
+        minVal = min(sigInd(zscore(sigInd)>-0.5));
+        sigIndTemp(zscore(sigInd)>0.5) = maxVal;
+        sigIndTemp(zscore(sigInd)<-0.5) = minVal;
+        
+        [pha_a,T_a,amp_a,rsquare_a,fitline,offset] = analyFunc.sinfit(1e6*sigIndTemp,smoothSpan,tRange);
         
         f_calculated = 1/(T_a/fs);
         length_sig = length(sigInd);
@@ -47,13 +54,15 @@ for jj = 1:size(X,2)
         
         subtractedSig(:,jj,kk) = sigInd' - 1e-6*a;
         
-        if plotIt
-            plot(t,a,t,1e6*sigInd,t,1e6*subtractedSig(:,jj,kk))
-            legend({'curve fit','original sig','subtracted'})
-            title('Curve fitting')
-            set(gca,'fontsize',14);
-            %pause(1)
-        end
+%         if plotIt
+%             figure
+%             plot(t,a,t,1e6*sigInd,t,1e6*subtractedSig(:,jj,kk))
+%             legend({'curve fit','original sig','subtracted'})
+%             title('Curve fitting')
+%             set(gca,'fontsize',14);
+%             %pause(1)
+%         end
+        fprintf(['Channel ' num2str(jj) ' trial ' num2str(kk) ' complete \n'])
     end
     
 end

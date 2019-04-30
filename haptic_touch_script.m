@@ -146,7 +146,7 @@ for sid = SIDSint
         processedSig = processedSig(:,:,responseBool);
     end
     
-    rerefMode = 'median';
+    rerefMode = 'mean';
     if strcmp(sid,'c19968')
         badChannels = [stimChans [29 32] [64:size(processedSig,2)]];
     elseif strcmp(sid,'693ffd')

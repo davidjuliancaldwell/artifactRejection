@@ -270,20 +270,46 @@ for dataChoice = [1]
     end
     
     
-%%          
-    % set parameters for fit function
-    fRange = [59 61]; 
-    smoothSpan = 51; 
+    %%
+    % dataInt = dataInt(:,[8 28 35],1:5);
+    %  dataInt = dataInt(1:1e3,:,:);
+    %  tEpoch = tEpoch(1:1e3);
+    plotItFit = 0;
+    fRange = [59.9 60.1];
+    smoothSpan = 5;
+    
+    fprintf(['-------Beginning sine fit subtraction 180 Hz-------- \n'])
     tic;
-    [subtractedSig,phase,f,r,fitline] = analyFunc.sine_fit(dataInt,tEpoch,smoothSpan,fRange,fsData,plotIt);
-toc;
-        fRange = [119 121]; 
-        [subtractedSig2,phase,f,r,fitline] = analyFunc.sine_fit(subtractedSig,tEpoch,smoothSpan,fRange,fsData,plotIt);
-
-              fRange = [179 181]; 
-        [subtractedSig3,phase,f,r,fitline] = analyFunc.sine_fit(subtractedSig2,tEpoch,smoothSpan,fRange,fsData,plotIt);
-
-%%    
+    fRange = [179.9 180.1];
+    [subtractedSig,phase,f,r,fitline] = analyFunc.sine_fit(dataInt,tEpoch,smoothSpan,fRange,fsData,plotItFit);
+    toc;
+    fprintf(['-------Done sine fit subtraction 180 Hz-------- \n'])
+    
+    smoothSpan = 10;
+    %
+    %     fprintf(['-------Beginning sine fit subtraction 120 Hz-------- \n'])
+    %     tic;
+    %     fRange = [119.9 120.1];
+    %     [subtractedSig2,phase,f,r,fitline] = analyFunc.sine_fit(subtractedSig,tEpoch,smoothSpan,fRange,fsData,plotItFit);
+    %     toc;
+    %     fprintf(['-------Done sine fit subtraction 120 Hz-------- \n'])
+    %
+    %            smoothSpan = 25;
+    
+    
+    % set parameters for fit function
+    fprintf(['-------Beginning sine fit subtraction 60 Hz-------- \n'])
+    fRange = [59.9 60.1];
+    
+    tic;
+    [subtractedSig3,phase,f,r,fitline] = analyFunc.sine_fit(subtractedSig,tEpoch,smoothSpan,fRange,fsData,plotItFit);
+    toc;
+    fprintf(['-------Done sine fit subtraction 60 Hz-------- \n'])
+    
+    dataInt = subtractedSig3;
+    
+    
+    %%
     [processedSig,templateDictCell,templateTrial,startInds,endInds] = analyFunc.template_subtract(dataInt,'type',type,...
         'fs',fsData,'plotIt',plotIt,'pre',pre,'post',post,'stimChans',stimChans,...
         'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,...,

@@ -128,9 +128,16 @@ trainDuration = [0 0];
 %     %
 average = 1;
 %%
-rerefMode = 'selectedChannelsMedian';
+
+rerefMode = 'mean';
 badChannels = stimChans;
+
+if strcmp(rerefMode,'selectedChannelsMedian')
 channelsToUse = [1:4 9:12 17:21 25:29 33:37];
+else
+    channelsToUse = []; % only if selectedChannelsMedian/mean are used does this matter
+end
+
 
 reref = 1;
 if reref
