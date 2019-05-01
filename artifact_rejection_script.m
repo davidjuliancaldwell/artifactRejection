@@ -270,43 +270,40 @@ for dataChoice = [1]
     end
     
     
-    %%
-    % dataInt = dataInt(:,[8 28 35],1:5);
-    %  dataInt = dataInt(1:1e3,:,:);
-    %  tEpoch = tEpoch(1:1e3);
-    plotItFit = 0;
-    fRange = [59.9 60.1];
-    smoothSpan = 5;
-    
-    fprintf(['-------Beginning sine fit subtraction 180 Hz-------- \n'])
-    tic;
-    fRange = [179.9 180.1];
-    [subtractedSig,phase,f,r,fitline] = analyFunc.sine_fit(dataInt,tEpoch,smoothSpan,fRange,fsData,plotItFit);
-    toc;
-    fprintf(['-------Done sine fit subtraction 180 Hz-------- \n'])
-    
-    smoothSpan = 10;
-    %
-    %     fprintf(['-------Beginning sine fit subtraction 120 Hz-------- \n'])
-    %     tic;
-    %     fRange = [119.9 120.1];
-    %     [subtractedSig2,phase,f,r,fitline] = analyFunc.sine_fit(subtractedSig,tEpoch,smoothSpan,fRange,fsData,plotItFit);
-    %     toc;
-    %     fprintf(['-------Done sine fit subtraction 120 Hz-------- \n'])
-    %
-    %            smoothSpan = 25;
-    
-    
-    % set parameters for fit function
-    fprintf(['-------Beginning sine fit subtraction 60 Hz-------- \n'])
-    fRange = [59.9 60.1];
-    
-    tic;
-    [subtractedSig3,phase,f,r,fitline] = analyFunc.sine_fit(subtractedSig,tEpoch,smoothSpan,fRange,fsData,plotItFit);
-    toc;
-    fprintf(['-------Done sine fit subtraction 60 Hz-------- \n'])
-    
-    dataInt = subtractedSig3;
+    %% optional sine wave fitting to subtract
+%     plotItFit = 0;
+%     fRange = [59.9 60.1];
+%     smoothSpan = 5;
+%     
+%     fprintf(['-------Beginning sine fit subtraction 180 Hz-------- \n'])
+%     tic;
+%     fRange = [179.9 180.1];
+%     [subtractedSig,phase,f,r,fitline] = analyFunc.sine_fit(dataInt,tEpoch,smoothSpan,fRange,fsData,plotItFit);
+%     toc;
+%     fprintf(['-------Done sine fit subtraction 180 Hz-------- \n'])
+%     
+%     smoothSpan = 10;
+%     %
+%     %     fprintf(['-------Beginning sine fit subtraction 120 Hz-------- \n'])
+%     %     tic;
+%     %     fRange = [119.9 120.1];
+%     %     [subtractedSig2,phase,f,r,fitline] = analyFunc.sine_fit(subtractedSig,tEpoch,smoothSpan,fRange,fsData,plotItFit);
+%     %     toc;
+%     %     fprintf(['-------Done sine fit subtraction 120 Hz-------- \n'])
+%     %
+%     %            smoothSpan = 25;
+%     
+%     
+%     % set parameters for fit function
+%     fprintf(['-------Beginning sine fit subtraction 60 Hz-------- \n'])
+%     fRange = [59.9 60.1];
+%     
+%     tic;
+%     [subtractedSig3,phase,f,r,fitline] = analyFunc.sine_fit(subtractedSig,tEpoch,smoothSpan,fRange,fsData,plotItFit);
+%     toc;
+%     fprintf(['-------Done sine fit subtraction 60 Hz-------- \n'])
+%     
+%     dataInt = subtractedSig3;
     
     
     %%
@@ -325,9 +322,9 @@ for dataChoice = [1]
     % templates look like on each channel, and what the discovered templates are
     xlims = [-100 500];
     %     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %     vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fsData,'type',type,'tEpoch',...
-    %         tEpoch,'xlims',xlims,'trainDuration',trainDuration,'stimChans',stimChans,...,
-    %         'chanIntList',chanIntList,'templateTrial',templateTrial,'templateDictCell',templateDictCell,'modePlot','confInt')
+%         vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fsData,'type',type,'tEpoch',...
+%             tEpoch,'xlims',xlims,'trainDuration',trainDuration,'stimChans',stimChans,...,
+%             'chanIntList',chanIntList,'templateTrial',templateTrial,'templateDictCell',templateDictCell,'modePlot','confInt')
     %     %
     average = 1;
     %chanIntList = 3;
