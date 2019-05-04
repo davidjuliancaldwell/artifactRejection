@@ -22,7 +22,7 @@
 close all;clear all;clc
 %%
 % choose data file of interest
-for dataChoice = [1]
+for dataChoice = [3]
     
     switch dataChoice
         
@@ -345,11 +345,6 @@ for dataChoice = [1]
         case 2
             badChannels = stimChans;
             channelsToUse = [22 23 30 31 38 39 46 47];
-        case 6
-            badChannels = stimChans;
-        case 7
-            badChannels = stimChans;
-            channels
     end
     %
     reref = 0;
@@ -410,7 +405,7 @@ for dataChoice = [1]
         individual = 0;
         average = 1;
         for chanInt = chanIntList
-            vizFunc.visualize_raw_vs_processed(processedSigReref,tEpoch,dataInt,chanInt,individual,average)
+            vizFunc.visualize_raw_vs_processed(processedSig,tEpoch,dataInt,chanInt,individual,average)
         end
     end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
