@@ -20,6 +20,7 @@
 % clear the workspace
 %close all;clear all;clc
 close all;clear all;clc
+clear all;clc
 %%
 % choose data file of interest
 for dataChoice = [3]
@@ -184,8 +185,8 @@ for dataChoice = [3]
         recoverExp = 1;
         threshVoltageCut = 55;
         threshDiffCut = 55;
-        expThreshVoltageCut = 95;
-        expThreshDiffCut = 95;
+        expThreshVoltageCut = 85;
+        expThreshDiffCut = 85;
         bracketRange = [-6:6];
         chanInt = 10;
         minPts = 2;
@@ -354,30 +355,30 @@ for dataChoice = [3]
         fprintf(['-------Done rereferencing-------- \n'])
         
     end
-    %%
-    %%%%%%% wavelet
-    fprintf(['-------Beginning wavelet analysis-------- \n'])
-    
-    timeRes = 0.01; % 10 ms bins
-    
-    [powerout,fMorlet,tMorlet,~] = analyFunc.waveletWrapper(processedSig,fsData,timeRes,stimChans);
-    %
-    fprintf(['-------Ending wavelet analysis-------- \n'])
-    
-    % additional parameters
-    postStim = 2000;
-    sampsPostStim = round(postStim/1e3*fsData);
-    
-    preStim = 1000;
-    sampsPreStim = round(preStim/1e3*fsData);
-    
-    tMorlet = linspace(-preStim,postStim,length(tMorlet))/1e3;
-    % normalize data
-    dataRef = powerout(:,tMorlet<0.05 & tMorlet>-0.8,:,:);
-    %
-    [normalizedData] = analyFunc.normalize_spectrogram_wavelet(dataRef,powerout);
-    individual = 0;
-    average = 1;
+%     %
+%     %%%%%% wavelet
+%     fprintf(['-------Beginning wavelet analysis-------- \n'])
+%     
+%     timeRes = 0.01; % 10 ms bins
+%     
+%     [powerout,fMorlet,tMorlet,~] = analyFunc.waveletWrapper(processedSig,fsData,timeRes,stimChans);
+%     %
+%     fprintf(['-------Ending wavelet analysis-------- \n'])
+%     
+%     % additional parameters
+%     postStim = 2000;
+%     sampsPostStim = round(postStim/1e3*fsData);
+%     
+%     preStim = 1000;
+%     sampsPreStim = round(preStim/1e3*fsData);
+%     
+%     tMorlet = linspace(-preStim,postStim,length(tMorlet))/1e3;
+%     % normalize data
+%     dataRef = powerout(:,tMorlet<0.05 & tMorlet>-0.8,:,:);
+%     %
+%     [normalizedData] = analyFunc.normalize_spectrogram_wavelet(dataRef,powerout);
+%     individual = 0;
+%     average = 1;
     %%
     if dataChoice == 1 || dataChoice == 2
         
