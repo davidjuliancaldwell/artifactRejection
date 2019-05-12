@@ -7,6 +7,9 @@ load('america');
 CT = cm;
 if individual
     
+        xlimsVec = [-200 1000];
+    ylimsVec = [5 300];
+
     for i = 1:size(powerout,4)
         totalFig = figure;
         totalFig.Units = 'inches';
