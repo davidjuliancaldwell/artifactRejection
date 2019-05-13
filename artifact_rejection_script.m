@@ -135,7 +135,7 @@ for dataChoice = [2]
         pre = 0.8; % started with 1
         post = 1; % started with 0.2
         % 2.8, 1, 0.5 was 3/19/2018
-        
+                
         % these are the metrics used if the dictionary method is selected. The
         % options are 'eucl', 'cosine', 'corr', for either euclidean distance,
         % cosine similarity, or correlation for clustering and template matching.
