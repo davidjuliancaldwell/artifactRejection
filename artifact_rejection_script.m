@@ -23,7 +23,7 @@ close all;clear all;clc
 clear all;clc
 %%
 % choose data file of interest
-for dataChoice = [2]
+for dataChoice = [3]
     
     switch dataChoice
         
@@ -31,7 +31,7 @@ for dataChoice = [2]
             load('+data/693ffd_exampData_400ms.mat') % response timing data set
             trainDuration = [0 400]; % this is how long the stimulation train was
             xlims = [-200 1000]; % these are the x limits to visualize in plots
-            chanIntList = [4 12 21 28 19 18 36 44 43 30 33 41 34]; % these are the channels of interest to visualize in closer detail
+            chanIntList = [4 12 21 28 19 18 36 38 44 43 30 33 41 34]; % these are the channels of interest to visualize in closer detail
             %chanIntList = [21 28];
             minDuration = 0.5; % minimum duration of artifact in ms
             % dataInt = 4*dataInt;
@@ -182,7 +182,7 @@ for dataChoice = [2]
         normalize = 'preAverage';
         %normalize = 'firstSamp';
         onsetThreshold = 1.5;
-        recoverExp = 1;
+        recoverExp = 0;
         threshVoltageCut = 55;
         threshDiffCut = 55;
         expThreshVoltageCut = 85;
@@ -550,8 +550,9 @@ xlims = [-200 1000];
 vizFunc.small_multiples_spectrogram(normalizedData,tMorlet,fMorlet,'type1',stimChans,'type2',0,'xlims',xlims,'ylims',ylimsSpect);
 
 %% ica example
+% for the paper, it was the first data set, the chanInt = 28, the
+% chanIntList = [38];
 
-chanInt = 28;
 scaleFactor = 600;
 numComponentsSearch = 20;
 plotIt = false;
@@ -580,8 +581,7 @@ dataRef = powerout(:,tMorlet<0.05 & tMorlet>-0.8,:,:);
 individual = 0;
 average = 1;
 %%
-chanIntList = [38];
-% chanIntList = chanInt;
+
 for chanInt = chanIntList
     vizFunc.visualize_wavelet_channel_no_raw(normalizedData,tMorlet,fMorlet,processedSig,...
         tEpoch,chanInt,individual,average)
@@ -660,8 +660,7 @@ dataRef = powerout(:,tMorlet<0.05 & tMorlet>-0.8,:,:);
 individual = 0;
 average = 1;
 %
-chanIntList = 28;
-% chanIntList = chanInt;
+
 for chanInt = chanIntList
     vizFunc.visualize_wavelet_channel_no_raw(normalizedData,tMorlet,fMorlet,processedSig,...
         tEpoch,chanInt,individual,average)
