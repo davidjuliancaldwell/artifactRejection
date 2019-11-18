@@ -54,13 +54,13 @@ for dataChoice = [3]
             chanIntList = [5,6,7,9,10];
             trainDuration = [0 500];
             minDuration = 0.250; % minimum duration of artifact in ms
-            dataInt = 4*dataInt;
+            dataInt = 4*dataInt; % needed to be multiplied by 4 from raw recording
         case 4
             load('+data/ecb43e_RHI_async_trial14.mat') % rubber hand illusion data set
             minDuration = 0.5; % minimum duration of artifact in ms
             fsData = fs_data;
             tEpoch = t_epoch;
-            dataInt = 4*dataInt;
+            dataInt = 4*dataInt; % needed to be multiplied by 4 from raw recording due to acquisition parameters 
             trainDuration = [0 500];
     end
     

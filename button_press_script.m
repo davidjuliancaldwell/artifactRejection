@@ -17,7 +17,7 @@ clear ECO2
 eco3 = ECO3.data;
 clear ECO3
 
-data = 4.*[eco1 eco2 eco3];
+data = 4.*[eco1 eco2 eco3]; % needed to be multiplied by 4 from raw recording
 clearvars eco1 eco2 eco3
 
 butt = Butt.data;
