@@ -1,9 +1,6 @@
 %% script to create parts of figure 2 - need processed sig
 
 
-
-%%
-plt_sub = vizFunc.smplot(p(1),p(2),idx,'axis','on');
 %%
 
 avgResponse = mean(processedSig,3);

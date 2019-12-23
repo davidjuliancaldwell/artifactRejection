@@ -23,7 +23,7 @@ close all;clear all;clc
 clear all;clc
 %%
 % choose data file of interest
-for dataChoice = [3]
+for dataChoice = [1]
     
     switch dataChoice
         
@@ -427,11 +427,11 @@ useFixedEnd = 0;
 
 % this is how far to look before the algorithm detects each stimulation
 % pulse onset to allow for maximal artifact rejection
-pre = 0.6; % in ms
+pre = 0.8; % in ms
 
 % this is how far to look after the algorithm detects each stimulation
 % pulse onset to allow for maximal artifact rejection
-post = 0.4096; % in ms
+post = 1; % in ms
 
 % This is the maximal duration of time allowed for the artifact rejection
 % for each pulse, and if using "useFixedEnd", it simply considers this time
@@ -631,7 +631,7 @@ lnFreq = 200;
 hp = false;
 hpFreq = [];
 lp = true;
-lpFreq = [100];p
+lpFreq = [100]
 filterOrder = 4;
 causality = 'acausal';
 for index = 1:size(dataInt,3)
