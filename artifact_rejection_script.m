@@ -60,7 +60,7 @@ for dataChoice = [1]
             minDuration = 0.5; % minimum duration of artifact in ms
             fsData = fs_data;
             tEpoch = t_epoch;
-            dataInt = 4*dataInt; % needed to be multiplied by 4 from raw recording due to acquisition parameters 
+            dataInt = 4*dataInt; % needed to be multiplied by 4 from raw recording due to acquisition parameters
             trainDuration = [0 500];
     end
     
@@ -135,7 +135,7 @@ for dataChoice = [1]
         pre = 0.8; % started with 1
         post = 1; % started with 0.2
         % 2.8, 1, 0.5 was 3/19/2018
-                
+        
         % these are the metrics used if the dictionary method is selected. The
         % options are 'eucl', 'cosine', 'corr', for either euclidean distance,
         % cosine similarity, or correlation for clustering and template matching.
@@ -272,39 +272,39 @@ for dataChoice = [1]
     
     
     %% optional sine wave fitting to subtract
-%     plotItFit = 0;
-%     fRange = [59.9 60.1];
-%     smoothSpan = 5;
-%     
-%     fprintf(['-------Beginning sine fit subtraction 180 Hz-------- \n'])
-%     tic;
-%     fRange = [179.9 180.1];
-%     [subtractedSig,phase,f,r,fitline] = analyFunc.sine_fit(dataInt,tEpoch,smoothSpan,fRange,fsData,plotItFit);
-%     toc;
-%     fprintf(['-------Done sine fit subtraction 180 Hz-------- \n'])
-%     
-%     smoothSpan = 10;
-%     %
-%     %     fprintf(['-------Beginning sine fit subtraction 120 Hz-------- \n'])
-%     %     tic;
-%     %     fRange = [119.9 120.1];
-%     %     [subtractedSig2,phase,f,r,fitline] = analyFunc.sine_fit(subtractedSig,tEpoch,smoothSpan,fRange,fsData,plotItFit);
-%     %     toc;
-%     %     fprintf(['-------Done sine fit subtraction 120 Hz-------- \n'])
-%     %
-%     %            smoothSpan = 25;
-%     
-%     
-%     % set parameters for fit function
-%     fprintf(['-------Beginning sine fit subtraction 60 Hz-------- \n'])
-%     fRange = [59.9 60.1];
-%     
-%     tic;
-%     [subtractedSig3,phase,f,r,fitline] = analyFunc.sine_fit(subtractedSig,tEpoch,smoothSpan,fRange,fsData,plotItFit);
-%     toc;
-%     fprintf(['-------Done sine fit subtraction 60 Hz-------- \n'])
-%     
-%     dataInt = subtractedSig3;
+    %     plotItFit = 0;
+    %     fRange = [59.9 60.1];
+    %     smoothSpan = 5;
+    %
+    %     fprintf(['-------Beginning sine fit subtraction 180 Hz-------- \n'])
+    %     tic;
+    %     fRange = [179.9 180.1];
+    %     [subtractedSig,phase,f,r,fitline] = analyFunc.sine_fit(dataInt,tEpoch,smoothSpan,fRange,fsData,plotItFit);
+    %     toc;
+    %     fprintf(['-------Done sine fit subtraction 180 Hz-------- \n'])
+    %
+    %     smoothSpan = 10;
+    %     %
+    %     %     fprintf(['-------Beginning sine fit subtraction 120 Hz-------- \n'])
+    %     %     tic;
+    %     %     fRange = [119.9 120.1];
+    %     %     [subtractedSig2,phase,f,r,fitline] = analyFunc.sine_fit(subtractedSig,tEpoch,smoothSpan,fRange,fsData,plotItFit);
+    %     %     toc;
+    %     %     fprintf(['-------Done sine fit subtraction 120 Hz-------- \n'])
+    %     %
+    %     %            smoothSpan = 25;
+    %
+    %
+    %     % set parameters for fit function
+    %     fprintf(['-------Beginning sine fit subtraction 60 Hz-------- \n'])
+    %     fRange = [59.9 60.1];
+    %
+    %     tic;
+    %     [subtractedSig3,phase,f,r,fitline] = analyFunc.sine_fit(subtractedSig,tEpoch,smoothSpan,fRange,fsData,plotItFit);
+    %     toc;
+    %     fprintf(['-------Done sine fit subtraction 60 Hz-------- \n'])
+    %
+    %     dataInt = subtractedSig3;
     
     
     %%
@@ -323,9 +323,9 @@ for dataChoice = [1]
     % templates look like on each channel, and what the discovered templates are
     xlims = [-100 500];
     %     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%         vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fsData,'type',type,'tEpoch',...
-%             tEpoch,'xlims',xlims,'trainDuration',trainDuration,'stimChans',stimChans,...,
-%             'chanIntList',chanIntList,'templateTrial',templateTrial,'templateDictCell',templateDictCell,'modePlot','confInt')
+    %         vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fsData,'type',type,'tEpoch',...
+    %             tEpoch,'xlims',xlims,'trainDuration',trainDuration,'stimChans',stimChans,...,
+    %             'chanIntList',chanIntList,'templateTrial',templateTrial,'templateDictCell',templateDictCell,'modePlot','confInt')
     %     %
     average = 1;
     %chanIntList = 3;
@@ -355,7 +355,7 @@ for dataChoice = [1]
         fprintf(['-------Done rereferencing-------- \n'])
         
     end
-%     %
+    %     %
     %%%%%% wavelet
     fprintf(['-------Beginning wavelet analysis-------- \n'])
     
@@ -382,18 +382,18 @@ for dataChoice = [1]
     %%
     if dataChoice == 1 || dataChoice == 2
         
-        %         for chanInt = chanIntList
-        %             vizFunc.visualize_wavelet_channel_no_raw(normalizedData,tMorlet,fMorlet,processedSigReref,...
-        %                 tEpoch,chanInt,individual,average)
-        %         end
-        %
+        for chanInt = chanIntList
+            vizFunc.visualize_wavelet_channel_no_raw(normalizedData,tMorlet,fMorlet,processedSig,...
+                tEpoch,chanInt,individual,average)
+        end
+        
         for chanInt = chanIntList
             vizFunc.visualize_wavelet_channel(normalizedData,tMorlet,fMorlet,processedSig,...
                 tEpoch,dataInt,chanInt,individual,average)
         end
         %         %
         %         for chanInt = chanIntList
-        %             vizFunc.visualize_wavelet_channel_small(normalizedData,tMorlet,fMorlet,processedSigReref,...
+        %             vizFunc.visualize_wavelet_channel_small(normalizedData,tMorlet,fMorlet,processedSig,...
         %                 tEpoch,dataInt,chanInt,individual,average)
         %       end
         %
@@ -527,7 +527,6 @@ dataRef = powerout(:,tMorlet<0.05 & tMorlet>-0.8,:,:);
 [normalizedData] = analyFunc.normalize_spectrogram_wavelet(dataRef,powerout);
 individual = 0;
 average = 1;
-% chanIntLIst = 42;
 %     %%
 %     % chanIntList = chanInt;
 %     for chanInt = chanIntList
@@ -540,10 +539,10 @@ average = 1;
 %             tEpoch,dataInt,chanInt,individual,average)
 %      end
 %     %%
-%       for chanInt = chanIntList
-%         vizFunc.visualize_wavelet_channel_small(normalizedData,tMorlet,fMorlet,processedSig,...
-%             tEpoch,dataInt,chanInt,individual,average)
-%     end
+for chanInt = chanIntList
+    vizFunc.visualize_wavelet_channel_small(normalizedData,tMorlet,fMorlet,processedSig,...
+        tEpoch,dataInt,chanInt,individual,average)
+end
 %
 ylimsSpect = [5 300];
 xlims = [-200 1000];
