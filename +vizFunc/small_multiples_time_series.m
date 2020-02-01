@@ -1,6 +1,10 @@
 function small_multiples_time_series(signal,t,varargin)
-% DJC - 2-18-2018 - small multiples plot for visualizing the results of
+% DJC - 2-18-2018 - small multiples plot for visualizing the results
 % time x channels x trials
+% options for 'modePlot' include 'avg,'ind,'confInt'
+% 'avg' = average of time x channels x trials
+% 'ind' = plot each trial individually
+% 'confInt' = plot a 95% confidence interval of values around the mean 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % get inputs

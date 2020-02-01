@@ -92,7 +92,7 @@ presamps = round(pre/1e3 * fs); % pre time in sec
 postsamps = round(post/1e3 * fs); %
 minDuration = round(minDuration/1e3 * fs);
 fixedDistanceSamps = round(fixedDistance/1e3 * fs);
-defaultWinAverage = fixedDistanceSamps ; %end_inds{trial}(1)-start_inds{trial}(1)+1;
+defaultWinAverage = fixedDistanceSamps ;
 
 % take diff of signal to find onset of stimulation train
 order = 3;
@@ -133,7 +133,7 @@ timeSampsExtend = 2*fs/1000;% time_ms
 
 for trial = 1:size(rawSig,3)
     
-    inds = find(abs(zscore(diffSig(:,chanMax,trial)))>onsetThreshold); % didn't quite work with 2, try 1.5 DJC 9-4-2018
+    inds = find(abs(zscore(diffSig(:,chanMax,trial)))>onsetThreshold); 
     diffBtInds = [diff(inds)'];
     [~,indsOnset] = find(abs(zscore(diffBtInds))>onsetThreshold);
     
@@ -150,24 +150,16 @@ for trial = 1:size(rawSig,3)
                 win = startInds{trial}{chan}(idx):startInds{trial}{chan}(idx)+defaultWinAverage; % get window that you know has the end of the stim pulse
                 signal = rawSigFilt(win,chan,trial);
                 diffSignal = diffSig(win,chan,trial);
-                
-                %                 threshSig = 0.2;
-                %                 threshDiff = 5e-3;
-                %                 threshShrinkSig = 2;
-                %                 if abs(zscore(signal)) < threshShrinkSig
-                %                    threshSig =  0.5; % DB was 2
-                %                    threshDiff = 0.5; % DBS was 2
-                %                 end
-                %
+          
                 absZSig = abs(zscore(signal));
                 absZDiffSig = abs(zscore(diffSignal));
 
-                threshSig = pctl(absZSig,threshVoltageCut); % 97.5 for DBS, was 80, try 75 for TOJ % was 65 6-25-2018
-                threshDiff = pctl(absZDiffSig,threshDiffCut); % 97.5 for DBS, was 80, try 75 for TOJ % was 6-25-2018
+                threshSig = pctl(absZSig,threshVoltageCut); 
+                threshDiff = pctl(absZDiffSig,threshDiffCut); 
                 
                 % look past minimum start time
-                last = presamps+minDuration+find(absZSig(presamps+minDuration:end)>threshSig,1,'last'); % started with 0.2
-                last2 = presamps+minDuration+find(absZDiffSig(presamps+minDuration:end)>threshDiff,1,'last')+1; % started with 5e-3
+                last = presamps+minDuration+find(absZSig(presamps+minDuration:end)>threshSig,1,'last'); 
+                last2 = presamps+minDuration+find(absZDiffSig(presamps+minDuration:end)>threshDiff,1,'last')+1; 
                 ct = max(last, last2);
                 
                 if isempty(ct)
@@ -234,7 +226,6 @@ for trial = 1:size(rawSig,3)
             linkaxes([p3 p4],'xy')
             
         end
-        
         
     end
     fprintf(['-------Finished getting artifacts - Trial ' num2str(trial) '-------- \n'])

@@ -9,33 +9,30 @@
 %
 % fsData = sampling rate of the data Hz
 %
-% stimChans - the channels used for stimulation . These should be noted and
+% stimChans = the channels used for stimulation . These should be noted and
 % excluded from further analysis
 %
-% plotIt - determines whether or not to plot the intermediate results of
+% plotIt = determines whether or not to plot the intermediate results of
 % the functions.
 %
-% t_epoch - epoched time window
-%%
+% tEpoch = epoched time window (s)
+%
 % clear the workspace
-%close all;clear all;clc
 close all;clear all;clc
-clear all;clc
+
 %%
 % choose data file of interest
 for dataChoice = [1]
-    
+
     switch dataChoice
-        
+
         case 1
             load('+data/693ffd_exampData_400ms.mat') % response timing data set
             trainDuration = [0 400]; % this is how long the stimulation train was
             xlims = [-200 1000]; % these are the x limits to visualize in plots
             chanIntList = [4 12 21 28 19 18 36 38 44 43 30 33 41 34]; % these are the channels of interest to visualize in closer detail
-            %chanIntList = [21 28];
             minDuration = 0.5; % minimum duration of artifact in ms
-            % dataInt = 4*dataInt;
-            
+
         case 2
             load('+data/a1355e_examplePriming_Prime_high.mat')
             trainDuration = [0 200]; % this is how long the stimulation train was
@@ -44,8 +41,7 @@ for dataChoice = [1]
             minDuration = 0.5; % minimum duration of artifact in ms
             fsData = fs_data;
             tEpoch = t_epoch;
-            %   dataInt = 4*dataInt;
-            
+
         case 3
             load('+data/50ad9_paramSweep4.mat') % DBS data set
             fsData = fs_data;
@@ -63,40 +59,37 @@ for dataChoice = [1]
             dataInt = 4*dataInt; % needed to be multiplied by 4 from raw recording due to acquisition parameters
             trainDuration = [0 500];
     end
-    
-    
+
+
     %% template subtraction
     % this is a section illustrating the template subtraction method
     % The type variable to the function call is what determines the
-    % method used
-    
-    % pre defines how far back from the onset of the stimulus detect to look
-    % back in time, in ms
-    % post is the equivalent for after the offset of the stimulus pulse
-    % fsData is the sampling frequency in Hz
-    
-    % this determines the type of template approach to use. The three options
+    % The three options
     % are 'average', 'trial', and 'dictionary'. Average is the simplest
     % approach, and on a channel by channel basis it simply averages the
     % artifact for each channel. Trial uses the stimulation pulse train within
     % each trial. 'dictionary' is the most advanced, and uses a template
     % matching algorithm with DBSCAN clustering to discover the family of
     % artifacts.
-    
+    % 'pre' defines how far back from the onset of the stimulus detect to look
+    % back in time, in ms
+    % post is the equivalent for after the offset of the stimulus pulse
+    % fsData is the sampling frequency in Hz
+
     if dataChoice == 1
         type = 'dictionary';
-        
+
+        % if wanting to use a fixed distance, rather than dynamically detecting them
         useFixedEnd = 0;
-        %fixedDistance = 2;
         fixedDistance = 4; % in ms
         plotIt = 0;
         
-        %pre = 0.4096; % in ms
-        %post = 0.4096; % in ms
-        
-        pre = 0.8; % started with 1
-        post = 1; % started with 0.2
-        % 2.8, 1, 0.5 was 3/19/2018
+        % parameters for detecting artifact onset and offset 
+        pre = 0.8; % default time window to extend before the artifact pulse to ensure the artifact is appropriately detected (0.8 ms as default)
+        post = 1; % default time window to extend before the artifact pulse to ensure the artifact is appropriately detected (1 ms as default)
+        onsetThreshold = 1.5;
+        threshVoltageCut = 75;
+        threshDiffCut = 75;
         
         % these are the metrics used if the dictionary method is selected. The
         % options are 'eucl', 'cosine', 'corr', for either euclidean distance,
@@ -105,147 +98,132 @@ for dataChoice = [1]
         distanceMetricSigMatch = 'corr';
         amntPreAverage = 3;
         normalize = 'preAverage';
-        %normalize = 'firstSamp';
-        
-        onsetThreshold = 1.5;
-        
-        recoverExp = 0;
-        threshVoltageCut = 75;
-        threshDiffCut = 75;
-        expThreshVoltageCut = 95;
-        expThreshDiffCut = 95;
+
+        % additional HDBSCAN parameters and window selection
         bracketRange = [-6:6];
         chanInt = 28;
         minPts = 2;
         minClustSize = 3;
         outlierThresh = 0.95;
-        
-        
-    elseif dataChoice == 2
-        type = 'dictionary';
-        
-        useFixedEnd = 0;
-        %fixedDistance = 2;
-        fixedDistance = 4; % in ms
-        plotIt = 0;
-        
-        %pre = 0.4096; % in ms
-        %post = 0.4096; % in ms
-        
-        pre = 0.8; % started with 1
-        post = 1; % started with 0.2
-        % 2.8, 1, 0.5 was 3/19/2018
-        
-        % these are the metrics used if the dictionary method is selected. The
-        % options are 'eucl', 'cosine', 'corr', for either euclidean distance,
-        % cosine similarity, or correlation for clustering and template matching.
-        distanceMetricDbscan = 'eucl';
-        distanceMetricSigMatch = 'corr';
-        amntPreAverage = 3;
-        normalize = 'preAverage';
-        %normalize = 'firstSamp';
-        onsetThreshold = 1.5;
+
+        % optional parameters for exponential recovery, not currently used. Could be helpful for signals with large exponential recoveries
         recoverExp = 0;
-        threshVoltageCut = 75;
-        threshDiffCut = 75;
         expThreshVoltageCut = 95;
         expThreshDiffCut = 95;
+
+
+    elseif dataChoice == 2
+        type = 'dictionary';
+
+        useFixedEnd = 0;
+        fixedDistance = 4; % in ms
+        plotIt = 0;
+
+        % parameters for detecting the onset and offset of artifacts
+        pre = 0.8; % started with 1
+        post = 1; % started with 0.2
+        onsetThreshold = 1.5;
+        threshVoltageCut = 75;
+        threshDiffCut = 75;
+
+
+        % these are the metrics used if the dictionary method is selected. The
+        % options are 'eucl', 'cosine', 'corr', for either euclidean distance,
+        % cosine similarity, or correlation for clustering ('distanceMetricDbscan') and template matching ('distanceMetricSigMatch').
+        distanceMetricDbscan = 'eucl';
+        distanceMetricSigMatch = 'corr';
+        amntPreAverage = 3; 
+        normalize = 'preAverage'; 
+
         bracketRange = [-6:6];
         chanInt = 15;
         minPts = 2;
         minClustSize = 3;
         outlierThresh = 0.95;
-        
-        
+
+        % optional parameters for exponential recovery, not currently used. Could be helpful for signals with large exponential recoveries
+        recoverExp = 0;
+        expThreshVoltageCut = 95;
+        expThreshDiffCut = 95;
+
     elseif dataChoice == 3
         type = 'dictionary';
-        
+
         useFixedEnd = 0;
-        %fixedDistance = 2;
         fixedDistance = 4; % in ms
         plotIt = 0;
-        
-        %pre = 0.4096; % in ms
-        %post = 0.4096; % in ms
-        
-        pre = 0.8; % started with 1
-        post = 1; % started with 0.2
-        % 2.8, 1, 0.5 was 3/19/2018
-        
+
+        % parameters for detecting the onset and offset of artifacts
+        pre = 0.8;
+        post = 1;
+        onsetThreshold = 1.5;
+        threshVoltageCut = 55;
+        threshDiffCut = 55;
+
         % these are the metrics used if the dictionary method is selected. The
         % options are 'eucl', 'cosine', 'corr', for either euclidean distance,
         % cosine similarity, or correlation for clustering and template matching.
-        
+
         distanceMetricDbscan = 'eucl';
         distanceMetricSigMatch = 'corr';
         amntPreAverage = 3;
         normalize = 'preAverage';
-        %normalize = 'firstSamp';
-        onsetThreshold = 1.5;
-        recoverExp = 0;
-        threshVoltageCut = 55;
-        threshDiffCut = 55;
-        expThreshVoltageCut = 85;
-        expThreshDiffCut = 85;
+
         bracketRange = [-6:6];
         chanInt = 10;
         minPts = 2;
         minClustSize = 3;
         outlierThresh = 0.95;
-        
+
+        % optional parameters for exponential recovery, not currently used. Could be helpful for signals with large exponential recoveries
+        recoverExp = 0;
+        expThreshVoltageCut = 85;
+        expThreshDiffCut = 85;
+
     elseif dataChoice == 4
         type = 'dictionary';
-        
+
         useFixedEnd = 0;
-        %fixedDistance = 2;
-        fixedDistance = 4; % in ms
+        fixedDistance = 4;
         plotIt = 0;
-        
-        %pre = 0.4096; % in ms
-        %post = 0.4096; % in ms
-        
-        pre = 0.8; % started with 1
-        post = 1; % started with 0.2
-        % 2.8, 1, 0.5 was 3/19/2018
-        
+
+        pre = 0.8;
+        post = 1;
+        onsetThreshold = 1.5;
+        threshVoltageCut = 75;
+        threshDiffCut = 75;
+
         % these are the metrics used if the dictionary method is selected. The
         % options are 'eucl', 'cosine', 'corr', for either euclidean distance,
         % cosine similarity, or correlation for clustering and template matching.
-        
         distanceMetricDbscan = 'eucl';
         distanceMetricSigMatch = 'corr';
         amntPreAverage = 3;
         normalize = 'preAverage';
-        %normalize = 'firstSamp';
-        onsetThreshold = 1.5;
-        
-        recoverExp = 0;
-        threshVoltageCut = 75;
-        threshDiffCut = 75;
-        expThreshVoltageCut = 95;
-        expThreshDiffCut = 95;
+
         bracketRange = [-3:3];
         chanInt = 55;
         minPts = 5;
         minClustSize = 6;
         outlierThresh = 0.95;
-        
+
+        recoverExp = 0;
+        expThreshVoltageCut = 95;
+        expThreshDiffCut = 95;
+
     else
-        
         type = 'dictionary';
-        
+
         useFixedEnd = 0;
-        %fixedDistance = 2;
-        fixedDistance = 4; % in ms
+        fixedDistance = 4;
         plotIt = 0;
-        
-        %pre = 0.4096; % in ms
-        %post = 0.4096; % in ms
-        
-        pre = 0.8; % started with 1
-        post = 1; % started with 0.2
-        % 2.8, 1, 0.5 was 3/19/2018
-        
+
+        pre = 0.8;
+        post = 1;
+        onsetThreshold = 1.5;
+        threshVoltageCut = 75;
+        threshDiffCut = 75;
+
         % these are the metrics used if the dictionary method is selected. The
         % options are 'eucl', 'cosine', 'corr', for either euclidean distance,
         % cosine similarity, or correlation for clustering and template matching.
@@ -253,60 +231,18 @@ for dataChoice = [1]
         distanceMetricSigMatch = 'corr';
         amntPreAverage = 3;
         normalize = 'preAverage';
-        %normalize = 'firstSamp';
-        
-        onsetThreshold = 1.5;
-        
-        recoverExp = 0;
-        threshVoltageCut = 75;
-        threshDiffCut = 75;
-        expThreshVoltageCut = 95;
-        expThreshDiffCut = 95;
+
         bracketRange = [-6:6];
         minPts = 2;
         minClustSize = 3;
         outlierThresh = 0.95;
-        
-        
+
+        recoverExp = 0;
+        expThreshVoltageCut = 95;
+        expThreshDiffCut = 95;
+
     end
-    
-    
-    %% optional sine wave fitting to subtract
-    %     plotItFit = 0;
-    %     fRange = [59.9 60.1];
-    %     smoothSpan = 5;
-    %
-    %     fprintf(['-------Beginning sine fit subtraction 180 Hz-------- \n'])
-    %     tic;
-    %     fRange = [179.9 180.1];
-    %     [subtractedSig,phase,f,r,fitline] = analyFunc.sine_fit(dataInt,tEpoch,smoothSpan,fRange,fsData,plotItFit);
-    %     toc;
-    %     fprintf(['-------Done sine fit subtraction 180 Hz-------- \n'])
-    %
-    %     smoothSpan = 10;
-    %     %
-    %     %     fprintf(['-------Beginning sine fit subtraction 120 Hz-------- \n'])
-    %     %     tic;
-    %     %     fRange = [119.9 120.1];
-    %     %     [subtractedSig2,phase,f,r,fitline] = analyFunc.sine_fit(subtractedSig,tEpoch,smoothSpan,fRange,fsData,plotItFit);
-    %     %     toc;
-    %     %     fprintf(['-------Done sine fit subtraction 120 Hz-------- \n'])
-    %     %
-    %     %            smoothSpan = 25;
-    %
-    %
-    %     % set parameters for fit function
-    %     fprintf(['-------Beginning sine fit subtraction 60 Hz-------- \n'])
-    %     fRange = [59.9 60.1];
-    %
-    %     tic;
-    %     [subtractedSig3,phase,f,r,fitline] = analyFunc.sine_fit(subtractedSig,tEpoch,smoothSpan,fRange,fsData,plotItFit);
-    %     toc;
-    %     fprintf(['-------Done sine fit subtraction 60 Hz-------- \n'])
-    %
-    %     dataInt = subtractedSig3;
-    
-    
+
     %%
     [processedSig,templateDictCell,templateTrial,startInds,endInds] = analyFunc.template_subtract(dataInt,'type',type,...
         'fs',fsData,'plotIt',plotIt,'pre',pre,'post',post,'stimChans',stimChans,...
@@ -317,26 +253,20 @@ for dataChoice = [1]
         'threshDiffCut',threshDiffCut,'expThreshVoltageCut',expThreshVoltageCut,...
         'expThreshDiffCut',expThreshDiffCut,'onsetThreshold',onsetThreshold,'chanInt',chanInt,...
         'minPts',minPts,'minClustSize',minClustSize,'outlierThresh',outlierThresh);
-    
+
     % visualization
     % of note - more visualizations are created here, including what the
     % templates look like on each channel, and what the discovered templates are
     xlims = [-100 500];
-    %     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %         vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fsData,'type',type,'tEpoch',...
-    %             tEpoch,'xlims',xlims,'trainDuration',trainDuration,'stimChans',stimChans,...,
-    %             'chanIntList',chanIntList,'templateTrial',templateTrial,'templateDictCell',templateDictCell,'modePlot','confInt')
-    %     %
+    %     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     average = 1;
-    %chanIntList = 3;
-    %  trainDuration = [0 400];
     modePlot = 'avg';
     xlims = [-200 1000];
     ylims = [-0.6 0.6];
     vizFunc.small_multiples_time_series(processedSig,tEpoch,'type1',stimChans,'type2',0,'xlims',xlims,'ylims',ylims,'modePlot',modePlot,'highlightRange',trainDuration)
-    
+
     %% additional processing
-    
+
     rerefMode = 'selectedChannelsMean';
     switch dataChoice
         case 1
@@ -353,25 +283,25 @@ for dataChoice = [1]
         processedSigReref = analyFunc.rereference_CAR_median(processedSig,rerefMode,badChannels,[],[],channelsToUse);
         vizFunc.small_multiples_time_series(processedSigReref,tEpoch,'type1',stimChans,'type2',0,'xlims',xlims,'ylims',ylims,'modePlot',modePlot,'highlightRange',trainDuration)
         fprintf(['-------Done rereferencing-------- \n'])
-        
+
     end
     %     %
     %%%%%% wavelet
     fprintf(['-------Beginning wavelet analysis-------- \n'])
-    
+
     timeRes = 0.01; % 10 ms bins
-    
+
     [powerout,fMorlet,tMorlet,~] = analyFunc.waveletWrapper(processedSig,fsData,timeRes,stimChans);
     %
     fprintf(['-------Ending wavelet analysis-------- \n'])
-    
+
     % additional parameters
     postStim = 2000;
     sampsPostStim = round(postStim/1e3*fsData);
-    
+
     preStim = 1000;
     sampsPreStim = round(preStim/1e3*fsData);
-    
+
     tMorlet = linspace(-preStim,postStim,length(tMorlet))/1e3;
     % normalize data
     dataRef = powerout(:,tMorlet<0.05 & tMorlet>-0.8,:,:);
@@ -381,12 +311,12 @@ for dataChoice = [1]
     average = 1;
     %%
     if dataChoice == 1 || dataChoice == 2
-        
+
         for chanInt = chanIntList
             vizFunc.visualize_wavelet_channel_no_raw(normalizedData,tMorlet,fMorlet,processedSig,...
                 tEpoch,chanInt,individual,average)
         end
-        
+
         for chanInt = chanIntList
             vizFunc.visualize_wavelet_channel(normalizedData,tMorlet,fMorlet,processedSig,...
                 tEpoch,dataInt,chanInt,individual,average)
@@ -437,8 +367,7 @@ post = 1; % in ms
 % for each pulse, and if using "useFixedEnd", it simply considers this time
 % window. Otherwise, the algorithm detects the individual offset of each
 % stimulation pulse.
-fixedDistance = 1.2; % in ms % 2.2 for the first 2 cases, 4 for the 3rd,
-
+fixedDistance = 1.2;
 % perform the processing
 [processedSig,startInds,endInds] = analyFunc.interpolate_artifact(dataInt,'fs',fsData,'plotIt',0,'type',type,...,
     'stimchans',stimChans,'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,'pre',pre,'post',post,'onsetThreshold',onsetThreshold);
@@ -459,9 +388,8 @@ vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fsData,'type',type,'tE
 % using piecewise polynomial interpolation here
 type = 'pchip';
 useFixedEnd = 0;
-pre = 0.8; % started with 1
-post = 1; % started with 0.2
-% 2.8, 1, 0.5 was 3/19/2018
+pre = 0.8;
+post = 1;
 
 fixedDistance = 2; % in ms
 
@@ -615,15 +543,6 @@ ylims = [-0.6 0.6];
 vizFunc.small_multiples_time_series(processedSig,tEpoch,'type1',stimChans,'type2',0,'xlims',xlims,'ylims',ylims,'modePlot',modePlot,'highlightRange',trainDuration)
 
 %% low pass filter
-
-% lnReject = false;
-% lnFreq = [];
-% hp = false;
-% hpFreq = [];
-% lp = true;
-% lpFreq = 100;
-% filterOrder = 4;
-% causality = 'acausal';
 
 lnReject = false;
 lnFreq = 200;
