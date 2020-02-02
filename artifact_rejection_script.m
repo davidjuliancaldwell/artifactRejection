@@ -25,7 +25,7 @@ close all;clear all;clc
 
 %%
 % choose data file of interest
-for dataChoice = [1]
+for dataChoice = [2]
 
     switch dataChoice
 
@@ -44,6 +44,7 @@ for dataChoice = [1]
             minDuration = 0.5; % minimum duration of artifact in ms
             fsData = fs_data;
             tEpoch = t_epoch;
+            dataInt = 4*dataInt; % needed to be multiplied by 4 from raw recording
 
         case 3
             load('+data/50ad9_paramSweep4.mat') % DBS data set
