@@ -104,7 +104,7 @@ for dataChoice = [1]
         normalize = 'preAverage'; % method to use for normalization of each artifact pulse. 'preAverage' uses the average across the number of samples specified above 
 
         % additional HDBSCAN parameters and window selection
-        bracketRange = [-6:6]; %This variable sets the number of samples around the maximum voltage deflection to use for template clustering and subsequent matching
+        bracketRange = [-6:6]; %This variable sets the number of samples around the maximum voltage deflection to use for template clustering and subsequent matching. The smaller this range, the lower the dimensionality used for clustering, and the fewer points used to calculate the best matching template. This value is used to try and ensure that non-informative points are not included in the clustering and template matching. This should be set to what looks like the approximate length of the artifact's largest part.
         chanInt = 28; % channel of interest for plotting
         minPts = 2;  % Defined as k in the manuscript. This is a parameter that determines how many neighbors are used for core distance calculations for each point in the artifact window. This is a parameter that determines how many neighbors are used for core distance calculations. Increasing this parameter restricts clusters to increasingly dense areas.
         minClustSize = 3; % Defined as n in the manuscript. The minimum number of clustered artifact pulses for a cluster to be labelled as a true cluster. Increasing this number can reduce the number of clusters, and merges some clusters together that would have otherwise been labelled as individual clusters.

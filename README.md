@@ -78,7 +78,7 @@ We have found the parameters included for many of the variables which are used t
 
 There are an additional set of HDBSCAN parameters and window selection for template matching.
 
-**bracketRange** = This variable sets the number of samples around the maximum voltage deflection to use for template clustering and subsequent matching (Default [-6:6])
+**bracketRange** = This variable sets the number of samples around the maximum voltage deflection to use for template clustering and subsequent matching. The smaller this range, the lower the dimensionality used for clustering, and the fewer points used to calculate the best matching template. This value is used to try and ensure that non-informative points are not included in the clustering and template matching. This should be set to what looks like the approximate length of the artifact's largest part. (Default [-6:6])
 
 **minPts** = This is a parameter that determines how many neighbors are used for core distance calculations. Increasing this parameter restricts clusters to increasingly dense areas. (Default, 2)
 
@@ -93,9 +93,12 @@ There are an additional set of HDBSCAN parameters and window selection for templ
 Note: For the recover_EP.m function, which is not used in the manuscript or for any figures, but could be helpful for processing signals with large exponential recovery component parts of the signals, the MATLAB curve fitting toolbox is required.
 
 For this function, there are optional parameters for exponential recovery, not currently used. These could be helpful for signals with large exponential recoveries
+
 recoverExp = This determines whether to try and do the exponential recovery on a pulse by pulse basis. (Default, 0)
-expThreshVoltageCut = 95;
-expThreshDiffCut = 95;
+
+expThreshVoltageCut = Parameter similar to the threshVoltageCut parameter outlined above (Default, 95)
+
+expThreshDiffCut = Parameter similar to the threshDiffCut parameter outlined above (Default, 95)
 
 ---
 ### Questions and comments
