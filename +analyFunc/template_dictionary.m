@@ -36,6 +36,23 @@ function [processedSig,templateArrayCellOutput] = template_dictionary(templateAr
 %  on a decaying exponential within the artifact transient.
 % distanceMetricDbscan - distance metric to use with the DBScan dictionary
 % building method.
+% bracketRange - This variable sets the number of samples around the
+%               maximum voltage deflection to use for template clustering and subsequent
+%               matching (Default [-6:6])
+
+% minPts - This is a parameter that determines how many neighbors are used
+%               for core distance calculations. Increasing this parameter restricts
+%               clusters to increasingly dense areas. (Default, 2)
+
+% minClustSize - The minimum number of clustered artifact pulses for a
+%               cluster to be labelled as a true cluster. Increasing this number can
+%               reduce the number of clusters, and merges some clusters together that
+%               would have otherwise been labelled as individual clusters.   (Default, 3)
+
+% outlierThresh - Outlier parameter for labeling artifact pulses as
+%               noise in the HDBSCAN clustering. Any artifact pulse with an outlier score
+%               greater than this will be labelled as noise. Increasing this value
+%               results in fewer points being labelled as noise (Default, 0.95)
 %
 % Returns:
 %      startInds - cell array of the start indices each artifact for each
@@ -522,7 +539,7 @@ for trial = 1:size(rawSig,3)
         end
         
         processedSig(:,chan,trial) = rawSigTemp;
-       fprintf(['-------Template Processed - Channel ' num2str(chan) '--' 'Trial ' num2str(trial) '-----\n'])
+        fprintf(['-------Template Processed - Channel ' num2str(chan) '--' 'Trial ' num2str(trial) '-----\n'])
     end
 end
 %%

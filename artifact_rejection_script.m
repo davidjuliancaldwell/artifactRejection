@@ -17,6 +17,9 @@
 %
 % tEpoch = epoched time window (s)
 %
+% Further variables are described as they are introduced in the script
+% below, as well as in the various functions called 
+%
 % clear the workspace
 close all;clear all;clc
 
@@ -87,24 +90,25 @@ for dataChoice = [1]
         % parameters for detecting artifact onset and offset 
         pre = 0.8; % default time window to extend before the artifact pulse to ensure the artifact is appropriately detected (0.8 ms as default)
         post = 1; % default time window to extend before the artifact pulse to ensure the artifact is appropriately detected (1 ms as default)
-        onsetThreshold = 1.5;
-        threshVoltageCut = 75;
-        threshDiffCut = 75;
+        onsetThreshold = 1.5; %This value is used as absolute valued z-score threshold to determine the onset of artifacts within a train. The differentiated smoothed signal is used to determine artifact onset. This is also used in determining how many stimulation pulses are within a train, by ensuring that beginning of each artifact is within a separate artifact pulse.  
+        threshVoltageCut = 75; %This is used to help determine the end of each individual artifact pulse dynamically. More specifically, this is a percentile value, against which the absolute valued, z-scored smoothed raw signal is compared to find the last value which exceeds the specified percentile voltage value. Higher values of this (i.e. closer to 100) result in a shorter duration artifact, while lower values result in a longer calculated duration of artifact. This parameter therefore should likely be set higher for more transient artifacts and lower for longer artifacts.
+        threshDiffCut = 75; %This is used to help determine the end of each individual artifact pulse dynamically. More specifically, this is a percentile value, against which the absolute valued, z-scored differentiated smoothed raw signal is compared to find the last value which exceeds the specified percentile voltage value. Higher values of this (i.e. closer to 100) result in a shorter duration artifact, while lower values result in a longer calculated duration of artifact. This parameter therefore should likely be set higher for more transient artifacts and lower for longer artifacts.
         
         % these are the metrics used if the dictionary method is selected. The
         % options are 'eucl', 'cosine', 'corr', for either euclidean distance,
         % cosine similarity, or correlation for clustering and template matching.
         distanceMetricDbscan = 'eucl';
         distanceMetricSigMatch = 'corr';
-        amntPreAverage = 3;
-        normalize = 'preAverage';
+        
+        amntPreAverage = 3; % number of samples at the beginning of each artifact pulse to use as a baseline normalization
+        normalize = 'preAverage'; % method to use for normalization of each artifact pulse. 'preAverage' uses the average across the number of samples specified above 
 
         % additional HDBSCAN parameters and window selection
-        bracketRange = [-6:6];
-        chanInt = 28;
-        minPts = 2;
-        minClustSize = 3;
-        outlierThresh = 0.95;
+        bracketRange = [-6:6]; %This variable sets the number of samples around the maximum voltage deflection to use for template clustering and subsequent matching
+        chanInt = 28; % channel of interest for plotting
+        minPts = 2;  % Defined as k in the manuscript. This is a parameter that determines how many neighbors are used for core distance calculations for each point in the artifact window. This is a parameter that determines how many neighbors are used for core distance calculations. Increasing this parameter restricts clusters to increasingly dense areas.
+        minClustSize = 3; % Defined as n in the manuscript. The minimum number of clustered artifact pulses for a cluster to be labelled as a true cluster. Increasing this number can reduce the number of clusters, and merges some clusters together that would have otherwise been labelled as individual clusters.
+        outlierThresh = 0.95; % Outlier parameter for labeling artifact pulses as noise in the HDBSCAN clustering. Any artifact pulse with an outlier score greater than this will be labelled as noise. Increasing this value results in fewer points being labelled as noise 
 
         % optional parameters for exponential recovery, not currently used. Could be helpful for signals with large exponential recoveries
         recoverExp = 0;

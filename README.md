@@ -34,7 +34,7 @@ The **+HDBSCAN** folder contains the code to perform HDBSCAN upon the data.
 
 We have found the parameters included for many of the variables which are used to control the artifact detection, clustering, scaling, and subtracting to work for a number of our datasets. In the manuscript, we include the values used for key parmaeters. Below, we will discuss a number of these parameters and provide guidelines for setting them. The code also contains comments throughout describing the purpose of parameters and reasonable values for them.
 
-#### artifact_rejection_script.m
+### artifact_rejection_script.m
 **dataInt** = time x channels x epochs
 
 **fsData** = sampling rate of the data Hz
@@ -46,14 +46,22 @@ We have found the parameters included for many of the variables which are used t
 **tEpoch** = epoched time window (s)
 
  **minDuration** = minimum duration of artifact in ms (0.5 ms as default for 200 &mu;s pulses, 0.25 ms for 60 &mu;s pulses )
-
+#### parameters used for get_artifact_indices.m
  **pre** = default time window to extend before the artifact pulse to ensure the artifact is appropriately detected (0.8 ms as default)
 
  **post** = default time window to extend before the artifact pulse to ensure the artifact is appropriately detected (1 ms as default)
 
+ **onsetThreshold** = This value is used as absolute valued z-score threshold to determine the onset of artifacts within a train. The differentiated smoothed signal is used to determine artifact onset. This is also used in determining how many stimulation pulses are within a train, by ensuring that beginning of each artifact is within a separate artifact pulse.   (Default, 1.5)
+
+ **threshVoltageCut** = This is used to help determine the end of each individual artifact pulse dynamically. More specifically, this is a percentile value, against which the absolute valued, z-scored smoothed raw signal is compared to find the last value which exceeds the specified percentile voltage value. Higher values of this (i.e. closer to 100) result in a shorter duration artifact, while lower values result in a longer calculated duration of artifact. This parameter therefore should likely be set higher for more transient artifacts and lower for longer artifacts. (Default for first ECoG dataset, 75)
+
+ **threshDiffCut** = This is used to help determine the end of each individual artifact pulse dynamically. More specifically, this is a percentile value, against which the absolute valued, z-scored differentiated smoothed raw signal is compared to find the last value which exceeds the specified percentile voltage value. Higher values of this (i.e. closer to 100) result in a shorter duration artifact, while lower values result in a longer calculated duration of artifact. This parameter therefore should likely be set higher for more transient artifacts and lower for longer artifacts. (Default for first ECoG dataset, 75)
+
+ The longer artifact duration of the two values calculated by **threshVoltageCut** and **threshDiffCut** is used for determining the end of the artifact window.
+
 **type** = this determines the type of template approach to use. The three options are **average**, **trial**, and **dictionary**.
 
-This is used in the **analyFunc.template_subtract.m** function
+#### parameters used in **analyFunc.template_subtract.m**
 
 **average** is the simplest approach, and on a channel by channel basis it simply averages the artifact for each channel.
 
@@ -61,18 +69,33 @@ This is used in the **analyFunc.template_subtract.m** function
 
 **dictionary** is the most advanced, and uses a template matching algorithm with DBSCAN clustering to discover the family of artifacts. The manuscript primarily uses this approach. Below we highlight the options pertinent to this selection.
 
-+ **eucl**, **cosine**, **corr**, for either euclidean distance, cosine similarity, or correlation for clustering and template matching. These are the metrics used if the dictionary method is selected for both clustering (**distanceMetricDbscan**) and subsequent template matching (**distanceMetricSigMatch**). We used euclidean distance for the clustering, and correlation for template matching for all of our data sets. 
++ **eucl**, **cosine**, **corr**, for either euclidean distance, cosine similarity, or correlation for clustering and template matching. These are the metrics used if the dictionary method is selected for both clustering (**distanceMetricDbscan**) and subsequent template matching (**distanceMetricSigMatch**). We used euclidean distance for the clustering, and correlation for template matching for all of our data sets.
 
 + **distanceMetricDbscan** = (Default, 'eucl')
 + **distanceMetricSigMatch** = (Default, 'corr')
 + **amntPreAverage** = Number of samples over which to estimate the baseline of any given artifact window, starting from the first sample (Default, 3)
 + **normalize** = Method by which to normalize the data. Using **preAverage** uses the specified number of samples in **amntPreAverage**, while **firstSamp** just uses the first sample (Default, preAverage)
 
+There are an additional set of HDBSCAN parameters and window selection for template matching.
+
+**bracketRange** = This variable sets the number of samples around the maximum voltage deflection to use for template clustering and subsequent matching (Default [-6:6])
+
+**minPts** = This is a parameter that determines how many neighbors are used for core distance calculations. Increasing this parameter restricts clusters to increasingly dense areas. (Default, 2)
+
+**minClustSize** = The minimum number of clustered artifact pulses for a cluster to be labelled as a true cluster. Increasing this number can reduce the number of clusters, and merges some clusters together that would have otherwise been labelled as individual clusters.   (Default, 3)
+
+**outlierThresh** = Outlier parameter for labeling artifact pulses as noise in the HDBSCAN clustering. Any artifact pulse with an outlier score greater than this will be labelled as noise. Increasing this value results in fewer points being labelled as noise (Default, 0.95)
+
 
 
 ---
 
 Note: For the recover_EP.m function, which is not used in the manuscript or for any figures, but could be helpful for processing signals with large exponential recovery component parts of the signals, the MATLAB curve fitting toolbox is required.
+
+For this function, there are optional parameters for exponential recovery, not currently used. These could be helpful for signals with large exponential recoveries
+recoverExp = This determines whether to try and do the exponential recovery on a pulse by pulse basis. (Default, 0)
+expThreshVoltageCut = 95;
+expThreshDiffCut = 95;
 
 ---
 ### Questions and comments

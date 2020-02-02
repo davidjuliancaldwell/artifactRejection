@@ -30,6 +30,30 @@ function [startInds,endInds] = get_artifact_indices(rawSig,varargin)
 %     goodVec - vector (e.g. [1 2 4 10]) of the channel indices to use. If
 %              there are bad channels or stimulation channels for instance,
 %              they should be excluded from goodVec
+%onsetThreshold - This value is used as absolute valued z-score threshold
+%               to determine the onset of artifacts within a train. The differentiated
+%               smoothed signal is used to determine artifact onset. This is also used in
+%               determining how many stimulation pulses are within a train, by ensuring
+%               that beginning of each artifact is within a separate artifact pulse.
+%threshVoltageCut - This is used to help determine the end of each
+%               individual artifact pulse dynamically. More specifically, this is a
+%               percentile value, against which the absolute valued, z-scored smoothed raw
+%               signal is compared to find the last value which exceeds the specified
+%               percentile voltage value. Higher values of this (i.e. closer to 100)
+%               result in a shorter duration artifact, while lower values result in a
+%               longer calculated duration of artifact. This parameter therefore should
+%               likely be set higher for more transient artifacts and lower for longer
+%               artifacts.
+%threshDiffCut - This is used to help determine the end of each individual
+%               artifact pulse dynamically. More specifically, this is a percentile value,
+%               against which the absolute valued, z-scored differentiated smoothed raw
+%               signal is compared to find the last value which exceeds the specified
+%               percentile voltage value. Higher values of this (i.e. closer to 100)
+%               result in a shorter duration artifact, while lower values result in a
+%               longer calculated duration of artifact. This parameter therefore should
+%               likely be set higher for more transient artifacts and lower for longer
+%               artifacts.
+%
 %
 % Returns:
 %      startInds - cell array of the start indices each artifact for each
@@ -182,11 +206,11 @@ for trial = 1:size(rawSig,3)
             tDiff = 1e3*(0:length(diffSig(:,chanInt,trial))-1)/fs;
             tRaw = 1e3*(0:length(rawSig(:,chanInt,trial))-1)/fs;
             figure
-            p1 =   subplot(2,1,2);
+            p1 =   subplot(2,1,1);
             plot(tDiff,abs(zscore(diffSig(:,chanInt,trial))),'linewidth',2,'color','k');
             h1 = vline(1e3*startInds{trial}{chanInt}/fs);
             h2 = vline(1e3*endInds{trial}{chanInt}/fs,'b:');
-            ylabel('Voltage (mV)')
+            ylabel('Z-score')
             xlabel('Time (ms)')
             title('Absolute Value Z-Scored Differentiated Smoothed Signal')
             set(gca,'fontsize',18)
@@ -196,7 +220,7 @@ for trial = 1:size(rawSig,3)
             plot(tRaw,abs(zscore(rawSig(:,chanInt,trial))),'linewidth',2,'color','k');
             vline(1e3*startInds{trial}{chanInt}/fs)
             vline(1e3*endInds{trial}{chanInt}/fs,'b:')
-            ylabel('Voltage (mV)')
+            ylabel('Z-score')
             xlabel('Time (ms)')
             title('Absolute Value Z-Scored Raw Signal')
             set(gca,'fontsize',18)
