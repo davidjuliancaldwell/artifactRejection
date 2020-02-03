@@ -25,7 +25,7 @@ close all;clear all;clc
 
 %%
 % choose data file of interest
-for dataChoice = [2]
+for dataChoice = [1]
 
     switch dataChoice
 
