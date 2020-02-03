@@ -10,7 +10,11 @@ To use example data and to have all of the code required to perform the processi
 #### Description of folders and files
 
 The script to call and run section by section is:
-**artifact_rejection_script.m** - Running this script will generate figures in the style presenting in the manuscript.
+**artifact_rejection_script.m** - Running this script will generate figures in the style presenting in the manuscript (Figures 1, 2, 3, 4, 5 (panel a, b, c), 7, 8, and the supplemental figures)
+
+ **haptic_touch_script.m** will create the natural haptic touch figures for Figure 5, panel d, e, and f, in the manuscript.
+
+  **button_press_script.m** will create the figures for Figure 6 in the manuscript.
 
 The **+analyFunc** folder contains the bulk of the analysis functions called for processing human stimulation electrocorticography data. Some of the functions in this folder are described below, and can be accessed by analyFunc.(____)
 
