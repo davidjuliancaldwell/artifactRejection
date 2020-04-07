@@ -1,6 +1,6 @@
 function [normalizedData] = normalize_spectrogram_wavelet(dataRef,data)
 
-% time x freq x channel x trial 
+% freq x time x channel x trial 
 
 normalizedData = zeros(size(data));
 
