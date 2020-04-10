@@ -36,6 +36,12 @@ for dataChoice = [1]
             chanIntList = [4 12 21 28 19 18 36 38 44 43 30 33 41 34]; % these are the channels of interest to visualize in closer detail
             minDuration = 0.5; % minimum duration of artifact in ms
 
+            %%% trial 15 of subject 2 (out of 15 total trials), was a
+            %%% constant amplitude trial. This was included in the
+            %%% published analysis and figures (Figure 7, supplemental
+            %%% figure A2/A4), but does not change the meaning of these
+            %%% figures or the message of the paper. 14/15 of the trials
+            %%% have a train with initially high amplitude pulses. 
         case 2
             load('+data/a1355e_examplePriming_Prime_high.mat')
             trainDuration = [0 200]; % this is how long the stimulation train was
