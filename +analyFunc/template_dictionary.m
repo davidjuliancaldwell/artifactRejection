@@ -54,6 +54,9 @@ function [processedSig,templateArrayCellOutput] = template_dictionary(templateAr
 %               greater than this will be labelled as noise. Increasing this value
 %               results in fewer points being labelled as noise (Default, 0.95)
 %
+% useProcrustes - use procrustes distance to match artifact to each trial prior to subtraction, defaults to 0 
+%
+%
 % Returns:
 %      startInds - cell array of the start indices each artifact for each
 %      channel and trial - startInds{trial}{channel}
@@ -106,6 +109,9 @@ addParameter(p,'minPts',2,@isnumeric);
 addParameter(p,'minClustSize',3,@isnumeric);
 addParameter(p,'outlierThresh',0.95,@isnumeric);
 
+addParameter(p,'useProcrustes',0,@(x) x==0 || x ==1);
+
+
 p.parse(templateArrayCell,templateTrial,rawSig,fs,varargin{:});
 
 templateArrayCell = p.Results.templateArrayCell;
@@ -136,6 +142,9 @@ chanInt = p.Results.chanInt;
 minPts = p.Results.minPts;
 minClustSize = p.Results.minClustSize;
 outlierThresh = p.Results.outlierThresh;
+
+useProcrustes = p.Results.useProcrustes;
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 templateArrayCellOutput = {};
@@ -440,14 +449,21 @@ for trial = 1:size(rawSig,3)
             % scaling
             % scaling = mean([max(rawSigTemp(win))/max(templateSubtract),min(rawSigTemp(win))/min(templateSubtract)]);
             %    scaling = max(rawSigTemp(win))/max(templateSubtract);
-            scaling = (max(extractedSig) - min(extractedSig))/(max(templateSubtract) - min(templateSubtract));
+            % scaling = (max(extractedSig) - min(extractedSig))/(max(templateSubtract) - min(templateSubtract));
             %   scaling = [ones(length(extractedSig),1),templateSubtract]\extractedSig;
             %   templateSubtract = templateSubtract*scaling(2)+scaling(1);
             
             %  scaling = templateSubtract\extractedSig;
-            templateSubtract = templateSubtract*scaling;
+            %templateSubtract = templateSubtract*scaling;
             
-            
+            if useProcrustes
+                [d,templateSubtract] = procrustes(extractedSig,templateSubtract);
+                
+            else
+                scaling = (max(extractedSig) - min(extractedSig))/(max(templateSubtract) - min(templateSubtract));
+                templateSubtract = templateSubtract*scaling;
+                
+            end
             rawSigTemp(win) = rawSigTemp(win) - templateSubtract;
             
             if plotIt && chan == chanInt && (sts == 1 || sts == 2 || sts == 10) && firstLoopChan

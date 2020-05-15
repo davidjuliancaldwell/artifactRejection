@@ -54,6 +54,8 @@ addParameter(p,'minPts',2,@isnumeric);
 addParameter(p,'minClustSize',3,@isnumeric);
 addParameter(p,'outlierThresh',0.95,@isnumeric);
 
+addParameter(p,'useProcrustes',0,@(x) x==0 || x ==1);
+
 p.parse(rawSig,varargin{:});
 
 rawSig = p.Results.rawSig;
@@ -93,6 +95,8 @@ chanInt = p.Results.chanInt;
 minPts = p.Results.minPts;
 minClustSize = p.Results.minClustSize;
 outlierThresh = p.Results.outlierThresh;
+
+useProcrustes = p.Results.useProcrustes;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % define matrix of zeros
@@ -129,7 +133,7 @@ switch type
             'distanceMetricDbscan',distanceMetricDbscan,'distanceMetricSigMatch',distanceMetricSigMatch,...
             'goodVec',goodVec,'startInds',startInds,'endInds',endInds,'recoverExp',recoverExp,'maxAmps',maxAmps,...
             'normalize',normalize,'amntPreAverage',amntPreAverage,'maxLocation',maxLocation,'bracketRange',bracketRange,...
-            'expThreshDiffCut',expThreshDiffCut,'expThreshVoltageCut',expThreshVoltageCut,'chanInt',chanInt,'minPts',minPts,'minClustSize',minClustSize,'outlierThresh',outlierThresh);
+            'expThreshDiffCut',expThreshDiffCut,'expThreshVoltageCut',expThreshVoltageCut,'chanInt',chanInt,'minPts',minPts,'minClustSize',minClustSize,'outlierThresh',outlierThresh,'useProcrustes',useProcrustes);
         
     case 'average'
         [processedSig,templateArrayCellOutput] = analyFunc.template_average(templateArrayCell,rawSig,'plotIt',plotIt...,
