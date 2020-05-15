@@ -14,7 +14,8 @@ function [startInds,endInds] = get_artifact_indices(rawSig,varargin)
 %   Optional:
 %useFixedEnd - use a fixed end distance (1), or dynamically calculate the
 %              offset of each stimulus pulse
-%      fixedDistance - the maximum distance in ms to either look beyond
+%      fixedDistance - the maximum distance in ms in either case to look
+%              beyond, need to ensure whole artifact is in this window
 %        pre - the number of ms before which the stimulation pulse onset as
 %              detected by a thresholding method should still be considered
 %              as artifact

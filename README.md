@@ -50,6 +50,9 @@ We have found the parameters included for many of the variables which are used t
 **tEpoch** = epoched time window (s)
 
  **minDuration** = minimum duration of artifact in ms (0.5 ms as default for 200 &mu;s pulses, 0.25 ms for 60 &mu;s pulses )
+
+ **fixedDuration** = window in ms that you know has the entire artfiact
+ 
 #### parameters used for get_artifact_indices.m
  **pre** = default time window to extend before the artifact pulse to ensure the artifact is appropriately detected (0.8 ms as default)
 
