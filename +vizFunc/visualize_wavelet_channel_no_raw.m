@@ -30,14 +30,14 @@ if individual
         % Plot the mesh lines
         % Plotting lines in the X-Z plane
         hold on
-        for i = 1:2
-            Y1 = interestY(i)*ones(size(x)); % a constant vector
+        for ii = 1:2
+            Y1 = interestY(ii)*ones(size(x)); % a constant vector
             Z1 = zeros(size(x));
             plot3(x,Y1,Z1,'-k');
         end
         % Plotting lines in the Y-Z plane
-        for i = 1:2
-            X2 = interestX(i)*ones(size(y)); % a constant vector
+        for ii = 1:2
+            X2 = interestX(ii)*ones(size(y)); % a constant vector
             Z1 = zeros(size(X2));
             plot3(X2,y,Z1,'-k');
         end
@@ -58,7 +58,7 @@ if individual
         xlabel('Time (ms)');
         ylabel('Voltage (mV)')
         title(['Recovered Signal Channel ' num2str(chanInt) ' Trial ' num2str(i)]);
-        ylims = [-(max(abs(1e3*nanmean(squeeze(processedSig(:,chanInt,:)),2)))+0.01) (max(abs(1e3*nanmean(squeeze(processedSig(:,chanInt,:)),2))))+0.01];
+        ylims = [-(max(abs(1e3*processedSig(:,chanInt,i))) + 0.01) (max(abs(1e3*processedSig(:,chanInt,i))) + 0.01)];
         ylim(ylims);
         ylim_h1 = ylims;
         xlim(xlims);

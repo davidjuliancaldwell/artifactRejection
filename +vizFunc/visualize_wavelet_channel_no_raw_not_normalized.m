@@ -50,7 +50,6 @@ if individual
         ylim(ylimsVec);
         set(gca,'fontsize',8)
         colormap(CT);
-        vizFunc.set_colormap_threshold(gcf, [-0.5 0.5], [-2 2], [1 1 1])
         
         h1 = subplot(2,1,1);
         plot(1e3*tEpoch,1e3*processedSig(:,chanInt,i),'color',[204 85 0]/255,'linewidth',1)
