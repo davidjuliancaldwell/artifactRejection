@@ -273,8 +273,9 @@ for chan = goodVec
         plot(t,1e3*templateArrayShortened,'color',[0.75 0.75 0.75])
         hold on
         h2 = plot(t,1e3*templateArrayExtracted(maxLocation+bracketRange,:),'linewidth',2);
-        set(h2, {'color'}, num2cell(colors(1:length(C)-1,:),2));
-        
+        if length(C)>1
+            set(h2, {'color'}, num2cell(colors(1:length(C)-1,:),2));
+        end
         colormap( colors );
         ylabel('Voltage (mV)')
         xlabel('Time (ms)')
@@ -303,8 +304,10 @@ for chan = goodVec
         plot(t,1e3*templateArrayShortened,'color',[0.75 0.75 0.75])
         hold on
         h2 = plot(t,1e3*templateArrayExtracted(maxLocation+bracketRange,:),'linewidth',2);
-        set(h2, {'color'}, num2cell(colors(1:length(C)-1,:),2));
-        
+        if length(C)>1
+            
+            set(h2, {'color'}, num2cell(colors(1:length(C)-1,:),2));
+        end
         colormap( colors );
         
         ylabel('Voltage (mV)')
