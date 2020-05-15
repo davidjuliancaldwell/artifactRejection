@@ -194,13 +194,14 @@ for trial = 1:size(processedSigStim,3)
     processedSigHGStim(:,:,trial) = amp;
 end
 %%
+xlimsButtonWavelet = [-200 800];
 % chanIntList = chanInt;
 for chanInt = chanIntList
     % vizFunc.visualize_wavelet_channel_no_raw_not_normalized(poweroutNoStim,tMorlet,fMorlet,epochedDataNoStim,...
     %         tEpoch,chanInt,individual,average)
     
     vizFunc.visualize_wavelet_channel_button(normalizedDataNoStim,tMorlet,fMorlet,epochedDataNoStim,...
-        tEpoch,epochedDataNoStimRaw,chanInt,individual,average)
+        tEpoch,epochedDataNoStimRaw,chanInt,individual,average,xlimsButtonWavelet)
     
     figure
     plot(1e3*tMorlet,mean(squeeze(HGPowerWaveletNoStim(:,chanInt,:)),2))

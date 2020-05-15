@@ -325,12 +325,12 @@ for dataChoice = [1]
         
         for chanInt = chanIntList
             vizFunc.visualize_wavelet_channel_no_raw(normalizedData,tMorlet,fMorlet,processedSig,...
-                tEpoch,chanInt,individual,average)
+                tEpoch,chanInt,individual,average,xlims)
         end
         
         for chanInt = chanIntList
             vizFunc.visualize_wavelet_channel(normalizedData,tMorlet,fMorlet,processedSig,...
-                tEpoch,dataInt,chanInt,individual,average)
+                tEpoch,dataInt,chanInt,individual,average,xlims)
         end
         %         %
         %         for chanInt = chanIntList
@@ -344,10 +344,11 @@ for dataChoice = [1]
     end
     %%
     if dataChoice == 3
+        xlimsRawVProc = [-200 1000];
         individual = 0;
         average = 1;
         for chanInt = chanIntList
-            vizFunc.visualize_raw_vs_processed(processedSig,tEpoch,dataInt,chanInt,individual,average)
+            vizFunc.visualize_raw_vs_processed(processedSig,tEpoch,dataInt,chanInt,individual,average,xlimsRawVProc)
         end
     end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -483,9 +484,10 @@ average = 1;
 %             tEpoch,dataInt,chanInt,individual,average)
 %      end
 %     %%
+xlims = [-200 1000];
 for chanInt = chanIntList
     vizFunc.visualize_wavelet_channel_small(normalizedData,tMorlet,fMorlet,processedSig,...
-        tEpoch,dataInt,chanInt,individual,average)
+        tEpoch,dataInt,chanInt,individual,average,xlims)
     
     %vizFunc.visualize_wavelet_channel_small(normalizedData_cwt,tEpoch,fMorlet_cwt,processedSig,...
     %    tEpoch,dataInt,chanInt,individual,average)
@@ -527,20 +529,20 @@ dataRef = powerout(:,tMorlet<0.05 & tMorlet>-0.8,:,:);
 individual = 0;
 average = 1;
 %%
-
+xlims = [-200 1000];
 for chanInt = chanIntList
     vizFunc.visualize_wavelet_channel_no_raw(normalizedData,tMorlet,fMorlet,processedSig,...
-        tEpoch,chanInt,individual,average)
+        tEpoch,chanInt,individual,average,xlims)
 end
 %
 for chanInt = chanIntList
     vizFunc.visualize_wavelet_channel(normalizedData,tMorlet,fMorlet,processedSig,...
-        tEpoch,dataInt,chanInt,individual,average)
+        tEpoch,dataInt,chanInt,individual,average,xlims)
 end
 %
 for chanInt = chanIntList
     vizFunc.visualize_wavelet_channel_small(normalizedData,tMorlet,fMorlet,processedSig,...
-        tEpoch,dataInt,chanInt,individual,average)
+        tEpoch,dataInt,chanInt,individual,average,xlims)
 end
 
 %%
@@ -597,18 +599,19 @@ dataRef = powerout(:,tMorlet<0.05 & tMorlet>-0.8,:,:);
 individual = 0;
 average = 1;
 %
+xlims = [-200 1000];
 
 for chanInt = chanIntList
     vizFunc.visualize_wavelet_channel_no_raw(normalizedData,tMorlet,fMorlet,processedSig,...
-        tEpoch,chanInt,individual,average)
+        tEpoch,chanInt,individual,average,xlims)
 end
 %
 for chanInt = chanIntList
     vizFunc.visualize_wavelet_channel(normalizedData,tMorlet,fMorlet,processedSig,...
-        tEpoch,dataInt,chanInt,individual,average)
+        tEpoch,dataInt,chanInt,individual,average,xlims)
 end
 %
 for chanInt = chanIntList
     vizFunc.visualize_wavelet_channel_small(normalizedData,tMorlet,fMorlet,processedSig,...
-        tEpoch,dataInt,chanInt,individual,average)
+        tEpoch,dataInt,chanInt,individual,average,xlims)
 end

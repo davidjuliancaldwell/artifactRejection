@@ -1,10 +1,11 @@
-function [] = visualize_wavelet_channel_no_raw_not_normalized(powerout,tMorlet,fMorlet,processedSig,tEpoch,chanInt,individual,average)
+function [] = visualize_wavelet_channel_no_raw_not_normalized(powerout,tMorlet,fMorlet,processedSig,tEpoch,chanInt,individual,average,xlims)
 % set colormap using cbrewer
 %CT = cbrewer('div','RdBu',11);
 % flip it so red is increase, blue is down
 %CT = flipud(CT);
 load('america');
 CT = cm;
+xlimsVec = xlims;
 if individual
     
     for i = 1:size(powerout,4)
@@ -17,7 +18,6 @@ if individual
         x=s.XData;
         y=s.YData;
         z=s.ZData;
-        xlimsVec = [-200 1000];
         ylimsVec = [5 300];
         %%Create vectors out of surface's XData and YData
         x=x(1,:);
@@ -60,7 +60,7 @@ if individual
         ylims = [-(max(abs(1e3*nanmean(squeeze(processedSig(:,chanInt,:)),2)))-0.01) (max(abs(1e3*nanmean(squeeze(processedSig(:,chanInt,:)),2))))+0.01];
         ylim(ylims);
         ylim_h1 = ylims;
-        xlim([-200 1000]);
+        xlim(xlimsVec);
         set(gca,'fontsize',8,'Xlabel',[])
         
     end
@@ -77,7 +77,6 @@ if average
     subplot(2,1,2);
     s = surf(1e3*tMorlet,fMorlet,poweroutAvg,'edgecolor','none');
     hold on
-    xlimsVec = [-2000 1000];
     ylimsVec = [5 300];
     % Extract X,Y and Z data from surface plot
     x=s.XData;
@@ -126,7 +125,7 @@ if average
     title(['Recovered Signal Channel ' num2str(chanInt)]);
     ylims = [-(max(abs(1e3*nanmean(squeeze(processedSig(:,chanInt,:)),2)))-0.01) (max(abs(1e3*nanmean(squeeze(processedSig(:,chanInt,:)),2))))+0.01];
   %  ylim(ylims);
-    xlim([-2000 1000]);
+    xlim(xlims);
     
     set(gca,'fontsize',8,'Xlabel',[])
     

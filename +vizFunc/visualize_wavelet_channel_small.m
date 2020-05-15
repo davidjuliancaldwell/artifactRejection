@@ -1,10 +1,14 @@
-function [] = visualize_wavelet_channel_small(powerout,tMorlet,fMorlet,processedSig,tEpoch,dataInt,chanInt,individual,average)
+function [] = visualize_wavelet_channel_small(powerout,tMorlet,fMorlet,processedSig,tEpoch,dataInt,chanInt,individual,average,xlims)
 % set colormap using cbrewer
 %CT = cbrewer('div','RdBu',11);
 % flip it so red is increase, blue is down
 %CT = flipud(CT);
 load('america');
 CT = cm;
+xlimsVec = xlims;
+ylimsVec = [5 300];
+
+
 if individual
     
     for i = 1:size(powerout,4)
@@ -59,7 +63,7 @@ if individual
         ylims = [-(max(abs(1e3*processedSig(:,chanInt,i))) + 10) (max(abs(1e3*processedSig(:,chanInt,i))) + 10)];
         ylim(ylims);
         ylim_h1 = ylims;
-        xlim([-200 1000]);
+        xlim(xlims);
         set(gca,'fontsize',14,'Xlabel',[])
         
         h2 = subplot(3,1,1);
@@ -68,7 +72,7 @@ if individual
         ylabel('Voltage (mV)')
         title(['Raw Signal Channel ' num2str(chanInt) ' Trial ' num2str(i)]);
         ylim(ylim_h1);
-        xlim([-200 1000]);
+        xlim(xlims);
         set(gca,'fontsize',14,'Xlabel',[])
         
         linkaxes([h1,h2],'xy');
@@ -87,8 +91,6 @@ if average
     subplot(3,1,3);
     s = surf(1e3*tMorlet,fMorlet,poweroutAvg,'edgecolor','none');
     hold on
-    xlimsVec = [-200 1000];
-    ylimsVec = [5 300];
     % Extract X,Y and Z data from surface plot
     x=s.XData;
     y=s.YData;
@@ -137,7 +139,7 @@ if average
     ylims = [-(max(abs(1e3*nanmean(squeeze(processedSig(:,chanInt,:)),2))) + 10) (max(abs(1e3*nanmean(squeeze(processedSig(:,chanInt,:)),2))) + 10)];
     ylim(ylims);
     ylim_h1 = ylims;
-    xlim([-200 1000]);
+    xlim(xlims);
     
     set(gca,'fontsize',10,'Xlabel',[])
     
@@ -147,7 +149,7 @@ if average
     ylabel('Voltage (mV)')
     title(['Raw Signal Channel ' num2str(chanInt)]);
     ylim(ylim_h1);
-    xlim([-200 1000]);
+    xlim(xlims);
     set(gca,'fontsize',10,'Xlabel',[])
     
     linkaxes([h3,h4],'xy');

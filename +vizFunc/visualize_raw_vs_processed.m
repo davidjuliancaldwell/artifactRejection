@@ -1,4 +1,5 @@
-function [] = visualize_raw_vs_processed(processedSig,tEpoch,dataInt,chanInt,individual,average)
+function [] = visualize_raw_vs_processed(processedSig,tEpoch,dataInt,chanInt,individual,average,xlims)
+
 
 if individual
     
@@ -12,7 +13,7 @@ if individual
         ylims = [-(max(abs(1e3*processedSig(:,chanInt,i))) + 10) (max(abs(1e3*processedSig(:,chanInt,i))) + 10)];
         ylim(ylims);
         ylim_h1 = ylims;
-        xlim([-200 1000]);
+        xlim(xlims);
         set(gca,'fontsize',14,'Xlabel',[])
         
         h2 = subplot(2,1,1);
@@ -21,7 +22,7 @@ if individual
         ylabel('Voltage (mV)')
         title(['Raw Signal Channel ' num2str(chanInt) ' Trial ' num2str(i)]);
         ylim(ylim_h1);
-        xlim([-200 1000]);
+        xlim(xlims);
         set(gca,'fontsize',14,'Xlabel',[])
         
         linkaxes([h1,h2],'xy');
@@ -44,7 +45,7 @@ if average
     ylims = [-(max(abs(1e3*nanmean(squeeze(processedSig(:,chanInt,:)),2))) + 10) (max(abs(1e3*nanmean(squeeze(processedSig(:,chanInt,:)),2))) + 10)];
     ylim(ylims);
     ylim_h1 = ylims;
-    xlim([-200 1000]);
+    xlim(xlims);
     
     set(gca,'fontsize',12,'Xlabel',[])
     
@@ -54,7 +55,7 @@ if average
     ylabel('Voltage (mV)')
     title(['Raw Signal Channel ' num2str(chanInt)]);
     ylim(ylim_h1);
-    xlim([-200 1000]);
+    xlim(xlims);
     set(gca,'fontsize',12,'Xlabel',[])
     
     linkaxes([h3,h4],'xy');

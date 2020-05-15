@@ -1,10 +1,12 @@
-function [] = visualize_wavelet_channel_button(powerout,tMorlet,fMorlet,processedSig,tEpoch,dataInt,chanInt,individual,average)
+function [] = visualize_wavelet_channel_button(powerout,tMorlet,fMorlet,processedSig,tEpoch,dataInt,chanInt,individual,average,xlims)
 % set colormap using cbrewer
 %CT = cbrewer('div','RdBu',11);
 % flip it so red is increase, blue is down
 %CT = flipud(CT);
 load('america');
 CT = cm;
+xlimsVec = xlims;
+
 if individual
     
     for i = 1:size(powerout,4)
@@ -17,7 +19,6 @@ if individual
         x=s.XData;
         y=s.YData;
         z=s.ZData;
-        xlimsVec = [-200 1000];
         ylimsVec = [5 300];
         %%Create vectors out of surface's XData and YData
         x=x(1,:);
@@ -60,7 +61,7 @@ if individual
         ylims = [-(max(abs(1e3*nanmean(squeeze(processedSig(:,chanInt,:)),2)))+0.02) (max(abs(1e3*nanmean(squeeze(processedSig(:,chanInt,:)),2))))+0.02];
         ylim(ylims);
         ylim_h1 = ylims;
-        xlim([-200 1000]);
+        xlim(xlims);
         
               h2 = subplot(3,1,1);
         plot(1e3*tEpoch,1e3*dataInt(:,chanInt,i),'color','k','linewidth',3)
@@ -68,7 +69,7 @@ if individual
         ylabel('Voltage (mV)')
         title(['Raw Signal Channel ' num2str(chanInt) ' Trial ' num2str(i)]);
         ylim(ylim_h1);
-        xlim([-200 800]);
+        xlim(xlims);
         set(gca,'fontsize',14,'Xlabel',[])
         
         linkaxes([h1,h2],'xy');
@@ -137,7 +138,7 @@ if average
     title(['Recovered Signal Channel ' num2str(chanInt)]);
     ylims = [-(max(abs(1e3*nanmean(squeeze(processedSig(:,chanInt,:)),2)))+0.02) (max(abs(1e3*nanmean(squeeze(processedSig(:,chanInt,:)),2))))+0.02];
     ylim(ylims);
-    xlim([-200 800]);
+    xlim(xlims);
         
         set(gca,'fontsize',12,'Xlabel',[])
     
@@ -147,7 +148,7 @@ if average
     ylabel('Voltage (mV)')
     title(['Raw Signal Channel ' num2str(chanInt)]);
     ylim(ylims);
-    xlim([-200 800]);
+    xlim(xlims);
     set(gca,'fontsize',12,'Xlabel',[])
     
     linkaxes([h3,h4],'xy');
