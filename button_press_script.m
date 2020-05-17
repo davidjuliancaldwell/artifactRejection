@@ -226,7 +226,7 @@ for chanInt = chanIntList
     %         tEpoch,chanInt,individual,average)
     
     vizFunc.visualize_wavelet_channel_button(normalizedDataStim,tMorlet,fMorlet,processedSigStim,...
-        tEpoch,epochedDataStim,chanInt,individual,average)
+        tEpoch,epochedDataStim,chanInt,individual,average,xlimsButtonWavelet)
     
     figure
     plot(1e3*tMorlet,mean(squeeze(HGPowerWaveletStim(:,chanInt,:)),2))
