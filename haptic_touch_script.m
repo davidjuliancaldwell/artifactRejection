@@ -130,6 +130,8 @@ dataRef = powerout(:,tMorlet<0.05 & tMorlet>-0.8,:,:);
 
 [normalizedData_baseline_fusion] = analyFunc.normalize_spectrogram_wavelet_fused_baseline(dataRef,powerout);
 
+normalizedData_baseline_on_avg = analyFunc.normalize_spectrogram_wavelet_on_avg_signal(dataRef,powerout);
+
 individual = 0;
 average = 1;
 % chanIntLIst = 42;
@@ -155,6 +157,9 @@ for chanInt = chanIntList
         tEpoch,dataInt,chanInt,individual,average,xlims)
     
     vizFunc.visualize_wavelet_channel(normalizedData_baseline_fusion,tMorlet,fMorlet,processedSig,...
+        tEpoch,dataInt,chanInt,individual,average,xlims)
+    
+        vizFunc.visualize_wavelet_channel(normalizedData_baseline_on_avg,tMorlet,fMorlet,processedSig,...
         tEpoch,dataInt,chanInt,individual,average,xlims)
     
    % vizFunc.visualize_wavelet_channel(normalizedDataReref,tMorlet,fMorlet,processedSigReref,...
