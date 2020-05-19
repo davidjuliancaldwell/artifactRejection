@@ -115,7 +115,7 @@ vizFunc.multiple_visualizations(processedSig,dataInt,'fs',fsData,'type',type,'tE
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% wavelet 
+%% wavelet
 timeRes = 0.01; % 10 ms bins
 
 [powerout,fMorlet,tMorlet,~] = analyFunc.waveletWrapper(processedSig,fsData,timeRes,stimChans);
@@ -124,7 +124,11 @@ tMorlet = linspace(-preStim,postStim,length(tMorlet))/1e3;
 % normalize data
 dataRef = powerout(:,tMorlet<0.05 & tMorlet>-0.8,:,:);
 %
-[normalizedData] = normalize_spectrogram_wavelet(dataRef,powerout);
+[normalizedData] = analyFunc.normalize_spectrogram_wavelet(dataRef,powerout);
+
+[normalizedData_avg] = analyFunc.normalize_spectrogram_wavelet_avg(dataRef,powerout);
+
+[normalizedData_baseline_fusion] = analyFunc.normalize_spectrogram_wavelet_fused_baseline(dataRef,powerout);
 
 individual = 0;
 average = 1;
@@ -136,7 +140,7 @@ tMorlet = linspace(-preStim,postStim,length(tMorlet))/1e3;
 
 dataRefReref = poweroutReref(:,tMorlet<0.05 & tMorlet>-0.8,:,:);
 
-[normalizedDataReref] = normalize_spectrogram_wavelet(dataRefReref,poweroutReref);
+[normalizedDataReref] = analyFunc.normalize_spectrogram_wavelet(dataRefReref,poweroutReref);
 
 %%
 % chanIntList = chanInt;
@@ -147,8 +151,14 @@ for chanInt = chanIntList
     vizFunc.visualize_wavelet_channel(normalizedData,tMorlet,fMorlet,processedSig,...
         tEpoch,dataInt,chanInt,individual,average,xlims)
     
-    vizFunc.visualize_wavelet_channel(normalizedDataReref,tMorlet,fMorlet,processedSigReref,...
+    vizFunc.visualize_wavelet_channel(normalizedData_avg,tMorlet,fMorlet,processedSig,...
         tEpoch,dataInt,chanInt,individual,average,xlims)
+    
+    vizFunc.visualize_wavelet_channel(normalizedData_baseline_fusion,tMorlet,fMorlet,processedSig,...
+        tEpoch,dataInt,chanInt,individual,average,xlims)
+    
+   % vizFunc.visualize_wavelet_channel(normalizedDataReref,tMorlet,fMorlet,processedSigReref,...
+   %     tEpoch,dataInt,chanInt,individual,average,xlims)
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
