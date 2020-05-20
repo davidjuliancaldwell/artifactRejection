@@ -127,6 +127,53 @@ trainDuration = [0 0];
 %         'chanIntList',chanIntList,'templateTrial',templateTrial,'templateDictCell',templateDictCell,'modePlot','confInt')
 %     %
 average = 1;
+
+%% generate synthetic data
+
+synthetic_signal = epochedDataNoStimRaw;
+
+for trial = 1:size(epochedDataNoStimRaw,3)
+    for channel = 1:size(epochedDataNoStimRaw,2)
+        if sum(channel==stimChans)==0
+            start_inds_chan = startInds{trial}{channel};
+            template_trial_ind = templateTrial{channel}{trial};
+            length_templates = size(template_trial_ind,1);
+            for pulse = 1:size(template_trial_ind,2)
+                synthetic_signal(start_inds_chan(pulse):start_inds_chan(pulse)+length_templates-1,channel,trial) =   epochedDataNoStimRaw(start_inds_chan(pulse):start_inds_chan(pulse)+length_templates-1,channel,trial) + template_trial_ind(:,pulse);
+                
+            end
+        end
+    end
+    
+end
+
+%%
+minPtsSyn = 2;
+minClustSizeSyn = 3;
+% minPts = 2;
+% minClustSize = 3;
+outlierThreshSyn = 0.9;
+
+[processedSigStimSyn,templateDictCellSyn,templateTrialSyn,startIndsSyn,endIndsSyn] = analyFunc.template_subtract(synthetic_signal,'type',type,...
+    'fs',fsData,'plotIt',plotIt,'pre',pre,'post',post,'stimChans',stimChans,...
+    'useFixedEnd',useFixedEnd,'fixedDistance',fixedDistance,...,
+    'distanceMetricDbscan',distanceMetricDbscan,'distanceMetricSigMatch',distanceMetricSigMatch,...
+    'recoverExp',recoverExp,'normalize',normalize,'amntPreAverage',amntPreAverage,...
+    'minDuration',minDuration,'bracketRange',bracketRange,'threshVoltageCut',threshVoltageCut,...
+    'threshDiffCut',threshDiffCut,'expThreshVoltageCut',expThreshVoltageCut,...
+    'expThreshDiffCut',expThreshDiffCut,'onsetThreshold',onsetThreshold,'chanInt',chanInt,...
+    'minPts',minPtsSyn,'minClustSize',minClustSizeSyn,'outlierThresh',outlierThreshSyn);
+
+%%
+figure
+chanIntList = [ 8 13 14 15 22 27 29 30];
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    vizFunc.multiple_visualizations(processedSigStimSyn,epochedDataNoStimRaw,'fs',fsData,'type',type,'tEpoch',...
+        tEpoch,'xlims',xlims,'trainDuration',trainDuration,'stimChans',stimChans,...,
+        'chanIntList',chanIntList,'templateTrial',templateTrial,'templateDictCell',templateDictCell,'modePlot','confInt')
+    %
+
 %%
 
 rerefMode = 'mean';
