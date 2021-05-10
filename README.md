@@ -4,7 +4,7 @@ This is the readme file for the processing of stimulation related data in human 
 
 To use example data and to have all of the code required to perform the processing, clone the github repository, and download the data in the google drive link below. To run the code on the example data, place the data linked below in a folder named **+data**, in the same directory as the main script .
 
-**https://drive.google.com/open?id=1yoOty7SPI9mcNtWc16nakC6kCDz_QtL4**
+**https://drive.google.com/drive/folders/1YzM5Os3LHC5FsKMuOTzIqLbhQwb-0reN?usp=sharing**
 
 ---
 #### Description of folders and files
